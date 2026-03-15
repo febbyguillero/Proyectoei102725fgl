@@ -21,7 +21,6 @@ public class UsuarioOVIDao {
         jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
-    // Añadir usuario
     public void addUsuario(UsuarioOVI usuario) {
         jdbcTemplate.update(
                 "INSERT INTO UsuariOVI (identificador_sgovi, contrasenya, email, nom, cognoms, telefon, adreca, dni, data_naixement, consentiment_informat, estat_tecnic_acceptat, tutor_legal_nom, tutor_legal_contacte) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
@@ -31,12 +30,10 @@ public class UsuarioOVIDao {
                 usuario.isEstatTecnicAcceptat(), usuario.getTutorLegalNom(), usuario.getTutorLegalContacte());
     }
 
-    // Eliminar usuario
     public void deleteUsuario(int idUsuari) {
         jdbcTemplate.update("DELETE FROM UsuariOVI WHERE id_usuari = ?", idUsuari);
     }
 
-    // Actualizar usuario
     public void updateUsuario(UsuarioOVI usuario) {
         jdbcTemplate.update(
                 "UPDATE UsuariOVI SET identificador_sgovi=?, contrasenya=?, email=?, nom=?, cognoms=?, telefon=?, adreca=?, dni=?, data_naixement=?, consentiment_informat=?, estat_tecnic_acceptat=?, tutor_legal_nom=?, tutor_legal_contacte=? WHERE id_usuari=?",
@@ -47,7 +44,6 @@ public class UsuarioOVIDao {
                 usuario.getIdUsuari());
     }
 
-    // Obtener usuario por ID
     public UsuarioOVI getUsuario(int idUsuari) {
         try {
             return jdbcTemplate.queryForObject(
@@ -58,7 +54,6 @@ public class UsuarioOVIDao {
         }
     }
 
-    // Obtener todos los usuarios
     public List<UsuarioOVI> getUsuarios() {
         try {
             return jdbcTemplate.query("SELECT * FROM UsuariOVI ORDER BY id_usuari",
