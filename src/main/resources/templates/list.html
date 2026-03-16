@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Lista de Usuarios OVI</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css">
+</head>
+<body>
+<main class="container mt-4">
+  <h1>Usuarios OVI</h1>
+
+  <a href="/usuario/add" class="btn btn-primary mb-3">Añadir Nuevo Usuario</a>
+  <a href="/" class="btn btn-secondary mb-3">Volver al Inicio</a>
+
+  <table class="table table-striped">
+    <thead>
+    <tr>
+      <th>ID</th>
+      <th>Identificador SGOVID</th>
+      <th>Email</th>
+      <th>Nombre</th>
+      <th>Apellidos</th>
+      <th>DNI</th>
+      <th>Teléfono</th>
+      <th>Acciones</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="usuario : ${usuarios}">
+      <td th:text="${usuario.idUsuari}">1</td>
+      <td th:text="${usuario.identificadorSgovi}">id123</td>
+      <td th:text="${usuario.email}">email@ejemplo.com</td>
+      <td th:text="${usuario.nom}">Nombre</td>
+      <td th:text="${usuario.cognoms}">Apellidos</td>
+      <td th:text="${usuario.dni}">12345678A</td>
+      <td th:text="${usuario.telefon}">123456789</td>
+      <td>
+        <a th:href="@{/usuario/update/{id}(id=${usuario.idUsuari})}" class="btn btn-sm btn-warning">Editar</a>
+        <a th:href="@{/usuario/delete/{id}(id=${usuario.idUsuari})}" class="btn btn-sm btn-danger"
+           onclick="return confirm('¿Estás seguro de eliminar este usuario?')">Eliminar</a>
+      </td>
+    </tr>
+    </tbody>
+  </table>
+</main>
+</body>
+</html>
