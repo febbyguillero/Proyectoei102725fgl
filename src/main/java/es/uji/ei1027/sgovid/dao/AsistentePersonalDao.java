@@ -1,7 +1,7 @@
-package dao;
+package es.uji.ei1027.sgovid.dao;
 
-import model.AsistentePersonal;
-import rowmapper.AsistentePersonalRowMapper;
+import es.uji.ei1027.sgovid.model.AsistentePersonal;
+import es.uji.ei1027.sgovid.rowmapper.AsistentePersonalRowMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;

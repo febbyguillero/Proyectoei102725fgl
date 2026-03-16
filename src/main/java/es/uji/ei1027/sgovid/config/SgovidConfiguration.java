@@ -1,3 +1,5 @@
+package es.uji.ei1027.sgovid.config;
+
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;

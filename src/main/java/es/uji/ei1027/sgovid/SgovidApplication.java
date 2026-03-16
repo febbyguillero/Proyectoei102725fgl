@@ -1,3 +1,5 @@
+package es.uji.ei1027.sgovid;
+
 import java.util.logging.Logger;
 
 import org.springframework.boot.CommandLineRunner;

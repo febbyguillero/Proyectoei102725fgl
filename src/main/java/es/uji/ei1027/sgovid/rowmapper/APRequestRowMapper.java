@@ -1,6 +1,6 @@
-package rowmapper;
+package es.uji.ei1027.sgovid.rowmapper;
 
-import model.APRequest;
+import es.uji.ei1027.sgovid.model.APRequest;
 import org.springframework.jdbc.core.RowMapper;
 
 import java.sql.ResultSet;

@@ -1,4 +1,4 @@
-package model;
+package es.uji.ei1027.sgovid.model;
 
 import java.time.LocalDate;
 

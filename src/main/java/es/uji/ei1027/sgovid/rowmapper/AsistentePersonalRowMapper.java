@@ -1,6 +1,6 @@
-package rowmapper;
+package es.uji.ei1027.sgovid.rowmapper;
 
-import model.AsistentePersonal;
+import es.uji.ei1027.sgovid.model.AsistentePersonal;
 import org.springframework.jdbc.core.RowMapper;
 
 import java.sql.ResultSet;

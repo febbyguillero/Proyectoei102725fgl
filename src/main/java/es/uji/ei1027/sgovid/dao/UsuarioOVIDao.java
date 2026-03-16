@@ -1,7 +1,7 @@
-package dao;
+package es.uji.ei1027.sgovid.dao;
 
-import model.UsuarioOVI;
-import rowmapper.UsuarioOVIRowMapper;
+import es.uji.ei1027.sgovid.model.UsuarioOVI;
+import es.uji.ei1027.sgovid.rowmapper.UsuarioOVIRowMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;

@@ -1,4 +1,4 @@
-package model;
+package es.uji.ei1027.sgovid.model;
 
 public class AsistentePersonal {
     private String dni;

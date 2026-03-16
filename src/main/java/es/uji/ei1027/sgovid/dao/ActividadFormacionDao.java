@@ -1,7 +1,7 @@
-package dao;
+package es.uji.ei1027.sgovid.dao;
 
-import model.ActividadFormacion;
-import rowmapper.ActividadFormacionRowMapper;
+import es.uji.ei1027.sgovid.model.ActividadFormacion;
+import es.uji.ei1027.sgovid.rowmapper.ActividadFormacionRowMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;

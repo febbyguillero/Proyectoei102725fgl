@@ -1,6 +1,6 @@
-package rowmapper;
+package es.uji.ei1027.sgovid.rowmapper;
 
-import model.RegistroContrato;
+import es.uji.ei1027.sgovid.model.RegistroContrato;
 import org.springframework.jdbc.core.RowMapper;
 
 import java.sql.ResultSet;

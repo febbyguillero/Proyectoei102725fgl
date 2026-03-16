@@ -1,7 +1,7 @@
-package controller;
+package es.uji.ei1027.sgovid.controller;
 
-import dao.UsuarioOVIDao;
-import model.UsuarioOVI;
+import es.uji.ei1027.sgovid.dao.UsuarioOVIDao;
+import es.uji.ei1027.sgovid.model.UsuarioOVI;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
