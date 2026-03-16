@@ -18,48 +18,75 @@ public class UsuarioOVIDao {
 
     @Autowired
     public void setDataSource(DataSource dataSource) {
-        jdbcTemplate = new JdbcTemplate(dataSource);
+        this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
-    public void addUsuario(UsuarioOVI usuario) {
-        jdbcTemplate.update(
-                "INSERT INTO UsuariOVI (identificador_sgovi, contrasenya, email, nom, cognoms, telefon, adreca, dni, data_naixement, consentiment_informat, estat_tecnic_acceptat, tutor_legal_nom, tutor_legal_contacte) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                usuario.getIdentificadorSgovi(), usuario.getContrasenya(), usuario.getEmail(),
-                usuario.getNom(), usuario.getCognoms(), usuario.getTelefon(), usuario.getAdreca(),
-                usuario.getDni(), usuario.getDataNaixement(), usuario.isConsentimentInformat(),
-                usuario.isEstatTecnicAcceptat(), usuario.getTutorLegalNom(), usuario.getTutorLegalContacte());
+    // LISTAR TODOS LOS USUARIOS
+    public List<UsuarioOVI> getUsuarios() {
+        try {
+            String sql = "SELECT * FROM UsuariOVI ORDER BY id_usuari";
+            return jdbcTemplate.query(sql, new UsuarioOVIRowMapper());
+        } catch (EmptyResultDataAccessException e) {
+            return new ArrayList<>();
+        }
     }
 
-    public void deleteUsuario(int idUsuari) {
-        jdbcTemplate.update("DELETE FROM UsuariOVI WHERE id_usuari = ?", idUsuari);
-    }
-
-    public void updateUsuario(UsuarioOVI usuario) {
-        jdbcTemplate.update(
-                "UPDATE UsuariOVI SET identificador_sgovi=?, contrasenya=?, email=?, nom=?, cognoms=?, telefon=?, adreca=?, dni=?, data_naixement=?, consentiment_informat=?, estat_tecnic_acceptat=?, tutor_legal_nom=?, tutor_legal_contacte=? WHERE id_usuari=?",
-                usuario.getIdentificadorSgovi(), usuario.getContrasenya(), usuario.getEmail(),
-                usuario.getNom(), usuario.getCognoms(), usuario.getTelefon(), usuario.getAdreca(),
-                usuario.getDni(), usuario.getDataNaixement(), usuario.isConsentimentInformat(),
-                usuario.isEstatTecnicAcceptat(), usuario.getTutorLegalNom(), usuario.getTutorLegalContacte(),
-                usuario.getIdUsuari());
-    }
-
+    // OBTENER USUARIO POR ID
     public UsuarioOVI getUsuario(int idUsuari) {
         try {
-            return jdbcTemplate.queryForObject(
-                    "SELECT * FROM UsuariOVI WHERE id_usuari = ?",
-                    new UsuarioOVIRowMapper(), idUsuari);
+            String sql = "SELECT * FROM UsuariOVI WHERE id_usuari = ?";
+            return jdbcTemplate.queryForObject(sql, new UsuarioOVIRowMapper(), idUsuari);
         } catch (EmptyResultDataAccessException e) {
             return null;
         }
     }
 
-    public List<UsuarioOVI> getUsuarios() {
-        try {
-            return jdbcTemplate.query("SELECT * FROM UsuariOVI ORDER BY id_usuari",
-                    new UsuarioOVIRowMapper());
-        } catch (EmptyResultDataAccessException e) {
-            return new ArrayList<>();
-        }
+    // AÑADIR USUARIO
+    public void addUsuario(UsuarioOVI usuario) {
+        String sql = "INSERT INTO UsuariOVI (identificador_sgovi, contrasenya, email, nom, cognoms, telefon, adreca, dni, data_naixement, consentiment_informat, estat_tecnic_acceptat, tutor_legal_nom, tutor_legal_contacte) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+        jdbcTemplate.update(sql,
+                usuario.getIdentificadorSgovi(),
+                usuario.getContrasenya(),
+                usuario.getEmail(),
+                usuario.getNom(),
+                usuario.getCognoms(),
+                usuario.getTelefon(),
+                usuario.getAdreca(),
+                usuario.getDni(),
+                usuario.getDataNaixement(),
+                usuario.isConsentimentInformat(),
+                usuario.isEstatTecnicAcceptat(),
+                usuario.getTutorLegalNom(),
+                usuario.getTutorLegalContacte()
+        );
+    }
+
+    // ACTUALIZAR USUARIO
+    public void updateUsuario(UsuarioOVI usuario) {
+        String sql = "UPDATE UsuariOVI SET identificador_sgovi=?, contrasenya=?, email=?, nom=?, cognoms=?, telefon=?, adreca=?, dni=?, data_naixement=?, consentiment_informat=?, estat_tecnic_acceptat=?, tutor_legal_nom=?, tutor_legal_contacte=? WHERE id_usuari=?";
+
+        jdbcTemplate.update(sql,
+                usuario.getIdentificadorSgovi(),
+                usuario.getContrasenya(),
+                usuario.getEmail(),
+                usuario.getNom(),
+                usuario.getCognoms(),
+                usuario.getTelefon(),
+                usuario.getAdreca(),
+                usuario.getDni(),
+                usuario.getDataNaixement(),
+                usuario.isConsentimentInformat(),
+                usuario.isEstatTecnicAcceptat(),
+                usuario.getTutorLegalNom(),
+                usuario.getTutorLegalContacte(),
+                usuario.getIdUsuari()
+        );
+    }
+
+    // ELIMINAR USUARIO
+    public void deleteUsuario(int idUsuari) {
+        String sql = "DELETE FROM UsuariOVI WHERE id_usuari = ?";
+        jdbcTemplate.update(sql, idUsuari);
     }
 }

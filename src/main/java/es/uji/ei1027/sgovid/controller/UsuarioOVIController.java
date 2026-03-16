@@ -21,47 +21,44 @@ public class UsuarioOVIController {
         this.usuarioDao = usuarioDao;
     }
 
+    // LISTAR - OK
     @RequestMapping("/list")
     public String listUsuarios(Model model) {
         model.addAttribute("usuarios", usuarioDao.getUsuarios());
         return "usuario/list";
     }
 
+    // AÑADIR (formulario)
     @RequestMapping(value = "/add", method = RequestMethod.GET)
     public String addUsuario(Model model) {
-        UsuarioOVI usuario = new UsuarioOVI();
-        usuario.setDataRegistre(LocalDateTime.now());
-        usuario.setConsentimentInformat(true);
-        model.addAttribute("usuario", usuario);
+        model.addAttribute("usuario", new UsuarioOVI());
         return "usuario/add";
     }
 
+    // AÑADIR (procesar)
     @RequestMapping(value = "/add", method = RequestMethod.POST)
-    public String processAddSubmit(@ModelAttribute("usuario") UsuarioOVI usuario,
-                                   BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            return "usuario/add";
-        }
+    public String processAddSubmit(@ModelAttribute("usuario") UsuarioOVI usuario) {
+        usuario.setDataRegistre(LocalDateTime.now());
+        usuario.setConsentimentInformat(true);
         usuarioDao.addUsuario(usuario);
         return "redirect:list";
     }
 
+    // EDITAR (formulario)
     @RequestMapping(value = "/update/{idUsuari}", method = RequestMethod.GET)
     public String editUsuario(Model model, @PathVariable int idUsuari) {
         model.addAttribute("usuario", usuarioDao.getUsuario(idUsuari));
         return "usuario/update";
     }
 
+    // EDITAR (procesar)
     @RequestMapping(value = "/update", method = RequestMethod.POST)
-    public String processUpdateSubmit(@ModelAttribute("usuario") UsuarioOVI usuario,
-                                      BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            return "usuario/update";
-        }
+    public String processUpdateSubmit(@ModelAttribute("usuario") UsuarioOVI usuario) {
         usuarioDao.updateUsuario(usuario);
         return "redirect:list";
     }
 
+    // ELIMINAR
     @RequestMapping(value = "/delete/{idUsuari}")
     public String processDelete(@PathVariable int idUsuari) {
         usuarioDao.deleteUsuario(idUsuari);
