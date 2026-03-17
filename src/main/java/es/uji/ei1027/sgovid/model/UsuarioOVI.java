@@ -20,7 +20,6 @@ public class UsuarioOVI {
     private String tutorLegalNom;
     private String tutorLegalContacte;
 
-    // Getters y Setters
     public int getIdUsuari() {
         return idUsuari;
     }

@@ -21,7 +21,6 @@ public class UsuarioOVIDao {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
-    // LISTAR TODOS LOS USUARIOS
     public List<UsuarioOVI> getUsuarios() {
         try {
             String sql = "SELECT * FROM UsuariOVI ORDER BY id_usuari";
@@ -31,7 +30,6 @@ public class UsuarioOVIDao {
         }
     }
 
-    // OBTENER USUARIO POR ID
     public UsuarioOVI getUsuario(int idUsuari) {
         try {
             String sql = "SELECT * FROM UsuariOVI WHERE id_usuari = ?";
@@ -41,7 +39,6 @@ public class UsuarioOVIDao {
         }
     }
 
-    // AÑADIR USUARIO
     public void addUsuario(UsuarioOVI usuario) {
         String sql = "INSERT INTO UsuariOVI (identificador_sgovi, contrasenya, email, nom, cognoms, telefon, adreca, dni, data_naixement, consentiment_informat, estat_tecnic_acceptat, tutor_legal_nom, tutor_legal_contacte) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
@@ -62,7 +59,6 @@ public class UsuarioOVIDao {
         );
     }
 
-    // ACTUALIZAR USUARIO
     public void updateUsuario(UsuarioOVI usuario) {
         String sql = "UPDATE UsuariOVI SET identificador_sgovi=?, contrasenya=?, email=?, nom=?, cognoms=?, telefon=?, adreca=?, dni=?, data_naixement=?, consentiment_informat=?, estat_tecnic_acceptat=?, tutor_legal_nom=?, tutor_legal_contacte=? WHERE id_usuari=?";
 
@@ -84,7 +80,6 @@ public class UsuarioOVIDao {
         );
     }
 
-    // ELIMINAR USUARIO
     public void deleteUsuario(int idUsuari) {
         String sql = "DELETE FROM UsuariOVI WHERE id_usuari = ?";
         jdbcTemplate.update(sql, idUsuari);
