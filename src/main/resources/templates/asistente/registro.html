@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Solicitud PAP/PATI - OVI</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="container mt-5">
+<h1>Solicitud para ser Asistente Personal (PAP/PATI)</h1>
+<p class="text-muted">Complete el formulario. Un técnico revisará su solicitud.</p>
+
+<form th:action="@{/asistente/registro}" th:object="${asistente}" method="post">
+
+    <div class="mb-3 col-md-6">
+        <label for="dni" class="form-label">DNI *</label>
+        <input type="text" class="form-control" id="dni" th:field="*{dni}" placeholder="12345678A">
+        <div class="text-danger" th:if="${#fields.hasErrors('dni')}" th:errors="*{dni}"></div>
+    </div>
+
+    <div class="mb-3 col-md-6">
+        <label for="nombre" class="form-label">Nombre *</label>
+        <input type="text" class="form-control" id="nombre" th:field="*{nombre}">
+        <div class="text-danger" th:if="${#fields.hasErrors('nombre')}" th:errors="*{nombre}"></div>
+    </div>
+
+    <div class="mb-3 col-md-6">
+        <label for="apellidos" class="form-label">Apellidos *</label>
+        <input type="text" class="form-control" id="apellidos" th:field="*{apellidos}">
+        <div class="text-danger" th:if="${#fields.hasErrors('apellidos')}" th:errors="*{apellidos}"></div>
+    </div>
+
+    <div class="mb-3 col-md-6">
+        <label for="email" class="form-label">Email *</label>
+        <input type="email" class="form-control" id="email" th:field="*{email}">
+        <div class="text-danger" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></div>
+    </div>
+
+    <div class="mb-3 col-md-6">
+        <label for="telefono" class="form-label">Teléfono</label>
+        <input type="text" class="form-control" id="telefono" th:field="*{telefono}">
+        <div class="text-danger" th:if="${#fields.hasErrors('telefono')}" th:errors="*{telefono}"></div>
+    </div>
+
+    <div class="mb-3 col-md-6">
+        <label for="edad" class="form-label">Edad *</label>
+        <input type="number" class="form-control" id="edad" th:field="*{edad}">
+        <div class="text-danger" th:if="${#fields.hasErrors('edad')}" th:errors="*{edad}"></div>
+    </div>
+
+    <div class="mb-3 col-md-6">
+        <label for="titulacion" class="form-label">Titulación / Formación</label>
+        <textarea class="form-control" id="titulacion" th:field="*{titulacion}" rows="3"></textarea>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Enviar Solicitud</button>
+    <a href="/" class="btn btn-secondary">Cancelar</a>
+</form>
+</body>
+</html>
