@@ -15,7 +15,7 @@ public class AsistentePersonalValidator implements Validator {
     public void validate(Object obj, Errors errors) {
         AsistentePersonal asistente = (AsistentePersonal) obj;
 
-        // 1. DNI obligatorio y formato (8 números + 1 letra)
+        // 1. DNI obligatorio y formato: 8 números + 1 letra
         if (asistente.getDni() == null || asistente.getDni().trim().isEmpty()) {
             errors.rejectValue("dni", "obligatorio", "El DNI es obligatorio");
         } else if (!asistente.getDni().matches("\\d{8}[A-Za-z]")) {

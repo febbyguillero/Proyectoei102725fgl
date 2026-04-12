@@ -31,9 +31,8 @@ public class AsistentePersonalController {
             return "asistente/registro";
         }
 
-        // Por defecto, estado = false (pendiente de aceptación por el técnico)
         asistente.setEstado(false);
         asistenteDao.addAsistente(asistente);
-        return "redirect:/"; // Volver al inicio
+        return "redirect:/";
     }
 }
