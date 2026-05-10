@@ -57,4 +57,12 @@ public class APRequestDao {
             return new ArrayList<>();
         }
     }
+
+    // Cambiar el estado de una solicitud
+    public void cambiarEstado(int idRequest, String nuevoEstado) {
+        jdbcTemplate.update(
+                "UPDATE APRequest SET estat = ? WHERE id_request = ?",
+                nuevoEstado, idRequest
+        );
+    }
 }

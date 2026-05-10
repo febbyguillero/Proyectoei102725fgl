@@ -9,6 +9,22 @@ public class AsistentePersonal {
     private Integer edad;
     private String titulacion;
     private Boolean estado;
+    private String zonaGeografica;
+    private String disponibilidad;
+    private String formacion;
+    private String experiencia;
+
+    public String getZonaGeografica() { return zonaGeografica; }
+    public void setZonaGeografica(String zonaGeografica) { this.zonaGeografica = zonaGeografica; }
+
+    public String getDisponibilidad() { return disponibilidad; }
+    public void setDisponibilidad(String disponibilidad) { this.disponibilidad = disponibilidad; }
+
+    public String getFormacion() { return formacion; }
+    public void setFormacion(String formacion) { this.formacion = formacion; }
+
+    public String getExperiencia() { return experiencia; }
+    public void setExperiencia(String experiencia) { this.experiencia = experiencia; }
 
     public String getDni() {
         return dni;

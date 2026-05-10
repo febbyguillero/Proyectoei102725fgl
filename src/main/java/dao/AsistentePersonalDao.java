@@ -59,4 +59,18 @@ public class AsistentePersonalDao {
             return new ArrayList<>();
         }
     }
+
+    // Obtener candidatos aceptados por zona geográfica
+    public List<AsistentePersonal> getCandidatosAptos(String zona) {
+        try {
+            return jdbcTemplate.query(
+                    "SELECT * FROM AsistentePersonal WHERE estado = true AND zona_geografica LIKE ?",
+                    new AsistentePersonalRowMapper(),
+                    "%" + zona + "%"
+            );
+        } catch (EmptyResultDataAccessException e) {
+            return new ArrayList<>();
+        }
+    }
+
 }

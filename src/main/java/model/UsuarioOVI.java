@@ -20,6 +20,9 @@ public class UsuarioOVI {
     private String tutorLegalNom;
     private String tutorLegalContacte;
 
+    private String zonaGeografica;
+
+
     // Getters y Setters
     public int getIdUsuari() {
         return idUsuari;
@@ -139,6 +142,13 @@ public class UsuarioOVI {
 
     public void setTutorLegalContacte(String tutorLegalContacte) {
         this.tutorLegalContacte = tutorLegalContacte;
+    }
+
+    public String getZonaGeografica() {
+        return zonaGeografica;
+    }
+    public void setZonaGeografica(String zonaGeografica) {
+        this.zonaGeografica = zonaGeografica;
     }
 
     @Override
