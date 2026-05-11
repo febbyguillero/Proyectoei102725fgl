@@ -34,10 +34,11 @@ public class AsistentePersonalController {
 
         asistente.setEstado(false);
         asistenteDao.addAsistente(asistente);
-        return "rediraoect:/";
+        return "redirect:/";
     }
     @RequestMapping("/list")
     public String listAsistentes(Model model) {
-        model.addAttribute("asistentes",)
+        model.addAttribute("asistentes", asistenteDao.getAsistentes());
+        return "asistente/list";
     }
 }
