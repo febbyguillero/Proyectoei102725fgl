@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Registrar petición - SgOVI</title>
+    <style>
+        body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; background: #f4f5f7; color: #1a1a2e; }
+        header { background: #1d4374; color: white; padding: 16px 32px; display: flex; justify-content: space-between; align-items: center; }
+        header a { color: white; text-decoration: none; }
+        main { max-width: 800px; margin: 32px auto; background: white; padding: 32px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+        h1 { color: #15315a; margin-top: 0; }
+        fieldset { border: 1px solid #c0c4c9; border-radius: 6px; padding: 16px 24px; margin-bottom: 24px; }
+        legend { font-weight: 600; padding: 0 8px; color: #15315a; }
+        textarea { width: 100%; padding: 10px; border: 1px solid #6a6e76; border-radius: 4px; font-family: inherit; font-size: 1rem; }
+        .actions { display: flex; gap: 12px; justify-content: flex-end; margin-top: 24px; }
+        .btn-primary { background: #15315a; color: white; padding: 10px 20px; border: 1px solid #15315a; border-radius: 4px; cursor: pointer; }
+        .btn-secondary { background: white; color: #15315a; padding: 10px 20px; border: 1px solid #15315a; border-radius: 4px; cursor: pointer; text-decoration: none; }
+        .radio-option { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+        .info-note { background: #e8eef7; border-left: 4px solid #15315a; padding: 12px 16px; margin-top: 24px; color: #15315a; }
+    </style>
+</head>
+<body>
+<header>
+    <strong style="font-size:1.5rem;">SgOVI</strong>
+    <nav>
+        <a href="/solicitudes/mis-solicitudes">Mis solicitudes</a>
+        &nbsp;|&nbsp;
+        <span>Hola, Ana García</span>
+    </nav>
+</header>
+
+<main>
+    <h1>Registrar petición de asistencia personal</h1>
+    <p>Rellena los datos para que un técnico de la OVI revise tu solicitud.</p>
+
+    <form th:action="@{/solicitudes/nueva}" th:object="${solicitud}" method="post">
+        <fieldset>
+            <legend>Tipo de servicio</legend>
+            <div class="radio-option">
+                <input type="radio" id="tipo-pap" th:field="*{tipusServei}" value="PAP">
+                <label for="tipo-pap">PAP - Personal de Apoyo Personal</label>
+            </div>
+            <div class="radio-option">
+                <input type="radio" id="tipo-pati" th:field="*{tipusServei}" value="PATI">
+                <label for="tipo-pati">PATI - Personal de Acompañamiento</label>
+            </div>
+        </fieldset>
+
+        <fieldset>
+            <legend>Describe tu necesidad</legend>
+            <textarea th:field="*{observations}" rows="5" maxlength="300" placeholder="Indica horarios, tareas y cualquier detalle relevante..."></textarea>
+        </fieldset>
+
+        <p class="info-note">Tu solicitud será revisada por un técnico de la OVI. Recibirás respuesta por correo electrónico.</p>
+
+        <div class="actions">
+            <a href="/solicitudes/mis-solicitudes" class="btn-secondary">Cancelar</a>
+            <button type="submit" class="btn-primary">Enviar solicitud</button>
+        </div>
+    </form>
+</main>
+</body>
+</html>
