@@ -1,14 +1,14 @@
-package services;
+package es.uji.ei1027.sgovid.services;
 
 
-import dao.AsistentePersonalDao;
-import dao.APRequestDao;
-import dao.SeleccionDao;
-import dao.UsuarioOVIDao;
-import model.APRequest;
-import model.AsistentePersonal;
-import model.Seleccion;
-import model.UsuarioOVI;
+
+import es.uji.ei1027.sgovid.dao.APRequestDao;
+import es.uji.ei1027.sgovid.dao.AsistentePersonalDao;
+import es.uji.ei1027.sgovid.dao.UsuarioOVIDao;
+import es.uji.ei1027.sgovid.model.APRequest;
+import es.uji.ei1027.sgovid.model.AsistentePersonal;
+import es.uji.ei1027.sgovid.model.Seleccion;
+import es.uji.ei1027.sgovid.model.UsuarioOVI;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -25,7 +25,7 @@ public class SeleccionService {
     private APRequestDao solicitudDao;
 
     @Autowired
-    private SeleccionDao seleccionDao;
+    private es.uji.ei1027.sgovid.dao.SeleccionDao seleccionDao;
 
     @Autowired
     private UsuarioOVIDao usuarioDao;

@@ -1,8 +1,9 @@
-package dao;
+package es.uji.ei1027.sgovid.dao;
 
 
-import model.Seleccion;
-import rowmapper.SeleccionRowMapper;
+
+import es.uji.ei1027.sgovid.model.Seleccion;
+import es.uji.ei1027.sgovid.rowmapper.SeleccionRowMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;

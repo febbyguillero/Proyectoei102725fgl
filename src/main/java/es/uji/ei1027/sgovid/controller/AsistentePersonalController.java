@@ -1,7 +1,8 @@
-package controller;
+package es.uji.ei1027.sgovid.controller;
 
-import dao.AsistentePersonalDao;
-import model.AsistentePersonal;
+
+import es.uji.ei1027.sgovid.dao.AsistentePersonalDao;
+import es.uji.ei1027.sgovid.model.AsistentePersonal;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -24,7 +25,7 @@ public class AsistentePersonalController {
     @RequestMapping(value = "/registro", method = RequestMethod.POST)
     public String procesarRegistro(@ModelAttribute("asistente") AsistentePersonal asistente,
                                    BindingResult bindingResult) {
-        AsistentePersonalValidator validator = new AsistentePersonalValidator();
+        es.uji.ei1027.sgovid.controller.AsistentePersonalValidator validator = new es.uji.ei1027.sgovid.controller.AsistentePersonalValidator();
         validator.validate(asistente, bindingResult);
 
         if (bindingResult.hasErrors()) {
@@ -33,6 +34,10 @@ public class AsistentePersonalController {
 
         asistente.setEstado(false);
         asistenteDao.addAsistente(asistente);
-        return "redirect:/";
+        return "rediraoect:/";
+    }
+    @RequestMapping("/list")
+    public String listAsistentes(Model model) {
+        model.addAttribute("asistentes",)
     }
 }

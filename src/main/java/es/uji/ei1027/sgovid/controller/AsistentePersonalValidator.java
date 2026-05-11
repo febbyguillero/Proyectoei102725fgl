@@ -1,6 +1,6 @@
-package controller;
+package es.uji.ei1027.sgovid.controller;
 
-import model.AsistentePersonal;
+import es.uji.ei1027.sgovid.model.AsistentePersonal;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 
