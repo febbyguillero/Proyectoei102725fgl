@@ -17,6 +17,7 @@ public class AsistentePersonalDao {
     private JdbcTemplate jdbcTemplate;
 
     @Autowired
+    private AsistentePersonalDao asistenteDao;
     public void setDataSource(DataSource dataSource) {
         jdbcTemplate = new JdbcTemplate(dataSource);
     }
