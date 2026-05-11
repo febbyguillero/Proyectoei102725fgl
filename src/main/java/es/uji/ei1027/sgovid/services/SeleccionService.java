@@ -1,9 +1,9 @@
 package es.uji.ei1027.sgovid.services;
 
 
-
-import es.uji.ei1027.sgovid.dao.APRequestDao;
 import es.uji.ei1027.sgovid.dao.AsistentePersonalDao;
+import es.uji.ei1027.sgovid.dao.APRequestDao;
+import es.uji.ei1027.sgovid.dao.SeleccionDao;
 import es.uji.ei1027.sgovid.dao.UsuarioOVIDao;
 import es.uji.ei1027.sgovid.model.APRequest;
 import es.uji.ei1027.sgovid.model.AsistentePersonal;
@@ -25,7 +25,7 @@ public class SeleccionService {
     private APRequestDao solicitudDao;
 
     @Autowired
-    private es.uji.ei1027.sgovid.dao.SeleccionDao seleccionDao;
+    private SeleccionDao seleccionDao;
 
     @Autowired
     private UsuarioOVIDao usuarioDao;

@@ -34,6 +34,7 @@ public class UsuarioOVIRowMapper implements RowMapper<UsuarioOVI> {
         usuario.setEstatTecnicAcceptat(rs.getBoolean("estat_tecnic_acceptat"));
         usuario.setTutorLegalNom(rs.getString("tutor_legal_nom"));
         usuario.setTutorLegalContacte(rs.getString("tutor_legal_contacte"));
+        usuario.setZonaGeografica(rs.getString("zona_geografica"));
 
         return usuario;
     }

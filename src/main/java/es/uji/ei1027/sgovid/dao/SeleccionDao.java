@@ -1,7 +1,6 @@
 package es.uji.ei1027.sgovid.dao;
 
 
-
 import es.uji.ei1027.sgovid.model.Seleccion;
 import es.uji.ei1027.sgovid.rowmapper.SeleccionRowMapper;
 import org.springframework.beans.factory.annotation.Autowired;
