@@ -17,7 +17,11 @@ public class LoginController {
     private UsuarioOVIDao usuarioDao;
 
     @GetMapping("/login")
-    public String loginForm() {
+    public String loginForm(@RequestParam(value = "error", required = false) String error,
+                            @RequestParam(value = "logout", required = false) String logout,
+                            Model model) {
+        if (error != null) model.addAttribute("error", "Identificador o contrasenya incorrectes.");
+        if (logout != null) model.addAttribute("mensaje", "Sessió tancada correctament.");
         return "login";
     }
 
@@ -28,19 +32,23 @@ public class LoginController {
             HttpSession session,
             Model model) {
 
-        //Técnico hardcoded (en un sistema real estaría en BD)
+        // Técnico hardcoded
         if ("tecnico".equals(identificador) && "tecnico123".equals(contrasenya)) {
             session.setAttribute("rol", "TECNICO");
+            session.setAttribute("usuariId", "tecnico");
             session.setAttribute("nombreUsuario", "Técnico OVI");
             return "redirect:/tecnico/panel";
         }
 
-        //Buscar usuario OVI en BD
+        // Buscar usuario OVI en BD
         List<UsuarioOVI> usuarios = usuarioDao.getUsuarios();
         for (UsuarioOVI u : usuarios) {
             if (identificador.equals(u.getIdentificadorSgovi())
-                    && contrasenya.equals(u.getContrasenya())
-                    && u.isEstatTecnicAcceptat()) {
+                    && contrasenya.equals(u.getContrasenya())) {
+                if (!u.isEstatTecnicAcceptat()) {
+                    model.addAttribute("error", "El teu compte està pendent de validació.");
+                    return "login";
+                }
                 session.setAttribute("rol", "USUARIO");
                 session.setAttribute("usuariId", String.valueOf(u.getIdUsuari()));
                 session.setAttribute("nombreUsuario", u.getNom() + " " + u.getCognoms());
@@ -48,13 +56,13 @@ public class LoginController {
             }
         }
 
-        model.addAttribute("error", "Identificador o contrasenya incorrectes");
+        model.addAttribute("error", "Identificador o contrasenya incorrectes.");
         return "login";
     }
 
     @GetMapping("/logout")
     public String logout(HttpSession session) {
         session.invalidate();
-        return "redirect:/login";
+        return "redirect:/login?logout";
     }
 }
