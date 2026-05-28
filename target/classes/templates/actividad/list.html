@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="ca" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Activitats de Formació - SgOVI</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="container mt-4">
+<h1>Activitats de Formació i Divulgació</h1>
+
+<div class="d-flex gap-2 mb-3">
+    <a href="/actividad/add" class="btn btn-primary">+ Nova activitat</a>
+    <a href="/tecnico/panel" class="btn btn-outline-secondary">Tornar al panel</a>
+</div>
+
+<div class="mb-3">
+    <input type="text" id="busqueda" class="form-control" placeholder="Cercar per títol, tipus, lloc...">
+</div>
+
+<table class="table table-striped table-hover">
+    <thead class="table-dark">
+    <tr>
+        <th onclick="ordenarTabla(0)" style="cursor:pointer">ID ↕</th>
+        <th onclick="ordenarTabla(1)" style="cursor:pointer">Títol ↕</th>
+        <th onclick="ordenarTabla(2)" style="cursor:pointer">Tipus ↕</th>
+        <th onclick="ordenarTabla(3)" style="cursor:pointer">Inici ↕</th>
+        <th>Lloc</th>
+        <th>Aforament</th>
+        <th onclick="ordenarTabla(6)" style="cursor:pointer">Estat ↕</th>
+        <th>Accions</th>
+    </tr>
+    </thead>
+    <tbody id="cuerpoTabla">
+    <tr th:each="a : ${actividades}">
+        <td th:text="${a.idActividad}"></td>
+        <td th:text="${a.titulo}"></td>
+        <td>
+            <span th:if="${a.tipoActividad == 'FORMACION'}" class="badge bg-primary">Formació</span>
+            <span th:if="${a.tipoActividad == 'DIVULGACION'}" class="badge bg-info text-dark">Divulgació</span>
+            <span th:unless="${a.tipoActividad == 'FORMACION' or a.tipoActividad == 'DIVULGACION'}"
+                  class="badge bg-secondary" th:text="${a.tipoActividad}"></span>
+        </td>
+        <td th:text="${a.fechaInicio}"></td>
+        <td th:text="${a.lugar}"></td>
+        <td th:text="${a.aforoMaximo != null ? a.aforoMaximo : 'Lliure'}"></td>
+        <td>
+                <span th:switch="${a.estado}">
+                    <span th:case="'programada'" class="badge bg-warning text-dark">Programada</span>
+                    <span th:case="'activa'" class="badge bg-success">Activa</span>
+                    <span th:case="'finalizada'" class="badge bg-secondary">Finalitzada</span>
+                    <span th:case="*" class="badge bg-secondary" th:text="${a.estado}"></span>
+                </span>
+        </td>
+        <td>
+            <a th:href="@{/actividad/update/{id}(id=${a.idActividad})}" class="btn btn-sm btn-warning">Editar</a>
+            <a th:href="@{/actividad/delete/{id}(id=${a.idActividad})}"
+               class="btn btn-sm btn-danger"
+               onclick="return confirm('Eliminar aquesta activitat?')">Eliminar</a>
+        </td>
+    </tr>
+    <tr th:if="${#lists.isEmpty(actividades)}">
+        <td colspan="8" class="text-center text-muted">No hi ha activitats registrades.</td>
+    </tr>
+    </tbody>
+</table>
+
+<div id="paginacion" class="d-flex justify-content-center mt-3"></div>
+
+<script>
+    const FILAS_POR_PAGINA = 10;
+    let paginaActual = 1;
+    let filasBase = [];
+    function inicializar() {
+        filasBase = Array.from(document.querySelectorAll('#cuerpoTabla tr'));
+        renderPagina();
+    }
+    function renderPagina() {
+        const texto = document.getElementById('busqueda').value.toLowerCase();
+        const filtradas = filasBase.filter(f => f.textContent.toLowerCase().includes(texto));
+        const total = Math.ceil(filtradas.length / FILAS_POR_PAGINA);
+        if (paginaActual > total) paginaActual = 1;
+        filasBase.forEach(f => f.style.display = 'none');
+        const inicio = (paginaActual - 1) * FILAS_POR_PAGINA;
+        filtradas.slice(inicio, inicio + FILAS_POR_PAGINA).forEach(f => f.style.display = '');
+        const pag = document.getElementById('paginacion');
+        pag.innerHTML = '';
+        for (let i = 1; i <= total; i++) {
+            const btn = document.createElement('button');
+            btn.textContent = i;
+            btn.className = 'btn btn-sm mx-1 ' + (i === paginaActual ? 'btn-primary' : 'btn-outline-primary');
+            btn.onclick = () => { paginaActual = i; renderPagina(); };
+            pag.appendChild(btn);
+        }
+    }
+    document.getElementById('busqueda').addEventListener('input', () => { paginaActual = 1; renderPagina(); });
+    let ordenAsc = true;
+    function ordenarTabla(col) {
+        const tbody = document.getElementById('cuerpoTabla');
+        const filas = Array.from(tbody.querySelectorAll('tr'));
+        filas.sort((a, b) => {
+            const va = a.cells[col]?.textContent.trim() || '';
+            const vb = b.cells[col]?.textContent.trim() || '';
+            return ordenAsc ? va.localeCompare(vb) : vb.localeCompare(va);
+        });
+        ordenAsc = !ordenAsc;
+        filas.forEach(f => tbody.appendChild(f));
+        filasBase = filas;
+        renderPagina();
+    }
+    window.onload = inicializar;
+</script>
+</body>
+</html>

@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ca" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Agenda d'Activitats - OVI Castelló</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<nav class="navbar navbar-dark bg-dark px-3">
+    <span class="navbar-brand">OVI Castelló — Agenda d'activitats</span>
+    <a href="/login" class="btn btn-outline-light btn-sm">Iniciar sessió</a>
+</nav>
+<main class="container mt-4">
+    <h1 class="h3 mb-1">Activitats de formació i divulgació</h1>
+    <p class="text-muted mb-4">Agenda pública de cursos, xerrades i actes organitzats per l'OVI.</p>
+
+    <div class="row g-3">
+        <div th:each="a : ${actividades}" class="col-md-6">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <h5 class="card-title mb-0" th:text="${a.titulo}"></h5>
+                        <span th:if="${a.tipoActividad == 'FORMACION'}" class="badge bg-primary ms-2">Formació</span>
+                        <span th:if="${a.tipoActividad == 'DIVULGACION'}" class="badge bg-info text-dark ms-2">Divulgació</span>
+                    </div>
+                    <p class="card-text text-muted small" th:text="${a.descripcion}"></p>
+                    <ul class="list-unstyled small mb-0">
+                        <li th:if="${a.fechaInicio != null}">
+                            <strong>Data:</strong> <span th:text="${a.fechaInicio}"></span>
+                        </li>
+                        <li th:if="${a.lugar != null}">
+                            <strong>Lloc:</strong> <span th:text="${a.lugar}"></span>
+                        </li>
+                        <li th:if="${a.aforoMaximo != null}">
+                            <strong>Places:</strong> <span th:text="${a.aforoMaximo}"></span>
+                            <span class="text-muted">(cal inscripció prèvia)</span>
+                        </li>
+                        <li th:unless="${a.aforoMaximo != null}">
+                            <span class="text-success">Accés lliure, sense inscripció</span>
+                        </li>
+                    </ul>
+                </div>
+                <div class="card-footer">
+                    <span th:switch="${a.estado}">
+                        <span th:case="'programada'" class="badge bg-warning text-dark">Programada</span>
+                        <span th:case="'activa'" class="badge bg-success">Activa</span>
+                        <span th:case="'finalizada'" class="badge bg-secondary">Finalitzada</span>
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div th:if="${#lists.isEmpty(actividades)}" class="col-12">
+            <p class="text-muted">No hi ha activitats programades actualment.</p>
+        </div>
+    </div>
+</main>
+</body>
+</html>
