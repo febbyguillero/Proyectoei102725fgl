@@ -11,15 +11,18 @@
     <h1 class="h4 mb-4 text-center">SgOVI — Iniciar sessió</h1>
 
     <div th:if="${error}" class="alert alert-danger" role="alert" th:text="${error}"></div>
+    <div th:if="${mensaje}" class="alert alert-success" role="alert" th:text="${mensaje}"></div>
 
-    <form th:action="@{/login}" method="post">
+    <form th:action="@{/login}" method="post" novalidate class="needs-validation">
         <div class="mb-3">
             <label for="identificador" class="form-label">Identificador</label>
             <input type="text" class="form-control" id="identificador" name="identificador" required autofocus>
+            <div class="invalid-feedback">El identificador és obligatori.</div>
         </div>
         <div class="mb-3">
             <label for="contrasenya" class="form-label">Contrasenya</label>
             <input type="password" class="form-control" id="contrasenya" name="contrasenya" required>
+            <div class="invalid-feedback">La contrasenya és obligatòria.</div>
         </div>
         <button type="submit" class="btn btn-primary w-100">Entrar</button>
     </form>
@@ -30,5 +33,21 @@
         <br>¿Vols ser PAP/PATI? <a href="/asistente/registro">Registra't com a assistent</a>
     </p>
 </main>
+
+<script>
+    (function() {
+        'use strict';
+        var forms = document.querySelectorAll('.needs-validation');
+        Array.prototype.slice.call(forms).forEach(function(form) {
+            form.addEventListener('submit', function(event) {
+                if (!form.checkValidity()) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                form.classList.add('was-validated');
+            }, false);
+        });
+    })();
+</script>
 </body>
 </html>
