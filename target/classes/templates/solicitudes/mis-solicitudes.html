@@ -22,7 +22,9 @@
 <header>
     <strong style="font-size:1.5rem;">SgOVI</strong>
     <nav>
-        <span>Hola, Ana García</span>
+        <span th:text="'Hola, ' + ${session.nombreUsuario}">Hola, Usuario</span>
+        &nbsp;|&nbsp;
+        <a href="/logout" style="color:white;">Cerrar sesión</a>
     </nav>
 </header>
 
