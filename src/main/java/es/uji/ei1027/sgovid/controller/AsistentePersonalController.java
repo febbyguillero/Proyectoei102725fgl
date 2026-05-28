@@ -34,7 +34,7 @@ public class AsistentePersonalController {
 
         asistente.setEstado(false);
         asistenteDao.addAsistente(asistente);
-        return "redirect:/";
+        return "redirect:/login?registroOK";
     }
     @RequestMapping("/list")
     public String listAsistentes(Model model) {

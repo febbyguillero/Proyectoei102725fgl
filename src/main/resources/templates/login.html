@@ -12,6 +12,9 @@
 
     <div th:if="${error}" class="alert alert-danger" role="alert" th:text="${error}"></div>
     <div th:if="${mensaje}" class="alert alert-success" role="alert" th:text="${mensaje}"></div>
+    <div th:if="${param.registroOK}" class="alert alert-success" role="alert">
+        Sol·licitud enviada correctament. El tècnic OVI la revisarà prompte.
+    </div>
 
     <form th:action="@{/login}" method="post" novalidate class="needs-validation">
         <div class="mb-3">
