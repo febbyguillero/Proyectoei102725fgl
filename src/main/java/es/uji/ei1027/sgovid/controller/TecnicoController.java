@@ -148,10 +148,17 @@ public class TecnicoController {
         UsuarioOVI u = usuarioDao.getUsuario(id);
         if (u != null) {
             u.setEstatTecnicAcceptat(true);
+            if (u.getIdentificadorSgovi() == null || u.getIdentificadorSgovi().isEmpty()) {
+                u.setIdentificadorSgovi("USR" + String.format("%03d", id));
+            }
+            if (u.getContrasenya() == null || u.getContrasenya().isEmpty()) {
+                u.setContrasenya("ovi" + id + "2026");
+            }
             usuarioDao.updateUsuario(u);
         }
         return "redirect:/tecnico/usuarios-pendientes";
     }
+
 
     @RequestMapping("/rechazar-usuario/{id}")
     public String rechazarUsuario(@PathVariable int id) {
