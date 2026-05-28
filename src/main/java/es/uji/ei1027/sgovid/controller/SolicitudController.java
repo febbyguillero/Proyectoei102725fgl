@@ -1,11 +1,12 @@
 package es.uji.ei1027.sgovid.controller;
 
 import es.uji.ei1027.sgovid.dao.APRequestDao;
+import es.uji.ei1027.sgovid.dao.UsuarioOVIDao;
 import es.uji.ei1027.sgovid.model.APRequest;
+import es.uji.ei1027.sgovid.model.UsuarioOVI;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -17,6 +18,9 @@ public class SolicitudController {
 
     @Autowired
     private APRequestDao apRequestDao;
+
+    @Autowired
+    private UsuarioOVIDao usuarioDao;
 
     @GetMapping("/nueva")
     public String mostrarFormulario(Model model) {
@@ -33,7 +37,6 @@ public class SolicitudController {
             jakarta.servlet.http.HttpSession session,
             Model model) {
 
-        //Validacioon manual
         boolean hasErrors = false;
         if (tipusServei == null || tipusServei.isEmpty()) {
             model.addAttribute("errorTipus", "El tipus de servei és obligatori");
@@ -48,7 +51,7 @@ public class SolicitudController {
             hasErrors = true;
         }
         if (hasErrors) {
-            model.addAttribute("solicitud", new es.uji.ei1027.sgovid.model.APRequest());
+            model.addAttribute("solicitud", new APRequest());
             return "solicitudes/nueva-peticion";
         }
 
@@ -57,7 +60,7 @@ public class SolicitudController {
         solicitud.setUsuariIdent(usuariId != null ? usuariId.toString() : "1");
         solicitud.setTipusServei(tipusServei);
         solicitud.setEstat("PENDIENTE");
-        solicitud.setDataCreacio(java.time.LocalDate.now());
+        solicitud.setDataCreacio(LocalDate.now());
         solicitud.setObservations(observations);
         solicitud.setDies(dies != null ? String.join(",", dies) : "");
         solicitud.setFranjaHoraria(franjaHoraria);
@@ -77,5 +80,14 @@ public class SolicitudController {
         }
         model.addAttribute("solicitudes", solicitudes);
         return "solicitudes/mis-solicitudes";
+    }
+
+    @GetMapping("/mi-perfil")
+    public String miPerfil(Model model, jakarta.servlet.http.HttpSession session) {
+        Object usuariId = session.getAttribute("usuariId");
+        if (usuariId == null) return "redirect:/login";
+        UsuarioOVI usuario = usuarioDao.getUsuario(Integer.parseInt(usuariId.toString()));
+        model.addAttribute("usuario", usuario);
+        return "solicitudes/mi-perfil";
     }
 }
