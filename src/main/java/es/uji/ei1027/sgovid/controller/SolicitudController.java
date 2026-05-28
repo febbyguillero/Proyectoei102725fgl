@@ -30,20 +30,34 @@ public class SolicitudController {
             @RequestParam(value = "dies", required = false) List<String> dies,
             @RequestParam(value = "franjaHoraria", required = false) String franjaHoraria,
             @RequestParam(value = "observations", required = false) String observations,
-            jakarta.servlet.http.HttpSession session) {
+            jakarta.servlet.http.HttpSession session,
+            Model model) {
 
-        //Validación
+        //Validacioon manual
+        boolean hasErrors = false;
         if (tipusServei == null || tipusServei.isEmpty()) {
-            return "redirect:/solicitudes/nueva?error=tipusServei";
+            model.addAttribute("errorTipus", "El tipus de servei és obligatori");
+            hasErrors = true;
+        }
+        if (dies == null || dies.isEmpty()) {
+            model.addAttribute("errorDies", "Has de seleccionar almenys un dia");
+            hasErrors = true;
+        }
+        if (franjaHoraria == null || franjaHoraria.isEmpty()) {
+            model.addAttribute("errorFranja", "La franja horària és obligatòria");
+            hasErrors = true;
+        }
+        if (hasErrors) {
+            model.addAttribute("solicitud", new es.uji.ei1027.sgovid.model.APRequest());
+            return "solicitudes/nueva-peticion";
         }
 
         APRequest solicitud = new APRequest();
-        //En un sistema real vendría de la sesión — por ahora usamos el primero disponible
         Object usuariId = session.getAttribute("usuariId");
         solicitud.setUsuariIdent(usuariId != null ? usuariId.toString() : "1");
         solicitud.setTipusServei(tipusServei);
         solicitud.setEstat("PENDIENTE");
-        solicitud.setDataCreacio(LocalDate.now());
+        solicitud.setDataCreacio(java.time.LocalDate.now());
         solicitud.setObservations(observations);
         solicitud.setDies(dies != null ? String.join(",", dies) : "");
         solicitud.setFranjaHoraria(franjaHoraria);

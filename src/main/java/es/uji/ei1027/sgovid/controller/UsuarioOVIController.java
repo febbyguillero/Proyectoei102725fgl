@@ -34,9 +34,16 @@ public class UsuarioOVIController {
     }
 
     @RequestMapping(value = "/add", method = RequestMethod.POST)
-    public String processAddSubmit(@ModelAttribute("usuario") UsuarioOVI usuario) {
+    public String processAddSubmit(@ModelAttribute("usuario") UsuarioOVI usuario,
+                                   BindingResult bindingResult) {
+        UsuarioOVIValidator validator = new UsuarioOVIValidator();
+        validator.validate(usuario, bindingResult);
+        if (bindingResult.hasErrors()) {
+            return "usuario/add";
+        }
         usuario.setDataRegistre(LocalDateTime.now());
         usuario.setConsentimentInformat(true);
+        usuario.setEstatTecnicAcceptat(false);
         usuarioDao.addUsuario(usuario);
         return "redirect:list";
     }
