@@ -15,7 +15,9 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/tecnico")
@@ -27,16 +29,31 @@ public class TecnicoController {
     @Autowired private SeleccionService seleccionService;
     @Autowired private RegistroContratoDao contratoDao;
 
+    // Panel principal
     @RequestMapping("/panel")
     public String panel() {
         return "tecnico/panel";
     }
 
-    //solicitudes
+    // ===================== SOLICITUDES =====================
 
     @RequestMapping("/solicitudes")
     public String listarSolicitudes(Model model) {
-        model.addAttribute("solicitudes", solicitudDao.getRequests());
+        List<APRequest> solicitudes = solicitudDao.getRequests();
+        model.addAttribute("solicitudes", solicitudes);
+
+        // Mapa id -> nombre completo para mostrar nombre en vez de ID (tarea 23)
+        Map<String, String> nombresUsuarios = new HashMap<>();
+        for (APRequest sol : solicitudes) {
+            String ident = sol.getUsuariIdent();
+            if (ident != null && !nombresUsuarios.containsKey(ident)) {
+                try {
+                    UsuarioOVI u = usuarioDao.getUsuario(Integer.parseInt(ident));
+                    if (u != null) nombresUsuarios.put(ident, u.getNom() + " " + u.getCognoms());
+                } catch (Exception ignored) {}
+            }
+        }
+        model.addAttribute("nombresUsuarios", nombresUsuarios);
         return "tecnico/solicitudes";
     }
 
@@ -46,7 +63,7 @@ public class TecnicoController {
         if (solicitud == null) return "redirect:/tecnico/solicitudes";
         model.addAttribute("solicitud", solicitud);
 
-        //Buscar nombre del usuario
+        // Nombre del usuario
         try {
             UsuarioOVI usuario = usuarioDao.getUsuario(Integer.parseInt(solicitud.getUsuariIdent()));
             if (usuario != null) model.addAttribute("nombreUsuario", usuario.getNom() + " " + usuario.getCognoms());
@@ -56,12 +73,11 @@ public class TecnicoController {
             List<AsistentePersonal> candidatos = seleccionService.proponerCandidatos(id);
             model.addAttribute("candidatosPropuestos", candidatos);
         } else if (!"RECHAZADA".equals(solicitud.getEstat())) {
-            // Ya tiene candidatos propuestos, cargarlos
             List<AsistentePersonal> candidatos = asistenteDao.getAsistentes();
             model.addAttribute("candidatosPropuestos", candidatos);
         }
 
-        // Si ya hay contrato, cargarlo
+        // Contrato asociado
         RegistroContrato contrato = contratoDao.getContratoBySolicitud(id);
         if (contrato != null) model.addAttribute("contrato", contrato);
 
@@ -70,7 +86,6 @@ public class TecnicoController {
 
     @RequestMapping("/solicitud/{id}/asignar/{dni}")
     public String asignarCandidato(@PathVariable int id, @PathVariable String dni) {
-        // Crear contrato
         RegistroContrato contrato = new RegistroContrato();
         contrato.setIdSolicitud(id);
         contrato.setDniAsistente(dni);
@@ -78,8 +93,6 @@ public class TecnicoController {
         contrato.setEstadoContrato("activo");
         contrato.setObservaciones("Contrato generado automáticamente al asignar candidato");
         contratoDao.addContrato(contrato);
-
-        // Cambiar estado solicitud
         solicitudDao.cambiarEstado(id, "APROBADA");
         return "redirect:/tecnico/solicitud/" + id;
     }
@@ -90,7 +103,7 @@ public class TecnicoController {
         return "redirect:/tecnico/solicitudes";
     }
 
-    //asistentes
+    // ===================== ASISTENTES =====================
 
     @RequestMapping("/asistentes-pendientes")
     public String listarAsistentesPendientes(Model model) {
@@ -110,15 +123,19 @@ public class TecnicoController {
 
     @RequestMapping("/rechazar-asistente/{dni}")
     public String rechazarAsistente(@PathVariable String dni) {
-        AsistentePersonal a = asistenteDao.getAsistente(dni);
-        if (a != null) {
-            a.setEstado(false);
-            asistenteDao.deleteAsistente(dni);
-        }
+        asistenteDao.deleteAsistente(dni);
         return "redirect:/tecnico/asistentes-pendientes";
     }
 
-    //usuarios
+    @RequestMapping("/editar-asistente/{dni}")
+    public String editarAsistente(@PathVariable String dni, Model model) {
+        AsistentePersonal a = asistenteDao.getAsistente(dni);
+        if (a == null) return "redirect:/tecnico/asistentes-pendientes";
+        model.addAttribute("asistente", a);
+        return "asistente/registro";
+    }
+
+    // ===================== USUARIOS =====================
 
     @RequestMapping("/usuarios-pendientes")
     public String listarUsuariosPendientes(Model model) {
@@ -142,7 +159,15 @@ public class TecnicoController {
         return "redirect:/tecnico/usuarios-pendientes";
     }
 
-    //cobtratos
+    @RequestMapping("/editar-usuario/{id}")
+    public String editarUsuario(@PathVariable int id, Model model) {
+        UsuarioOVI u = usuarioDao.getUsuario(id);
+        if (u == null) return "redirect:/tecnico/usuarios-pendientes";
+        model.addAttribute("usuario", u);
+        return "usuario/update";
+    }
+
+    // ===================== CONTRATOS =====================
 
     @RequestMapping("/contratos")
     public String listarContratos(Model model) {
