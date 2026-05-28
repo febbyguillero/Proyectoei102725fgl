@@ -21,11 +21,13 @@ public class APRequestDao {
         jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
+    //Creo que solucionado: sin id_request, así creo que la secuencia lo genera automáticamente
     public void addRequest(APRequest request) {
         jdbcTemplate.update(
-                "INSERT INTO APRequest (id_request, usuari_ident, tipus_servei, estat, data_creacio, observations) VALUES (?, ?, ?, ?, ?, ?)",
-                request.getIdRequest(), request.getUsuariIdent(), request.getTipusServei(),
-                request.getEstat(), request.getDataCreacio(), request.getObservations());
+                "INSERT INTO APRequest (usuari_ident, tipus_servei, estat, data_creacio, observations, dies, franja_horaria) VALUES (?, ?, ?, ?, ?, ?, ?)",
+                request.getUsuariIdent(), request.getTipusServei(), request.getEstat(),
+                request.getDataCreacio(), request.getObservations(),
+                request.getDies(), request.getFranjaHoraria());
     }
 
     public void deleteRequest(int idRequest) {
@@ -34,9 +36,10 @@ public class APRequestDao {
 
     public void updateRequest(APRequest request) {
         jdbcTemplate.update(
-                "UPDATE APRequest SET usuari_ident=?, tipus_servei=?, estat=?, data_creacio=?, observations=? WHERE id_request=?",
+                "UPDATE APRequest SET usuari_ident=?, tipus_servei=?, estat=?, data_creacio=?, observations=?, dies=?, franja_horaria=? WHERE id_request=?",
                 request.getUsuariIdent(), request.getTipusServei(), request.getEstat(),
-                request.getDataCreacio(), request.getObservations(), request.getIdRequest());
+                request.getDataCreacio(), request.getObservations(),
+                request.getDies(), request.getFranjaHoraria(), request.getIdRequest());
     }
 
     public APRequest getRequest(int idRequest) {
@@ -51,18 +54,28 @@ public class APRequestDao {
 
     public List<APRequest> getRequests() {
         try {
-            return jdbcTemplate.query("SELECT * FROM APRequest ORDER BY id_request",
+            return jdbcTemplate.query(
+                    "SELECT * FROM APRequest ORDER BY data_creacio DESC",
                     new APRequestRowMapper());
         } catch (EmptyResultDataAccessException e) {
             return new ArrayList<>();
         }
     }
 
-    // Cambiar el estado de una solicitud
+    //Solicitudes de un usuario concreto
+    public List<APRequest> getRequestsByUsuari(String usuariIdent) {
+        try {
+            return jdbcTemplate.query(
+                    "SELECT * FROM APRequest WHERE usuari_ident = ? ORDER BY data_creacio DESC",
+                    new APRequestRowMapper(), usuariIdent);
+        } catch (EmptyResultDataAccessException e) {
+            return new ArrayList<>();
+        }
+    }
+
     public void cambiarEstado(int idRequest, String nuevoEstado) {
         jdbcTemplate.update(
                 "UPDATE APRequest SET estat = ? WHERE id_request = ?",
-                nuevoEstado, idRequest
-        );
+                nuevoEstado, idRequest);
     }
 }

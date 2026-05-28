@@ -18,6 +18,9 @@ public class APRequestRowMapper implements RowMapper<APRequest> {
         request.setDataCreacio(rs.getDate("data_creacio") != null ?
                 rs.getDate("data_creacio").toLocalDate() : null);
         request.setObservations(rs.getString("observations"));
+        //Campos opcionaless — no rompen si no están en BD aún
+        try { request.setDies(rs.getString("dies")); } catch (Exception ignored) {}
+        try { request.setFranjaHoraria(rs.getString("franja_horaria")); } catch (Exception ignored) {}
         return request;
     }
 }

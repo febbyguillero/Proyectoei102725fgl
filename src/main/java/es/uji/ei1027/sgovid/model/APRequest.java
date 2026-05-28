@@ -9,63 +9,35 @@ public class APRequest {
     private String estat;
     private LocalDate dataCreacio;
     private String observations;
+    private String dies;        //"L,M,X,J,V" etc
+    private String franjaHoraria; //"manana", "tarde", "noche"
 
-    public int getIdRequest() {
-        return idRequest;
-    }
+    public int getIdRequest() { return idRequest; }
+    public void setIdRequest(int idRequest) { this.idRequest = idRequest; }
 
-    public void setIdRequest(int idRequest) {
-        this.idRequest = idRequest;
-    }
+    public String getUsuariIdent() { return usuariIdent; }
+    public void setUsuariIdent(String usuariIdent) { this.usuariIdent = usuariIdent; }
 
-    public String getUsuariIdent() {
-        return usuariIdent;
-    }
+    public String getTipusServei() { return tipusServei; }
+    public void setTipusServei(String tipusServei) { this.tipusServei = tipusServei; }
 
-    public void setUsuariIdent(String usuariIdent) {
-        this.usuariIdent = usuariIdent;
-    }
+    public String getEstat() { return estat; }
+    public void setEstat(String estat) { this.estat = estat; }
 
-    public String getTipusServei() {
-        return tipusServei;
-    }
+    public LocalDate getDataCreacio() { return dataCreacio; }
+    public void setDataCreacio(LocalDate dataCreacio) { this.dataCreacio = dataCreacio; }
 
-    public void setTipusServei(String tipusServei) {
-        this.tipusServei = tipusServei;
-    }
+    public String getObservations() { return observations; }
+    public void setObservations(String observations) { this.observations = observations; }
 
-    public String getEstat() {
-        return estat;
-    }
+    public String getDies() { return dies; }
+    public void setDies(String dies) { this.dies = dies; }
 
-    public void setEstat(String estat) {
-        this.estat = estat;
-    }
-
-    public LocalDate getDataCreacio() {
-        return dataCreacio;
-    }
-
-    public void setDataCreacio(LocalDate dataCreacio) {
-        this.dataCreacio = dataCreacio;
-    }
-
-    public String getObservations() {
-        return observations;
-    }
-
-    public void setObservations(String observations) {
-        this.observations = observations;
-    }
+    public String getFranjaHoraria() { return franjaHoraria; }
+    public void setFranjaHoraria(String franjaHoraria) { this.franjaHoraria = franjaHoraria; }
 
     @Override
     public String toString() {
-        return "APRequest{" +
-                "idRequest=" + idRequest +
-                ", usuariIdent='" + usuariIdent + '\'' +
-                ", tipusServei='" + tipusServei + '\'' +
-                ", estat='" + estat + '\'' +
-                ", dataCreacio=" + dataCreacio +
-                '}';
+        return "APRequest{idRequest=" + idRequest + ", usuariIdent='" + usuariIdent + "', estat='" + estat + "'}";
     }
 }
