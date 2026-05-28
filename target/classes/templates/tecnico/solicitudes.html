@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Solicitudes - SgOVI</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="container mt-4">
+<h1>Solicitudes de Asistencia Personal</h1>
+<table class="table table-striped" th:unless="${#lists.isEmpty(solicitudes)}">
+    <thead><tr><th>ID</th><th>Usuario</th><th>Tipo</th><th>Fecha</th><th>Estado</th><th>Acción</th></tr></thead>
+    <tbody>
+    <tr th:each="sol : ${solicitudes}">
+        <td th:text="${sol.idRequest}"></td>
+        <td th:text="${sol.usuariIdent}"></td>
+        <td th:text="${sol.tipusServei}"></td>
+        <td th:text="${#temporals.format(sol.dataCreacio, 'dd/MM/yyyy')}"></td>
+        <td><span class="badge bg-warning" th:text="${sol.estat}"></span></td>
+        <td><a th:href="@{/tecnico/solicitud/{id}(id=${sol.idRequest})}" class="btn btn-sm btn-primary">Revisar</a></td>
+    </tr>
+    </tbody>
+</table>
+<div th:if="${#lists.isEmpty(solicitudes)}" class="alert alert-info">No hay solicitudes registradas.</div>
+<a th:href="@{/tecnico/panel}" class="btn btn-secondary">Volver al panel</a>
+</body>
+</html>
