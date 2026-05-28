@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ca" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Editar Contracte - SgOVI</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="container mt-4">
+<h1>Editar contracte #<span th:text="${contrato.idContrato}"></span></h1>
+
+<form th:action="@{/tecnico/contrato/actualizar}" th:object="${contrato}" method="post">
+    <input type="hidden" th:field="*{idContrato}">
+    <input type="hidden" th:field="*{idSolicitud}">
+    <input type="hidden" th:field="*{dniAsistente}">
+    <input type="hidden" th:field="*{fechaInicio}">
+
+    <div class="mb-3">
+        <label class="form-label">Sol·licitud</label>
+        <input type="text" class="form-control" th:value="${contrato.idSolicitud}" disabled>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">DNI Assistent</label>
+        <input type="text" class="form-control" th:value="${contrato.dniAsistente}" disabled>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Data d'inici</label>
+        <input type="text" class="form-control" th:value="${contrato.fechaInicio}" disabled>
+    </div>
+    <div class="mb-3">
+        <label for="fechaFin" class="form-label">Data de fi</label>
+        <input type="date" class="form-control" id="fechaFin" th:field="*{fechaFin}">
+    </div>
+    <div class="mb-3">
+        <label for="estadoContrato" class="form-label">Estat <span class="text-danger">*</span></label>
+        <select class="form-select" id="estadoContrato" th:field="*{estadoContrato}" required>
+            <option value="activo">Actiu</option>
+            <option value="finalizado">Finalitzat</option>
+            <option value="rescindido">Rescindit</option>
+        </select>
+    </div>
+    <div class="mb-3">
+        <label for="observaciones" class="form-label">Observacions</label>
+        <textarea class="form-control" id="observaciones" th:field="*{observaciones}" rows="3"
+                  maxlength="500"></textarea>
+    </div>
+
+    <div class="d-flex gap-2">
+        <button type="submit" class="btn btn-primary">Guardar canvis</button>
+        <a th:href="@{/tecnico/contratos}" class="btn btn-secondary">Cancel·lar</a>
+    </div>
+</form>
+</body>
+</html>
