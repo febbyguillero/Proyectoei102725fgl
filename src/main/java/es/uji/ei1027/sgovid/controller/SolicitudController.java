@@ -28,7 +28,7 @@ public class SolicitudController {
     @Autowired
     private RegistroContratoDao contratoDao;
 
-//nuevasolicitud
+    // Nueva solicitud
     @GetMapping("/nueva")
     public String mostrarFormulario(Model model) {
         model.addAttribute("solicitud", new APRequest());
@@ -37,47 +37,26 @@ public class SolicitudController {
 
     @PostMapping("/nueva")
     public String guardarPeticion(
-            @RequestParam("tipusServei") String tipusServei,
-            @RequestParam(value = "dies", required = false) List<String> dies,
-            @RequestParam(value = "franjaHoraria", required = false) String franjaHoraria,
-            @RequestParam(value = "observations", required = false) String observations,
+            @ModelAttribute("solicitud") APRequest solicitud,
             jakarta.servlet.http.HttpSession session,
             Model model) {
 
-        boolean hasErrors = false;
-        if (tipusServei == null || tipusServei.isEmpty()) {
+        if (solicitud.getTipusServei() == null || solicitud.getTipusServei().isEmpty()) {
             model.addAttribute("errorTipus", "El tipus de servei és obligatori");
-            hasErrors = true;
-        }
-        if (dies == null || dies.isEmpty()) {
-            model.addAttribute("errorDies", "Has de seleccionar almenys un dia");
-            hasErrors = true;
-        }
-        if (franjaHoraria == null || franjaHoraria.isEmpty()) {
-            model.addAttribute("errorFranja", "La franja horària és obligatòria");
-            hasErrors = true;
-        }
-        if (hasErrors) {
-            model.addAttribute("solicitud", new APRequest());
             return "solicitudes/nueva-peticion";
         }
 
-        APRequest solicitud = new APRequest();
         Object usuariId = session.getAttribute("usuariId");
         solicitud.setUsuariIdent(usuariId != null ? usuariId.toString() : "1");
-        solicitud.setTipusServei(tipusServei);
         solicitud.setEstat("PENDIENTE");
         solicitud.setDataCreacio(LocalDate.now());
-        solicitud.setObservations(observations);
-        solicitud.setDies(dies != null ? String.join(",", dies) : "");
-        solicitud.setFranjaHoraria(franjaHoraria);
+        if (solicitud.getDies() == null) solicitud.setDies("");
 
         apRequestDao.addRequest(solicitud);
         return "redirect:/solicitudes/mis-solicitudes";
     }
 
-    //solicitudes
-
+    // Mis solicitudes
     @GetMapping("/mis-solicitudes")
     public String misSolicitudes(Model model, jakarta.servlet.http.HttpSession session) {
         Object usuariId = session.getAttribute("usuariId");
@@ -91,8 +70,7 @@ public class SolicitudController {
         return "solicitudes/mis-solicitudes";
     }
 
-    //miperfil
-
+    // Mi perfil
     @GetMapping("/mi-perfil")
     public String miPerfil(Model model, jakarta.servlet.http.HttpSession session) {
         Object usuariId = session.getAttribute("usuariId");
@@ -102,8 +80,7 @@ public class SolicitudController {
         return "solicitudes/mi-perfil";
     }
 
-    //contrartos
-
+    // Mis contratos
     @GetMapping("/mis-contratos")
     public String misContratos(Model model, jakarta.servlet.http.HttpSession session) {
         Object usuariId = session.getAttribute("usuariId");
