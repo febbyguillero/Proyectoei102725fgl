@@ -40,7 +40,7 @@
             <span th:unless="${a.tipoActividad == 'FORMACION' or a.tipoActividad == 'DIVULGACION'}"
                   class="badge bg-secondary" th:text="${a.tipoActividad}"></span>
         </td>
-        <td th:text="${a.fechaInicio}"></td>
+        <td th:text="${#temporals.format(a.fechaInicio, 'dd/MM/yyyy HH:mm')}"></td>
         <td th:text="${a.lugar}"></td>
         <td th:text="${a.aforoMaximo != null ? a.aforoMaximo : 'Lliure'}"></td>
         <td>
