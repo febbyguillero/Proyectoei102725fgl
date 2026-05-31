@@ -62,6 +62,13 @@ public class ActividadFormacionController {
 
     @PostMapping("/update")
     public String processUpdate(@ModelAttribute("actividad") ActividadFormacion actividad) {
+        if (actividad.getFechaInicio() == null || actividad.getFechaFin() == null) {
+            ActividadFormacion original = actividadDao.getActividad(actividad.getIdActividad());
+            if (original != null) {
+                if (actividad.getFechaInicio() == null) actividad.setFechaInicio(original.getFechaInicio());
+                if (actividad.getFechaFin() == null) actividad.setFechaFin(original.getFechaFin());
+            }
+        }
         actividadDao.updateActividad(actividad);
         return "redirect:/actividad/list";
     }

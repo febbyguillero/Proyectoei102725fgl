@@ -32,7 +32,7 @@ public class AsistentePersonalController {
             return "asistente/registro";
         }
 
-        asistente.setEstado(false);
+        asistente.setEstado("PENDIENTE");
         asistenteDao.addAsistente(asistente);
         return "redirect:/login?registroOK";
     }

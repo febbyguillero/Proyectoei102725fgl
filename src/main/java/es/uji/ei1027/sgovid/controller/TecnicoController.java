@@ -29,20 +29,16 @@ public class TecnicoController {
     @Autowired private SeleccionService seleccionService;
     @Autowired private RegistroContratoDao contratoDao;
 
-    // Panel principal
     @RequestMapping("/panel")
     public String panel() {
         return "tecnico/panel";
     }
-
-    // ===================== SOLICITUDES =====================
 
     @RequestMapping("/solicitudes")
     public String listarSolicitudes(Model model) {
         List<APRequest> solicitudes = solicitudDao.getRequests();
         model.addAttribute("solicitudes", solicitudes);
 
-        // Mapa id -> nombre completo para mostrar nombre en vez de ID (tarea 23)
         Map<String, String> nombresUsuarios = new HashMap<>();
         for (APRequest sol : solicitudes) {
             String ident = sol.getUsuariIdent();
@@ -63,7 +59,6 @@ public class TecnicoController {
         if (solicitud == null) return "redirect:/tecnico/solicitudes";
         model.addAttribute("solicitud", solicitud);
 
-        // Nombre del usuario
         try {
             UsuarioOVI usuario = usuarioDao.getUsuario(Integer.parseInt(solicitud.getUsuariIdent()));
             if (usuario != null) model.addAttribute("nombreUsuario", usuario.getNom() + " " + usuario.getCognoms());
@@ -77,7 +72,6 @@ public class TecnicoController {
             model.addAttribute("candidatosPropuestos", candidatos);
         }
 
-        // Contrato asociado
         RegistroContrato contrato = contratoDao.getContratoBySolicitud(id);
         if (contrato != null) model.addAttribute("contrato", contrato);
 
@@ -103,8 +97,6 @@ public class TecnicoController {
         return "redirect:/tecnico/solicitudes";
     }
 
-    // ===================== ASISTENTES =====================
-
     @RequestMapping("/asistentes-pendientes")
     public String listarAsistentesPendientes(Model model) {
         model.addAttribute("asistentes", asistenteDao.getAsistentes());
@@ -115,7 +107,7 @@ public class TecnicoController {
     public String aceptarAsistente(@PathVariable String dni) {
         AsistentePersonal a = asistenteDao.getAsistente(dni);
         if (a != null) {
-            a.setEstado(true);
+            a.setEstado("ACEPTADO");
             asistenteDao.updateAsistente(a);
         }
         return "redirect:/tecnico/asistentes-pendientes";
@@ -123,7 +115,11 @@ public class TecnicoController {
 
     @RequestMapping("/rechazar-asistente/{dni}")
     public String rechazarAsistente(@PathVariable String dni) {
-        asistenteDao.deleteAsistente(dni);
+        AsistentePersonal a = asistenteDao.getAsistente(dni);
+        if (a != null) {
+            a.setEstado("RECHAZADO");
+            asistenteDao.updateAsistente(a);
+        }
         return "redirect:/tecnico/asistentes-pendientes";
     }
 
@@ -134,8 +130,6 @@ public class TecnicoController {
         model.addAttribute("asistente", a);
         return "asistente/registro";
     }
-
-    // ===================== USUARIOS =====================
 
     @RequestMapping("/usuarios-pendientes")
     public String listarUsuariosPendientes(Model model) {
@@ -159,10 +153,13 @@ public class TecnicoController {
         return "redirect:/tecnico/usuarios-pendientes";
     }
 
-
     @RequestMapping("/rechazar-usuario/{id}")
     public String rechazarUsuario(@PathVariable int id) {
-        usuarioDao.deleteUsuario(id);
+        UsuarioOVI u = usuarioDao.getUsuario(id);
+        if (u != null) {
+            u.setEstatTecnicAcceptat(false);
+            usuarioDao.updateUsuario(u);
+        }
         return "redirect:/tecnico/usuarios-pendientes";
     }
 
@@ -173,8 +170,6 @@ public class TecnicoController {
         model.addAttribute("usuario", u);
         return "usuario/update";
     }
-
-    // ===================== CONTRATOS =====================
 
     @RequestMapping("/contratos")
     public String listarContratos(Model model) {

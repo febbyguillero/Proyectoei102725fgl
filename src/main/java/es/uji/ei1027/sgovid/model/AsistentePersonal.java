@@ -8,7 +8,7 @@ public class AsistentePersonal {
     private String telefono;
     private Integer edad;
     private String titulacion;
-    private Boolean estado;
+    private String estado;
     private String zonaGeografica;
     private String disponibilidad;
     private String formacion;
@@ -26,69 +26,29 @@ public class AsistentePersonal {
     public String getExperiencia() { return experiencia; }
     public void setExperiencia(String experiencia) { this.experiencia = experiencia; }
 
-    public String getDni() {
-        return dni;
-    }
+    public String getDni() { return dni; }
+    public void setDni(String dni) { this.dni = dni; }
 
-    public void setDni(String dni) {
-        this.dni = dni;
-    }
+    public String getNombre() { return nombre; }
+    public void setNombre(String nombre) { this.nombre = nombre; }
 
-    public String getNombre() {
-        return nombre;
-    }
+    public String getApellidos() { return apellidos; }
+    public void setApellidos(String apellidos) { this.apellidos = apellidos; }
 
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
-    }
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
 
-    public String getApellidos() {
-        return apellidos;
-    }
+    public String getTelefono() { return telefono; }
+    public void setTelefono(String telefono) { this.telefono = telefono; }
 
-    public void setApellidos(String apellidos) {
-        this.apellidos = apellidos;
-    }
+    public Integer getEdad() { return edad; }
+    public void setEdad(Integer edad) { this.edad = edad; }
 
-    public String getEmail() {
-        return email;
-    }
+    public String getTitulacion() { return titulacion; }
+    public void setTitulacion(String titulacion) { this.titulacion = titulacion; }
 
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getTelefono() {
-        return telefono;
-    }
-
-    public void setTelefono(String telefono) {
-        this.telefono = telefono;
-    }
-
-    public Integer getEdad() {
-        return edad;
-    }
-
-    public void setEdad(Integer edad) {
-        this.edad = edad;
-    }
-
-    public String getTitulacion() {
-        return titulacion;
-    }
-
-    public void setTitulacion(String titulacion) {
-        this.titulacion = titulacion;
-    }
-
-    public Boolean getEstado() {
-        return estado;
-    }
-
-    public void setEstado(Boolean estado) {
-        this.estado = estado;
-    }
+    public String getEstado() { return estado; }
+    public void setEstado(String estado) { this.estado = estado; }
 
     @Override
     public String toString() {
