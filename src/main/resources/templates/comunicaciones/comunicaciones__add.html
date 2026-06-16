@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <title>Nova Comunicació - SgOVI</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<main class="container mt-4">
+
+    <h1>Registrar Nova Comunicació</h1>
+    <p class="text-muted">Sol·licitud núm. <strong th:text="${solicitud.idRequest}"></strong></p>
+
+    <!-- Missatge d'error (pràctica 4: feedback al usuari) -->
+    <div th:if="${error}" class="alert alert-danger" role="alert">
+        <span th:text="${error}"></span>
+    </div>
+
+    <form th:action="@{/comunicaciones/solicitud/{id}/add(id=${solicitud.idRequest})}"
+          th:object="${comunicacion}" method="post">
+
+        <div class="mb-3">
+            <label for="tipoComunicacion" class="form-label">Tipus de comunicació <span class="text-danger">*</span></label>
+            <select id="tipoComunicacion" name="tipoComunicacion" class="form-select" required>
+                <option value="">-- Selecciona --</option>
+                <option value="email"       th:selected="*{tipoComunicacion == 'email'}">Email</option>
+                <option value="telefono"    th:selected="*{tipoComunicacion == 'telefono'}">Telèfon</option>
+                <option value="presencial"  th:selected="*{tipoComunicacion == 'presencial'}">Presencial</option>
+                <option value="videollamada" th:selected="*{tipoComunicacion == 'videollamada'}">Videotrucada</option>
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label for="direccion" class="form-label">Direcció</label>
+            <select id="direccion" name="direccion" class="form-select">
+                <option value="saliente" th:selected="*{direccion == 'saliente'}">Eixint (OVI → PAP/PATI)</option>
+                <option value="entrante" th:selected="*{direccion == 'entrante'}">Entrant (PAP/PATI → OVI)</option>
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label for="dniAsistente" class="form-label">Assistent PAP/PATI</label>
+            <select id="dniAsistente" name="dniAsistente" class="form-select">
+                <option value="">-- Sense assistent assignat --</option>
+                <option th:each="a : ${asistentes}"
+                        th:value="${a.dni}"
+                        th:text="${a.nombre + ' ' + a.apellidos + ' (' + a.dni + ')'}"
+                        th:selected="*{dniAsistente == a.dni}">
+                </option>
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label for="resumen" class="form-label">Resum <span class="text-danger">*</span></label>
+            <textarea id="resumen" name="resumen" class="form-control" rows="3"
+                      th:text="*{resumen}" required
+                      aria-describedby="ajudaResum"></textarea>
+            <div id="ajudaResum" class="form-text">Descriu breument el contingut de la comunicació.</div>
+        </div>
+
+        <div class="mb-3">
+            <label for="observaciones" class="form-label">Observacions</label>
+            <textarea id="observaciones" name="observaciones" class="form-control" rows="2"
+                      th:text="*{observaciones}"></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Guardar</button>
+        <a th:href="@{/comunicaciones/solicitud/{id}(id=${solicitud.idRequest})}"
+           class="btn btn-secondary ms-2">Cancel·lar</a>
+    </form>
+
+</main>
+</body>
+</html>

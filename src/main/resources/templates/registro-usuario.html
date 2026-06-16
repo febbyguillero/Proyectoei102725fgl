@@ -14,8 +14,7 @@
   <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
   <div th:if="${ok}" class="alert alert-success" th:text="${ok}"></div>
 
-  <form th:action="@{/registro/usuario}" th:object="${usuario}" method="post"
-        novalidate class="needs-validation">
+  <form th:action="@{/registro/usuario}" th:object="${usuario}" method="post">
 
     <div class="mb-3">
       <label for="nom" class="form-label fw-semibold">Nom <span class="text-danger">*</span></label>
@@ -110,20 +109,5 @@
   </form>
 </main>
 
-<script>
-(function () {
-  'use strict';
-  var forms = document.querySelectorAll('.needs-validation');
-  Array.prototype.slice.call(forms).forEach(function (form) {
-    form.addEventListener('submit', function (event) {
-      if (!form.checkValidity()) {
-        event.preventDefault();
-        event.stopPropagation();
-      }
-      form.classList.add('was-validated');
-    }, false);
-  });
-})();
-</script>
 </body>
 </html>

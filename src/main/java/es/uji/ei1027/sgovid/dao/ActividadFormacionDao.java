@@ -18,7 +18,7 @@ public class ActividadFormacionDao {
 
     @Autowired
     public void setDataSource(DataSource dataSource) {
-        jdbcTemplate = new JdbcTemplate(dataSource);
+        this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
     public void addActividad(ActividadFormacion actividad) {
@@ -58,5 +58,46 @@ public class ActividadFormacionDao {
         } catch (EmptyResultDataAccessException e) {
             return new ArrayList<>();
         }
+    }
+
+    // ---- Listado con busqueda, ordenacion y paginacion (todo en el servidor) ----
+
+    private String columnaOrden(String sort) {
+        if (sort == null) return "id_actividad";
+        switch (sort) {
+            case "titulo": return "titulo";
+            case "tipo":   return "tipo_actividad";
+            case "inicio": return "fecha_inicio";
+            case "estado": return "estado";
+            case "id":     return "id_actividad";
+            default:       return "id_actividad";
+        }
+    }
+
+    private String direccionOrden(String dir) {
+        return "desc".equalsIgnoreCase(dir) ? "DESC" : "ASC";
+    }
+
+    public List<ActividadFormacion> getActividades(String q, String sort, String dir, int page, int pageSize) {
+        String like = "%" + (q == null ? "" : q.trim()) + "%";
+        int offset = (page - 1) * pageSize;
+        String sql = "SELECT * FROM actividad_formacion " +
+                "WHERE (titulo ILIKE ? OR tipo_actividad ILIKE ? OR lugar ILIKE ?) " +
+                "ORDER BY " + columnaOrden(sort) + " " + direccionOrden(dir) + " " +
+                "LIMIT ? OFFSET ?";
+        try {
+            return jdbcTemplate.query(sql, new ActividadFormacionRowMapper(),
+                    like, like, like, pageSize, offset);
+        } catch (EmptyResultDataAccessException e) {
+            return new ArrayList<>();
+        }
+    }
+
+    public int countActividades(String q) {
+        String like = "%" + (q == null ? "" : q.trim()) + "%";
+        String sql = "SELECT COUNT(*) FROM actividad_formacion " +
+                "WHERE (titulo ILIKE ? OR tipo_actividad ILIKE ? OR lugar ILIKE ?)";
+        Integer total = jdbcTemplate.queryForObject(sql, Integer.class, like, like, like);
+        return total == null ? 0 : total;
     }
 }

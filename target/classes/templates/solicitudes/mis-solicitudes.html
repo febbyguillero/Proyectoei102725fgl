@@ -15,13 +15,18 @@
         th { background: #f4f5f7; color: #1a1a2e; font-weight: 600; }
         .badge { display: inline-block; padding: 4px 12px; border-radius: 12px; font-size: 0.9rem; font-weight: 600; border: 1px solid; }
         .btn-primary { background: #15315a; color: white; padding: 10px 20px; border: 1px solid #15315a; border-radius: 4px; text-decoration: none; display: inline-block; }
+        .btn-ver { background: #ffffff; color: #15315a; padding: 6px 14px; border: 1px solid #15315a; border-radius: 4px; text-decoration: none; display: inline-block; font-size: 0.9rem; }
+        .btn-ver:hover { background: #15315a; color: white; }
         .legend { margin-top: 24px; font-size: 0.9rem; color: #4a4d57; }
+        .empty-msg { text-align: center; color: #4a4d57; padding: 32px; }
     </style>
 </head>
 <body>
 <header>
     <strong style="font-size:1.5rem;">SgOVI</strong>
     <nav>
+        <a href="/solicitudes/mi-perfil" style="color:white; margin-right: 16px;">Mi perfil</a>
+        <a href="/solicitudes/mis-contratos" style="color:white; margin-right: 16px;">Mis contratos</a>
         <span th:text="'Hola, ' + ${session.nombreUsuario}">Hola, Usuario</span>
         &nbsp;|&nbsp;
         <a href="/logout" style="color:white;">Cerrar sesión</a>
@@ -38,29 +43,45 @@
     <table>
         <thead>
         <tr>
-            <th>ID</th>
-            <th>Tipo</th>
             <th>Fecha</th>
+            <th>Tipo de servicio</th>
+            <th>Días solicitados</th>
+            <th>Franja horaria</th>
             <th>Estado</th>
-            <th>Observaciones</th>
+            <th>Acción</th>
         </tr>
         </thead>
         <tbody>
         <tr th:each="sol : ${solicitudes}">
-            <td th:text="${sol.idRequest}">1</td>
-            <td th:text="${sol.tipusServei}">PAP</td>
             <td th:text="${sol.dataCreacio}">15/01/2026</td>
+            <td th:text="${sol.tipusServei}">PAP</td>
+            <td th:text="${sol.dies != null and !sol.dies.isEmpty() ? sol.dies : '—'}">L,M,X</td>
+            <td th:text="${sol.franjaHoraria != null ? sol.franjaHoraria : '—'}">Mañana</td>
             <td>
-                        <span class="badge" th:text="${sol.estat}"
-                              th:style="${sol.estat == 'PENDIENTE'} ? 'background:#fff4d4;color:#5c4400;border-color:#5c4400' : (${sol.estat == 'APROBADA'} ? 'background:#e6f4e0;color:#1f5728;border-color:#1f5728' : 'background:#ffe0e0;color:#a8121a;border-color:#a8121a')">EN_REVISIÓN</span>
+                <span class="badge"
+                      th:text="${sol.estat == 'PENDIENTE'} ? 'En revisión' : (${sol.estat == 'APROBADA'} ? 'Aprobada' : (${sol.estat == 'RECHAZADA'} ? 'Rechazada' : sol.estat))"
+                      th:style="${sol.estat == 'PENDIENTE'} ? 'background:#fff4d4;color:#5c4400;border-color:#5c4400' :
+                                (${sol.estat == 'APROBADA'} ? 'background:#e6f4e0;color:#1f5728;border-color:#1f5728' :
+                                'background:#ffe0e0;color:#a8121a;border-color:#a8121a')">
+                    Estado
+                </span>
             </td>
-            <td th:text="${sol.observations}">Observaciones</td>
+            <td>
+                <a th:href="@{/solicitudes/detalle/{id}(id=${sol.idRequest})}"
+                   class="btn-ver">Ver detalle</a>
+            </td>
+        </tr>
+        <tr th:if="${#lists.isEmpty(solicitudes)}">
+            <td colspan="6" class="empty-msg">No tienes solicitudes registradas aún.</td>
         </tr>
         </tbody>
     </table>
 
     <p class="legend">
-        <strong>Estados posibles:</strong> EN_REVISIÓN (siendo evaluada), APROBADA (asignado asistente), RECHAZADA (no aceptada).
+        <strong>Estados:</strong>
+        En revisión (siendo evaluada) &nbsp;|&nbsp;
+        Aprobada (asistente asignado) &nbsp;|&nbsp;
+        Rechazada (no aceptada)
     </p>
 </main>
 </body>

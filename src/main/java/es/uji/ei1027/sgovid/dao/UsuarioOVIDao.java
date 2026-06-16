@@ -30,6 +30,48 @@ public class UsuarioOVIDao {
         }
     }
 
+    // ---- Listado con búsqueda, ordenación y paginación (todo en el servidor) ----
+
+    // Columna de ordenación segura (lista blanca para evitar inyección SQL).
+    private String columnaOrden(String sort) {
+        if (sort == null) return "id_usuari";
+        switch (sort) {
+            case "nom":      return "nom";
+            case "cognoms":  return "cognoms";
+            case "dni":      return "dni";
+            case "email":    return "email";
+            case "id":       return "id_usuari";
+            default:         return "id_usuari";
+        }
+    }
+
+    private String direccionOrden(String dir) {
+        return "desc".equalsIgnoreCase(dir) ? "DESC" : "ASC";
+    }
+
+    public List<UsuarioOVI> getUsuarios(String q, String sort, String dir, int page, int pageSize) {
+        String like = "%" + (q == null ? "" : q.trim()) + "%";
+        int offset = (page - 1) * pageSize;
+        String sql = "SELECT * FROM UsuariOVI " +
+                "WHERE (nom ILIKE ? OR cognoms ILIKE ? OR dni ILIKE ? OR email ILIKE ?) " +
+                "ORDER BY " + columnaOrden(sort) + " " + direccionOrden(dir) + " " +
+                "LIMIT ? OFFSET ?";
+        try {
+            return jdbcTemplate.query(sql, new UsuarioOVIRowMapper(),
+                    like, like, like, like, pageSize, offset);
+        } catch (EmptyResultDataAccessException e) {
+            return new ArrayList<>();
+        }
+    }
+
+    public int countUsuarios(String q) {
+        String like = "%" + (q == null ? "" : q.trim()) + "%";
+        String sql = "SELECT COUNT(*) FROM UsuariOVI " +
+                "WHERE (nom ILIKE ? OR cognoms ILIKE ? OR dni ILIKE ? OR email ILIKE ?)";
+        Integer total = jdbcTemplate.queryForObject(sql, Integer.class, like, like, like, like);
+        return total == null ? 0 : total;
+    }
+
     public UsuarioOVI getUsuario(int idUsuari) {
         try {
             String sql = "SELECT * FROM UsuariOVI WHERE id_usuari = ?";
@@ -40,27 +82,7 @@ public class UsuarioOVIDao {
     }
 
     public void addUsuario(UsuarioOVI usuario) {
-        String sql = "INSERT INTO UsuariOVI (identificador_sgovi, contrasenya, email, nom, cognoms, telefon, adreca, dni, data_naixement, consentiment_informat, estat_tecnic_acceptat, tutor_legal_nom, tutor_legal_contacte) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-
-        jdbcTemplate.update(sql,
-                usuario.getIdentificadorSgovi(),
-                usuario.getContrasenya(),
-                usuario.getEmail(),
-                usuario.getNom(),
-                usuario.getCognoms(),
-                usuario.getTelefon(),
-                usuario.getAdreca(),
-                usuario.getDni(),
-                usuario.getDataNaixement(),
-                usuario.isConsentimentInformat(),
-                usuario.isEstatTecnicAcceptat(),
-                usuario.getTutorLegalNom(),
-                usuario.getTutorLegalContacte()
-        );
-    }
-
-    public void updateUsuario(UsuarioOVI usuario) {
-        String sql = "UPDATE UsuariOVI SET identificador_sgovi=?, contrasenya=?, email=?, nom=?, cognoms=?, telefon=?, adreca=?, dni=?, data_naixement=?, consentiment_informat=?, estat_tecnic_acceptat=?, tutor_legal_nom=?, tutor_legal_contacte=? WHERE id_usuari=?";
+        String sql = "INSERT INTO UsuariOVI (identificador_sgovi, contrasenya, email, nom, cognoms, telefon, adreca, dni, data_naixement, consentiment_informat, estat_tecnic_acceptat, tutor_legal_nom, tutor_legal_contacte, zona_geografica) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         jdbcTemplate.update(sql,
                 usuario.getIdentificadorSgovi(),
@@ -76,6 +98,28 @@ public class UsuarioOVIDao {
                 usuario.isEstatTecnicAcceptat(),
                 usuario.getTutorLegalNom(),
                 usuario.getTutorLegalContacte(),
+                usuario.getZonaGeografica()
+        );
+    }
+
+    public void updateUsuario(UsuarioOVI usuario) {
+        String sql = "UPDATE UsuariOVI SET identificador_sgovi=?, contrasenya=?, email=?, nom=?, cognoms=?, telefon=?, adreca=?, dni=?, data_naixement=?, consentiment_informat=?, estat_tecnic_acceptat=?, tutor_legal_nom=?, tutor_legal_contacte=?, zona_geografica=? WHERE id_usuari=?";
+
+        jdbcTemplate.update(sql,
+                usuario.getIdentificadorSgovi(),
+                usuario.getContrasenya(),
+                usuario.getEmail(),
+                usuario.getNom(),
+                usuario.getCognoms(),
+                usuario.getTelefon(),
+                usuario.getAdreca(),
+                usuario.getDni(),
+                usuario.getDataNaixement(),
+                usuario.isConsentimentInformat(),
+                usuario.isEstatTecnicAcceptat(),
+                usuario.getTutorLegalNom(),
+                usuario.getTutorLegalContacte(),
+                usuario.getZonaGeografica(),
                 usuario.getIdUsuari()
         );
     }

@@ -16,7 +16,7 @@
         Sol·licitud enviada correctament. El tècnic OVI la revisarà prompte.
     </div>
 
-    <form th:action="@{/login}" method="post" novalidate class="needs-validation">
+    <form th:action="@{/login}" method="post">
         <div class="mb-3">
             <label for="identificador" class="form-label">Identificador</label>
             <input type="text" class="form-control" id="identificador" name="identificador" required autofocus>
@@ -37,20 +37,5 @@
     </p>
 </main>
 
-<script>
-    (function() {
-        'use strict';
-        var forms = document.querySelectorAll('.needs-validation');
-        Array.prototype.slice.call(forms).forEach(function(form) {
-            form.addEventListener('submit', function(event) {
-                if (!form.checkValidity()) {
-                    event.preventDefault();
-                    event.stopPropagation();
-                }
-                form.classList.add('was-validated');
-            }, false);
-        });
-    })();
-</script>
 </body>
 </html>

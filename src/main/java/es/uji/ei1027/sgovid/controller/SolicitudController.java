@@ -71,7 +71,7 @@ public class SolicitudController {
         return "solicitudes/mis-solicitudes";
     }
 
-    //DETALLE SOLICITUDUSUARIO OVI
+    //DETALLE SOLICITUD USUARIO OVI
 
     @GetMapping("/detalle/{id}")
     public String detalleSolicitud(@PathVariable int id, Model model,
@@ -91,7 +91,8 @@ public class SolicitudController {
         RegistroContrato contrato = contratoDao.getContratoBySolicitud(id);
         if (contrato != null) model.addAttribute("contrato", contrato);
 
-        return "solicitudes/detalle-solicitud";
+        // El fichero de la plantilla se llama detalle_solicitud.html (guion bajo)
+        return "solicitudes/detalle_solicitud";
     }
 
     //PERFIL
@@ -100,7 +101,17 @@ public class SolicitudController {
     public String miPerfil(Model model, jakarta.servlet.http.HttpSession session) {
         Object usuariId = session.getAttribute("usuariId");
         if (usuariId == null) return "redirect:/login";
-        UsuarioOVI usuario = usuarioDao.getUsuario(Integer.parseInt(usuariId.toString()));
+
+        // Blindaje: el técnico tiene usuariId = "tecnico" (no numérico).
+        UsuarioOVI usuario = null;
+        try {
+            usuario = usuarioDao.getUsuario(Integer.parseInt(usuariId.toString()));
+        } catch (NumberFormatException e) {
+            // No es un usuario OVI (p.ej. el técnico): no hay perfil que mostrar.
+            return "redirect:/";
+        }
+        if (usuario == null) return "redirect:/solicitudes/mis-solicitudes";
+
         model.addAttribute("usuario", usuario);
         return "solicitudes/mi-perfil";
     }

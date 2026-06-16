@@ -69,8 +69,7 @@
             <td th:text="${c.zonaGeografica}"></td>
             <td>
                 <a th:href="@{/tecnico/solicitud/{id}/asignar/{dni}(id=${solicitud.idRequest},dni=${c.dni})}"
-                   class="btn btn-sm btn-success"
-                   onclick="return confirm('Assignar aquest candidat i generar contracte?')">
+                   class="btn btn-sm btn-success">
                     Assignar
                 </a>
             </td>
@@ -86,13 +85,16 @@
 <!-- Accions -->
 <div class="d-flex gap-2 mt-3" th:if="${!solicitud.estat.equals('RECHAZADA') and !solicitud.estat.equals('APROBADA')}">
     <a th:href="@{/tecnico/solicitud/{id}/rechazar(id=${solicitud.idRequest})}"
-       class="btn btn-danger"
-       onclick="return confirm('Rebutjar aquesta sol·licitud?')">
+       class="btn btn-danger">
         Rebutjar sol·licitud
     </a>
 </div>
 
 <a th:href="@{/tecnico/solicitudes}" class="btn btn-secondary mt-3">Tornar a sol·licituds</a>
+
+
+    <a th:href="@{/comunicaciones/solicitud/{id}(id=${solicitud.idRequest})}"
+       class="btn btn-info mt-3">Ver comunicacions</a>
 
 </body>
 </html>

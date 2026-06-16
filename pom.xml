@@ -61,6 +61,13 @@
             <scope>runtime</scope>
             <optional>true</optional>
         </dependency>
+
+        <!-- Jasypt: encriptació de contrasenyes (Sessió 6 pràctiques EI1027) -->
+        <dependency>
+            <groupId>org.jasypt</groupId>
+            <artifactId>jasypt</artifactId>
+            <version>1.9.3</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -72,3 +79,5 @@
         </plugins>
     </build>
 </project>
+
+        <!-- Jasypt: encriptació de contrasenyes (Sessió 6 EI1027) -->

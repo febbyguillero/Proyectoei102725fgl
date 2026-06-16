@@ -21,7 +21,7 @@ public class APRequestDao {
         jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
-    //Creo que solucionado: sin id_request, así creo que la secuencia lo genera automáticamente
+    // El id_request lo genera la secuencia de la BD (no se manda en el INSERT).
     public void addRequest(APRequest request) {
         jdbcTemplate.update(
                 "INSERT INTO APRequest (usuari_ident, tipus_servei, estat, data_creacio, observations, dies, franja_horaria) VALUES (?, ?, ?, ?, ?, ?, ?)",
@@ -62,7 +62,7 @@ public class APRequestDao {
         }
     }
 
-    //Solicitudes de un usuario concreto
+    // Solicitudes de un usuario concreto
     public List<APRequest> getRequestsByUsuari(String usuariIdent) {
         try {
             return jdbcTemplate.query(
@@ -77,5 +77,67 @@ public class APRequestDao {
         jdbcTemplate.update(
                 "UPDATE APRequest SET estat = ? WHERE id_request = ?",
                 nuevoEstado, idRequest);
+    }
+
+    // ---- Listado con busqueda, filtros, ordenacion y paginacion (todo en el servidor) ----
+
+    private String columnaOrden(String sort) {
+        if (sort == null) return "id_request";
+        switch (sort) {
+            case "id":      return "id_request";
+            case "usuario": return "usuari_ident";
+            case "tipo":    return "tipus_servei";
+            case "fecha":   return "data_creacio";
+            case "estado":  return "estat";
+            default:        return "id_request";
+        }
+    }
+
+    private String direccionOrden(String dir) {
+        return "desc".equalsIgnoreCase(dir) ? "DESC" : "ASC";
+    }
+
+    private StringBuilder construirFiltros(String q, String estado, String tipo, List<Object> params) {
+        StringBuilder sql = new StringBuilder(" WHERE 1=1 ");
+        if (q != null && !q.trim().isEmpty()) {
+            sql.append("AND (usuari_ident ILIKE ? OR tipus_servei ILIKE ? OR observations ILIKE ?) ");
+            String like = "%" + q.trim() + "%";
+            params.add(like);
+            params.add(like);
+            params.add(like);
+        }
+        if (estado != null && !estado.trim().isEmpty()) {
+            sql.append("AND estat = ? ");
+            params.add(estado.trim());
+        }
+        if (tipo != null && !tipo.trim().isEmpty()) {
+            sql.append("AND tipus_servei = ? ");
+            params.add(tipo.trim());
+        }
+        return sql;
+    }
+
+    public List<APRequest> getRequests(String q, String estado, String tipo,
+                                       String sort, String dir, int page, int pageSize) {
+        List<Object> params = new ArrayList<>();
+        StringBuilder sql = new StringBuilder("SELECT * FROM APRequest");
+        sql.append(construirFiltros(q, estado, tipo, params));
+        sql.append("ORDER BY ").append(columnaOrden(sort)).append(" ").append(direccionOrden(dir)).append(" ");
+        sql.append("LIMIT ? OFFSET ?");
+        params.add(pageSize);
+        params.add((page - 1) * pageSize);
+        try {
+            return jdbcTemplate.query(sql.toString(), new APRequestRowMapper(), params.toArray());
+        } catch (EmptyResultDataAccessException e) {
+            return new ArrayList<>();
+        }
+    }
+
+    public int countRequests(String q, String estado, String tipo) {
+        List<Object> params = new ArrayList<>();
+        StringBuilder sql = new StringBuilder("SELECT COUNT(*) FROM APRequest");
+        sql.append(construirFiltros(q, estado, tipo, params));
+        Integer total = jdbcTemplate.queryForObject(sql.toString(), Integer.class, params.toArray());
+        return total == null ? 0 : total;
     }
 }

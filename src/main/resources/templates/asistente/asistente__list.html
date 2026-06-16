@@ -36,8 +36,7 @@
       <td th:text="${usuario.telefon}">123456789</td>
       <td>
         <a th:href="@{/usuario/update/{id}(id=${usuario.idUsuari})}" class="btn btn-sm btn-warning">Editar</a>
-        <a th:href="@{/usuario/delete/{id}(id=${usuario.idUsuari})}" class="btn btn-sm btn-danger"
-           onclick="return confirm('¿Estás seguro de eliminar este usuario?')">Eliminar</a>
+        <a th:href="@{/usuario/delete/{id}(id=${usuario.idUsuari})}" class="btn btn-sm btn-danger">Eliminar</a>
       </td>
     </tr>
     </tbody>

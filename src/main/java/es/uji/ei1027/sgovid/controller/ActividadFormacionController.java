@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/actividad")
 public class ActividadFormacionController {
 
+    private static final int TAM_PAGINA = 10;
+
     @Autowired
     private ActividadFormacionDao actividadDao;
 
@@ -22,8 +24,25 @@ public class ActividadFormacionController {
     }
 
     @GetMapping("/list")
-    public String listActividades(Model model) {
-        model.addAttribute("actividades", actividadDao.getActividades());
+    public String listActividades(
+            @RequestParam(defaultValue = "") String q,
+            @RequestParam(defaultValue = "") String sort,
+            @RequestParam(defaultValue = "asc") String dir,
+            @RequestParam(defaultValue = "1") int page,
+            Model model) {
+
+        if (page < 1) page = 1;
+        int total = actividadDao.countActividades(q);
+        int totalPaginas = Math.max(1, (int) Math.ceil(total / (double) TAM_PAGINA));
+        if (page > totalPaginas) page = totalPaginas;
+
+        model.addAttribute("actividades", actividadDao.getActividades(q, sort, dir, page, TAM_PAGINA));
+        model.addAttribute("q", q);
+        model.addAttribute("sort", sort);
+        model.addAttribute("dir", dir);
+        model.addAttribute("page", page);
+        model.addAttribute("totalPaginas", totalPaginas);
+        model.addAttribute("total", total);
         return "actividad/list";
     }
 

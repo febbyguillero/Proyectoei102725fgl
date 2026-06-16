@@ -2,51 +2,75 @@ package es.uji.ei1027.sgovid.controller;
 
 import es.uji.ei1027.sgovid.dao.UsuarioOVIDao;
 import es.uji.ei1027.sgovid.model.UsuarioOVI;
+import jakarta.servlet.http.HttpSession;
+import org.jasypt.util.password.BasicPasswordEncryptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import jakarta.servlet.http.HttpSession;
 import java.util.List;
 
+/**
+ * Controlador d'autenticació d'usuaris i gestió de sessions.
+ * Segueix el patró de la Sessió 6 de pràctiques EI1027:
+ * - Usa BasicPasswordEncryptor de Jasypt per comparar contrasenyes.
+ * - Guarda l'usuari autenticat com a atribut de la sessió (HttpSession).
+ */
 @Controller
 public class LoginController {
 
     @Autowired
     private UsuarioOVIDao usuarioDao;
 
+    // Credencials del tècnic en constants (fàcil de canviar, no disperses pel codi)
+    private static final String TECNICO_USUARI = "tecnico";
+    private static final String TECNICO_CONTRASENYA = "tecnico123";
+
+    private final BasicPasswordEncryptor passwordEncryptor = new BasicPasswordEncryptor();
+
     @GetMapping("/login")
     public String loginForm(@RequestParam(value = "error", required = false) String error,
                             @RequestParam(value = "logout", required = false) String logout,
                             Model model) {
-        if (error != null) model.addAttribute("error", "Identificador o contrasenya incorrectes.");
+        if (error != null)  model.addAttribute("error", "Identificador o contrasenya incorrectes.");
         if (logout != null) model.addAttribute("mensaje", "Sessió tancada correctament.");
         return "login";
     }
 
     @PostMapping("/login")
-    public String procesarLogin(
-            @RequestParam String identificador,
-            @RequestParam String contrasenya,
-            HttpSession session,
-            Model model) {
+    public String procesarLogin(@RequestParam String identificador,
+                                @RequestParam String contrasenya,
+                                HttpSession session,
+                                Model model) {
 
-        // Técnico hardcoded
-        if ("tecnico".equals(identificador) && "tecnico123".equals(contrasenya)) {
+        // Tècnic OVI: comparació directa (credencial interna del sistema)
+        if (TECNICO_USUARI.equals(identificador) && TECNICO_CONTRASENYA.equals(contrasenya)) {
             session.setAttribute("rol", "TECNICO");
             session.setAttribute("usuariId", "tecnico");
-            session.setAttribute("nombreUsuario", "Técnico OVI");
+            session.setAttribute("nombreUsuario", "Tècnic OVI");
             return "redirect:/tecnico/panel";
         }
 
-        // Buscar usuario OVI en BD
+        // Usuari OVI: comparació amb BasicPasswordEncryptor (Jasypt, Sessió 6)
+        // checkPassword() funciona tant si la contrasenya és en clar (dades antigues)
+        // com si ja ha sigut xifrada amb encryptPassword().
         List<UsuarioOVI> usuarios = usuarioDao.getUsuarios();
         for (UsuarioOVI u : usuarios) {
-            if (identificador.equals(u.getIdentificadorSgovi())
-                    && contrasenya.equals(u.getContrasenya())) {
+            if (!identificador.equals(u.getIdentificadorSgovi())) continue;
+
+            boolean ok;
+            try {
+                // Contrasenya xifrada amb Jasypt
+                ok = passwordEncryptor.checkPassword(contrasenya, u.getContrasenya());
+            } catch (Exception e) {
+                // Contrasenya en clar (dades de prova del seed inicial)
+                ok = contrasenya.equals(u.getContrasenya());
+            }
+
+            if (ok) {
                 if (!u.isEstatTecnicAcceptat()) {
-                    model.addAttribute("error", "El teu compte està pendent de validació.");
+                    model.addAttribute("error", "El teu compte està pendent de validació pel tècnic.");
                     return "login";
                 }
                 session.setAttribute("rol", "USUARIO");

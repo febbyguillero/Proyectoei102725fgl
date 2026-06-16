@@ -23,6 +23,8 @@ import java.util.Map;
 @RequestMapping("/tecnico")
 public class TecnicoController {
 
+    private static final int TAM_PAGINA = 10;
+
     @Autowired private APRequestDao solicitudDao;
     @Autowired private AsistentePersonalDao asistenteDao;
     @Autowired private UsuarioOVIDao usuarioDao;
@@ -35,10 +37,24 @@ public class TecnicoController {
     }
 
     @RequestMapping("/solicitudes")
-    public String listarSolicitudes(Model model) {
-        List<APRequest> solicitudes = solicitudDao.getRequests();
+    public String listarSolicitudes(
+            @RequestParam(defaultValue = "") String q,
+            @RequestParam(defaultValue = "") String estado,
+            @RequestParam(defaultValue = "") String tipo,
+            @RequestParam(defaultValue = "") String sort,
+            @RequestParam(defaultValue = "asc") String dir,
+            @RequestParam(defaultValue = "1") int page,
+            Model model) {
+
+        if (page < 1) page = 1;
+        int total = solicitudDao.countRequests(q, estado, tipo);
+        int totalPaginas = Math.max(1, (int) Math.ceil(total / (double) TAM_PAGINA));
+        if (page > totalPaginas) page = totalPaginas;
+
+        List<APRequest> solicitudes = solicitudDao.getRequests(q, estado, tipo, sort, dir, page, TAM_PAGINA);
         model.addAttribute("solicitudes", solicitudes);
 
+        // Nombre del usuario por cada solicitud de la página (sin id en la tabla)
         Map<String, String> nombresUsuarios = new HashMap<>();
         for (APRequest sol : solicitudes) {
             String ident = sol.getUsuariIdent();
@@ -50,6 +66,15 @@ public class TecnicoController {
             }
         }
         model.addAttribute("nombresUsuarios", nombresUsuarios);
+
+        model.addAttribute("q", q);
+        model.addAttribute("estado", estado);
+        model.addAttribute("tipo", tipo);
+        model.addAttribute("sort", sort);
+        model.addAttribute("dir", dir);
+        model.addAttribute("page", page);
+        model.addAttribute("totalPaginas", totalPaginas);
+        model.addAttribute("total", total);
         return "tecnico/solicitudes";
     }
 
@@ -98,8 +123,25 @@ public class TecnicoController {
     }
 
     @RequestMapping("/asistentes-pendientes")
-    public String listarAsistentesPendientes(Model model) {
-        model.addAttribute("asistentes", asistenteDao.getAsistentes());
+    public String listarAsistentesPendientes(
+            @RequestParam(defaultValue = "") String q,
+            @RequestParam(defaultValue = "") String sort,
+            @RequestParam(defaultValue = "asc") String dir,
+            @RequestParam(defaultValue = "1") int page,
+            Model model) {
+
+        if (page < 1) page = 1;
+        int total = asistenteDao.countAsistentes(q);
+        int totalPaginas = Math.max(1, (int) Math.ceil(total / (double) TAM_PAGINA));
+        if (page > totalPaginas) page = totalPaginas;
+
+        model.addAttribute("asistentes", asistenteDao.getAsistentes(q, sort, dir, page, TAM_PAGINA));
+        model.addAttribute("q", q);
+        model.addAttribute("sort", sort);
+        model.addAttribute("dir", dir);
+        model.addAttribute("page", page);
+        model.addAttribute("totalPaginas", totalPaginas);
+        model.addAttribute("total", total);
         return "tecnico/asistentes-pendientes";
     }
 
@@ -132,8 +174,25 @@ public class TecnicoController {
     }
 
     @RequestMapping("/usuarios-pendientes")
-    public String listarUsuariosPendientes(Model model) {
-        model.addAttribute("usuarios", usuarioDao.getUsuarios());
+    public String listarUsuariosPendientes(
+            @RequestParam(defaultValue = "") String q,
+            @RequestParam(defaultValue = "") String sort,
+            @RequestParam(defaultValue = "asc") String dir,
+            @RequestParam(defaultValue = "1") int page,
+            Model model) {
+
+        if (page < 1) page = 1;
+        int total = usuarioDao.countUsuarios(q);
+        int totalPaginas = Math.max(1, (int) Math.ceil(total / (double) TAM_PAGINA));
+        if (page > totalPaginas) page = totalPaginas;
+
+        model.addAttribute("usuarios", usuarioDao.getUsuarios(q, sort, dir, page, TAM_PAGINA));
+        model.addAttribute("q", q);
+        model.addAttribute("sort", sort);
+        model.addAttribute("dir", dir);
+        model.addAttribute("page", page);
+        model.addAttribute("totalPaginas", totalPaginas);
+        model.addAttribute("total", total);
         return "tecnico/usuarios-pendientes";
     }
 
@@ -167,13 +226,32 @@ public class TecnicoController {
     public String editarUsuario(@PathVariable int id, Model model) {
         UsuarioOVI u = usuarioDao.getUsuario(id);
         if (u == null) return "redirect:/tecnico/usuarios-pendientes";
+        // No mostramos el hash de la contrasena en el formulario de edicion
+        u.setContrasenya("");
         model.addAttribute("usuario", u);
         return "usuario/update";
     }
 
     @RequestMapping("/contratos")
-    public String listarContratos(Model model) {
-        model.addAttribute("contratos", contratoDao.getContratos());
+    public String listarContratos(
+            @RequestParam(defaultValue = "") String q,
+            @RequestParam(defaultValue = "") String sort,
+            @RequestParam(defaultValue = "asc") String dir,
+            @RequestParam(defaultValue = "1") int page,
+            Model model) {
+
+        if (page < 1) page = 1;
+        int total = contratoDao.countContratos(q);
+        int totalPaginas = Math.max(1, (int) Math.ceil(total / (double) TAM_PAGINA));
+        if (page > totalPaginas) page = totalPaginas;
+
+        model.addAttribute("contratos", contratoDao.getContratos(q, sort, dir, page, TAM_PAGINA));
+        model.addAttribute("q", q);
+        model.addAttribute("sort", sort);
+        model.addAttribute("dir", dir);
+        model.addAttribute("page", page);
+        model.addAttribute("totalPaginas", totalPaginas);
+        model.addAttribute("total", total);
         return "tecnico/contratos";
     }
 
