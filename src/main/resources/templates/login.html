@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="ca" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar sessió - SgOVI</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+</head>
+<body class="bg-light">
+<main class="container" style="max-width:420px; margin-top:80px;">
+    <h1 class="h4 mb-4 text-center">SgOVI — Iniciar sessió</h1>
+
+    <div th:if="${error}" class="alert alert-danger" role="alert" th:text="${error}"></div>
+    <div th:if="${mensaje}" class="alert alert-success" role="alert" th:text="${mensaje}"></div>
+    <div th:if="${param.registroOK}" class="alert alert-success" role="alert">
+        Sol·licitud enviada correctament. El tècnic OVI la revisarà prompte.
+    </div>
+
+    <form th:action="@{/login}" method="post">
+        <div class="mb-3">
+            <label for="identificador" class="form-label">Identificador</label>
+            <input type="text" class="form-control" id="identificador" name="identificador" required autofocus>
+            <div class="invalid-feedback">El identificador és obligatori.</div>
+        </div>
+        <div class="mb-3">
+            <label for="contrasenya" class="form-label">Contrasenya</label>
+            <input type="password" class="form-control" id="contrasenya" name="contrasenya" required>
+            <div class="invalid-feedback">La contrasenya és obligatòria.</div>
+        </div>
+        <button type="submit" class="btn btn-primary w-100">Entrar</button>
+    </form>
+
+    <hr>
+    <p class="text-center text-muted small">
+        ¿No tens compte? <a href="/usuario/add">Registra't com a usuari OVI</a>
+        <br>¿Vols ser PAP/PATI? <a href="/asistente/registro">Registra't com a assistent</a>
+    </p>
+</main>
+
+</body>
+</html>

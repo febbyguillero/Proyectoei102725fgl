@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registrar petición de asistencia personal - SgOVI</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            margin: 0;
+            background: #f4f5f7;
+            color: #1a1a2e;
+            line-height: 1.5;
+        }
+        header {
+            background: #1d4374;
+            color: #ffffff;
+            padding: 16px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin: 0;
+        }
+        nav ul {
+            display: flex;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            gap: 24px;
+            flex-wrap: wrap;
+        }
+        nav a, nav .user-name {
+            color: #ffffff;
+            text-decoration: none;
+        }
+        nav a:hover, nav a:focus {
+            text-decoration: underline;
+        }
+        nav a:focus {
+            outline: 3px solid #ffba3d;
+            outline-offset: 2px;
+        }
+        main {
+            max-width: 800px;
+            margin: 32px auto;
+            background: #ffffff;
+            padding: 32px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        h1 {
+            color: #15315a;
+            margin-top: 0;
+            margin-bottom: 8px;
+        }
+        .lead {
+            color: #3a3a4e;
+            margin-bottom: 24px;
+        }
+        fieldset {
+            border: 1px solid #c0c4c9;
+            border-radius: 6px;
+            padding: 16px 24px;
+            margin-bottom: 24px;
+        }
+        legend {
+            font-weight: 600;
+            padding: 0 8px;
+            color: #15315a;
+        }
+        .form-group {
+            margin-bottom: 16px;
+        }
+        .form-group > label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: #15315a;
+        }
+        .radio-option, .checkbox-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+        .radio-option label, .checkbox-option label {
+            font-weight: normal;
+            margin-bottom: 0;
+            cursor: pointer;
+        }
+        textarea, input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #6a6e76;
+            border-radius: 4px;
+            font-family: inherit;
+            font-size: 1rem;
+        }
+        textarea:focus, input:focus {
+            outline: 3px solid #1d4374;
+            outline-offset: 1px;
+        }
+        .day-row {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+        .day-row .checkbox-option {
+            margin-bottom: 0;
+        }
+        .actions {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            margin-top: 24px;
+            flex-wrap: wrap;
+        }
+        button {
+            font-size: 1rem;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: 500;
+        }
+        button:focus {
+            outline: 3px solid #ffba3d;
+            outline-offset: 2px;
+        }
+        .btn-primary {
+            background: #15315a;
+            color: #ffffff;
+            border: 1px solid #15315a;
+        }
+        .btn-primary:hover {
+            background: #0d2243;
+        }
+        .btn-secondary {
+            background: #ffffff;
+            color: #15315a;
+            border: 1px solid #15315a;
+        }
+        .btn-secondary:hover {
+            background: #e8eef7;
+        }
+        .info-note {
+            background: #e8eef7;
+            border-left: 4px solid #15315a;
+            padding: 12px 16px;
+            margin-top: 24px;
+            color: #15315a;
+            font-size: 0.95rem;
+        }
+        .help-text {
+            font-size: 0.875rem;
+            color: #4a4d57;
+            margin-top: 4px;
+        }
+        .required-mark {
+            color: #a8121a;
+            font-weight: bold;
+        }
+        footer {
+            text-align: center;
+            padding: 16px;
+            color: #4a4d57;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <p class="logo">SgOVI</p>
+        <nav aria-label="Navegación principal">
+            <ul>
+                <li><a href="#mis-solicitudes">Mis solicitudes</a></li>
+                <li><span class="user-name">Hola, Ana García</span></li>
+                <li><a href="#cerrar-sesion">Cerrar sesión</a></li>
+            </ul>
+        </nav>
+    </header>
+ 
+    <main>
+        <h1>Registrar petición de asistencia personal</h1>
+        <p class="lead">Rellena los datos para que un técnico de la OVI revise tu solicitud. Los campos marcados con asterisco (<span class="required-mark" aria-hidden="true">*</span>) son obligatorios.</p>
+ 
+        <form action="/peticion/nueva" method="post">
+            <fieldset>
+                <legend>Tipo de servicio <span class="required-mark" aria-hidden="true">*</span><span class="visually-hidden"> (obligatorio)</span></legend>
+                <div class="radio-option">
+                    <input type="radio" id="tipo-pap" name="tipo_servicio" value="PAP" required>
+                    <label for="tipo-pap">PAP - Personal de Apoyo Personal</label>
+                </div>
+                <div class="radio-option">
+                    <input type="radio" id="tipo-pati" name="tipo_servicio" value="PATI">
+                    <label for="tipo-pati">PATI - Personal de Acompañamiento</label>
+                </div>
+            </fieldset>
+ 
+            <fieldset>
+                <legend>Días de la semana que necesitas asistencia <span class="required-mark" aria-hidden="true">*</span><span class="visually-hidden"> (obligatorio)</span></legend>
+                <div class="day-row">
+                    <div class="checkbox-option">
+                        <input type="checkbox" id="dia-l" name="dias" value="L">
+                        <label for="dia-l">Lunes</label>
+                    </div>
+                    <div class="checkbox-option">
+                        <input type="checkbox" id="dia-m" name="dias" value="M">
+                        <label for="dia-m">Martes</label>
+                    </div>
+                    <div class="checkbox-option">
+                        <input type="checkbox" id="dia-x" name="dias" value="X">
+                        <label for="dia-x">Miércoles</label>
+                    </div>
+                    <div class="checkbox-option">
+                        <input type="checkbox" id="dia-j" name="dias" value="J">
+                        <label for="dia-j">Jueves</label>
+                    </div>
+                    <div class="checkbox-option">
+                        <input type="checkbox" id="dia-v" name="dias" value="V">
+                        <label for="dia-v">Viernes</label>
+                    </div>
+                    <div class="checkbox-option">
+                        <input type="checkbox" id="dia-s" name="dias" value="S">
+                        <label for="dia-s">Sábado</label>
+                    </div>
+                    <div class="checkbox-option">
+                        <input type="checkbox" id="dia-d" name="dias" value="D">
+                        <label for="dia-d">Domingo</label>
+                    </div>
+                </div>
+            </fieldset>
+ 
+            <fieldset>
+                <legend>Franja horaria preferida</legend>
+                <div class="radio-option">
+                    <input type="radio" id="franja-manana" name="franja" value="manana">
+                    <label for="franja-manana">Mañana</label>
+                </div>
+                <div class="radio-option">
+                    <input type="radio" id="franja-tarde" name="franja" value="tarde">
+                    <label for="franja-tarde">Tarde</label>
+                </div>
+                <div class="radio-option">
+                    <input type="radio" id="franja-noche" name="franja" value="noche">
+                    <label for="franja-noche">Noche</label>
+                </div>
+            </fieldset>
+ 
+            <div class="form-group">
+                <label for="observaciones">Describe tu necesidad</label>
+                <textarea id="observaciones" name="observaciones" rows="5" maxlength="300" aria-describedby="obs-help"></textarea>
+                <p id="obs-help" class="help-text">Máximo 300 caracteres. Indica horarios concretos, tareas específicas o cualquier detalle relevante.</p>
+            </div>
+ 
+            <p class="info-note">Tu solicitud será revisada por un técnico de la OVI. Recibirás respuesta por correo electrónico en un plazo de 5 días laborables.</p>
+ 
+            <div class="actions">
+                <button type="button" class="btn-secondary">Cancelar</button>
+                <button type="submit" class="btn-primary">Enviar solicitud</button>
+            </div>
+        </form>
+    </main>
+ 
+    <footer>
+        <p>SgOVI - Sistema de Gestió de l'Oficina per la Vida Independent. Universitat Jaume I.</p>
+    </footer>
+</body>
+</html>

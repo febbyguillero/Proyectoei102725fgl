@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ca" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Els meus contractes - SgOVI</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<nav class="navbar navbar-dark bg-dark px-3">
+    <span class="navbar-brand">SgOVI</span>
+    <div>
+        <a href="/solicitudes/mis-solicitudes" class="btn btn-outline-light btn-sm me-2">Les meues sol·licituds</a>
+        <a href="/solicitudes/mi-perfil" class="btn btn-outline-light btn-sm me-2">El meu perfil</a>
+        <a href="/logout" class="btn btn-outline-light btn-sm">Sortir</a>
+    </div>
+</nav>
+<main class="container mt-4">
+    <h1 class="h3 mb-4">Els meus contractes</h1>
+
+    <table class="table table-striped">
+        <thead class="table-dark">
+        <tr>
+            <th>ID</th>
+            <th>Sol·licitud</th>
+            <th>Assistent (DNI)</th>
+            <th>Data inici</th>
+            <th>Data fi</th>
+            <th>Estat</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="c : ${contratos}">
+            <td th:text="${c.idContrato}"></td>
+            <td th:text="${c.idSolicitud}"></td>
+            <td th:text="${c.dniAsistente}"></td>
+            <td th:text="${c.fechaInicio}"></td>
+            <td th:text="${c.fechaFin != null ? c.fechaFin : 'En curs'}"></td>
+            <td>
+                    <span th:switch="${c.estadoContrato}">
+                        <span th:case="'activo'" class="badge bg-success">Actiu</span>
+                        <span th:case="'finalizado'" class="badge bg-secondary">Finalitzat</span>
+                        <span th:case="'rescindido'" class="badge bg-danger">Rescindit</span>
+                    </span>
+            </td>
+        </tr>
+        <tr th:if="${#lists.isEmpty(contratos)}">
+            <td colspan="6" class="text-center text-muted">No tens cap contracte actiu.</td>
+        </tr>
+        </tbody>
+    </table>
+</main>
+</body>
+</html>
