@@ -6,126 +6,124 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
+<nav th:replace="~{fragments/navbar-tecnico :: navbar-tecnico}"></nav>
 <main class="container mt-4">
 
-<h1>Solicitudes de Asistencia Personal</h1>
+    <h1>Solicitudes de Asistencia Personal</h1>
 
-<!-- Búsqueda + filtros (formulario GET; el controlador hace el filtrado en SQL) -->
-<form method="get" th:action="@{/tecnico/solicitudes}" class="row g-2 mb-3" role="search">
-    <input type="hidden" name="sort" th:value="${sort}">
-    <input type="hidden" name="dir" th:value="${dir}">
-    <div class="col-md-5">
-        <label for="q" class="visually-hidden">Buscar por usuario, tipo o criterios</label>
-        <input type="text" id="q" name="q" th:value="${q}" class="form-control"
-               placeholder="Buscar por usuario, tipo o criterios...">
-    </div>
-    <div class="col-md-3">
-        <label for="estado" class="visually-hidden">Filtrar por estado</label>
-        <select id="estado" name="estado" class="form-select">
-            <option value="" th:selected="${estado == ''}">Todos los estados</option>
-            <option value="PENDIENTE" th:selected="${estado == 'PENDIENTE'}">Pendiente</option>
-            <option value="APROBADA" th:selected="${estado == 'APROBADA'}">Aprobada</option>
-            <option value="RECHAZADA" th:selected="${estado == 'RECHAZADA'}">Rechazada</option>
-        </select>
-    </div>
-    <div class="col-md-2">
-        <label for="tipo" class="visually-hidden">Filtrar por tipo</label>
-        <select id="tipo" name="tipo" class="form-select">
-            <option value="" th:selected="${tipo == ''}">Todos los tipos</option>
-            <option value="PAP" th:selected="${tipo == 'PAP'}">PAP</option>
-            <option value="PATI" th:selected="${tipo == 'PATI'}">PATI</option>
-        </select>
-    </div>
-    <div class="col-md-2">
-        <button type="submit" class="btn btn-primary">Filtrar</button>
-        <a th:href="@{/tecnico/solicitudes}" class="btn btn-outline-secondary">Limpiar</a>
-    </div>
-</form>
+    <form method="get" th:action="@{/tecnico/solicitudes}" class="row g-2 mb-3" role="search">
+        <input type="hidden" name="sort" th:value="${sort}">
+        <input type="hidden" name="dir" th:value="${dir}">
+        <div class="col-md-5">
+            <label for="q" class="visually-hidden">Buscar por usuario, tipo o criterios</label>
+            <input type="text" id="q" name="q" th:value="${q}" class="form-control"
+                   placeholder="Buscar por usuario, tipo o criterios...">
+        </div>
+        <div class="col-md-3">
+            <label for="estado" class="visually-hidden">Filtrar por estado</label>
+            <select id="estado" name="estado" class="form-select">
+                <option value="" th:selected="${estado == ''}">Todos los estados</option>
+                <option value="PENDIENTE" th:selected="${estado == 'PENDIENTE'}">Pendiente</option>
+                <option value="APROBADA"  th:selected="${estado == 'APROBADA'}">Aprobada</option>
+                <option value="RECHAZADA" th:selected="${estado == 'RECHAZADA'}">Rechazada</option>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <label for="tipo" class="visually-hidden">Filtrar por tipo</label>
+            <select id="tipo" name="tipo" class="form-select">
+                <option value=""     th:selected="${tipo == ''}">Todos los tipos</option>
+                <option value="PAP"  th:selected="${tipo == 'PAP'}">PAP</option>
+                <option value="PATI" th:selected="${tipo == 'PATI'}">PATI</option>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-primary">Filtrar</button>
+            <a th:href="@{/tecnico/solicitudes}" class="btn btn-outline-secondary">Limpiar</a>
+        </div>
+    </form>
 
-<p class="text-muted" th:text="${total} + ' solicitud(es)'">0</p>
+    <p class="text-muted" th:text="${total} + ' solicitud(es)'">0</p>
 
-<table class="table table-striped table-hover">
-    <thead class="table-dark">
-    <tr>
-        <th scope="col">
-            <a class="link-light text-decoration-none"
-               th:href="@{/tecnico/solicitudes(q=${q}, estado=${estado}, tipo=${tipo}, sort='id', dir=${sort == 'id' and dir == 'asc' ? 'desc' : 'asc'}, page=1)}">
-                ID <span th:if="${sort == 'id'}" th:text="${dir == 'asc' ? '▲' : '▼'}"></span><span th:unless="${sort == 'id'}">↕</span>
-            </a>
-        </th>
-        <th scope="col">
-            <a class="link-light text-decoration-none"
-               th:href="@{/tecnico/solicitudes(q=${q}, estado=${estado}, tipo=${tipo}, sort='usuario', dir=${sort == 'usuario' and dir == 'asc' ? 'desc' : 'asc'}, page=1)}">
-                Usuario <span th:if="${sort == 'usuario'}" th:text="${dir == 'asc' ? '▲' : '▼'}"></span><span th:unless="${sort == 'usuario'}">↕</span>
-            </a>
-        </th>
-        <th scope="col">
-            <a class="link-light text-decoration-none"
-               th:href="@{/tecnico/solicitudes(q=${q}, estado=${estado}, tipo=${tipo}, sort='tipo', dir=${sort == 'tipo' and dir == 'asc' ? 'desc' : 'asc'}, page=1)}">
-                Tipo <span th:if="${sort == 'tipo'}" th:text="${dir == 'asc' ? '▲' : '▼'}"></span><span th:unless="${sort == 'tipo'}">↕</span>
-            </a>
-        </th>
-        <th scope="col">Criterios</th>
-        <th scope="col">
-            <a class="link-light text-decoration-none"
-               th:href="@{/tecnico/solicitudes(q=${q}, estado=${estado}, tipo=${tipo}, sort='fecha', dir=${sort == 'fecha' and dir == 'asc' ? 'desc' : 'asc'}, page=1)}">
-                Fecha <span th:if="${sort == 'fecha'}" th:text="${dir == 'asc' ? '▲' : '▼'}"></span><span th:unless="${sort == 'fecha'}">↕</span>
-            </a>
-        </th>
-        <th scope="col">
-            <a class="link-light text-decoration-none"
-               th:href="@{/tecnico/solicitudes(q=${q}, estado=${estado}, tipo=${tipo}, sort='estado', dir=${sort == 'estado' and dir == 'asc' ? 'desc' : 'asc'}, page=1)}">
-                Estado <span th:if="${sort == 'estado'}" th:text="${dir == 'asc' ? '▲' : '▼'}"></span><span th:unless="${sort == 'estado'}">↕</span>
-            </a>
-        </th>
-        <th scope="col">Acción</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr th:each="sol : ${solicitudes}">
-        <td th:text="${sol.idRequest}"></td>
-        <td th:text="${nombresUsuarios != null and nombresUsuarios[sol.usuariIdent] != null}
+    <table class="table table-striped table-hover">
+        <thead class="table-dark">
+        <tr>
+            <th scope="col">
+                <a class="link-light text-decoration-none"
+                   th:href="@{/tecnico/solicitudes(q=${q}, estado=${estado}, tipo=${tipo}, sort='id', dir=${sort == 'id' and dir == 'asc' ? 'desc' : 'asc'}, page=1)}">
+                    ID <span th:if="${sort == 'id'}" th:text="${dir == 'asc' ? '▲' : '▼'}"></span><span th:unless="${sort == 'id'}">↕</span>
+                </a>
+            </th>
+            <th scope="col">
+                <a class="link-light text-decoration-none"
+                   th:href="@{/tecnico/solicitudes(q=${q}, estado=${estado}, tipo=${tipo}, sort='usuario', dir=${sort == 'usuario' and dir == 'asc' ? 'desc' : 'asc'}, page=1)}">
+                    Usuario <span th:if="${sort == 'usuario'}" th:text="${dir == 'asc' ? '▲' : '▼'}"></span><span th:unless="${sort == 'usuario'}">↕</span>
+                </a>
+            </th>
+            <th scope="col">
+                <a class="link-light text-decoration-none"
+                   th:href="@{/tecnico/solicitudes(q=${q}, estado=${estado}, tipo=${tipo}, sort='tipo', dir=${sort == 'tipo' and dir == 'asc' ? 'desc' : 'asc'}, page=1)}">
+                    Tipo <span th:if="${sort == 'tipo'}" th:text="${dir == 'asc' ? '▲' : '▼'}"></span><span th:unless="${sort == 'tipo'}">↕</span>
+                </a>
+            </th>
+            <th scope="col">Criterios</th>
+            <th scope="col">
+                <a class="link-light text-decoration-none"
+                   th:href="@{/tecnico/solicitudes(q=${q}, estado=${estado}, tipo=${tipo}, sort='fecha', dir=${sort == 'fecha' and dir == 'asc' ? 'desc' : 'asc'}, page=1)}">
+                    Fecha <span th:if="${sort == 'fecha'}" th:text="${dir == 'asc' ? '▲' : '▼'}"></span><span th:unless="${sort == 'fecha'}">↕</span>
+                </a>
+            </th>
+            <th scope="col">
+                <a class="link-light text-decoration-none"
+                   th:href="@{/tecnico/solicitudes(q=${q}, estado=${estado}, tipo=${tipo}, sort='estado', dir=${sort == 'estado' and dir == 'asc' ? 'desc' : 'asc'}, page=1)}">
+                    Estado <span th:if="${sort == 'estado'}" th:text="${dir == 'asc' ? '▲' : '▼'}"></span><span th:unless="${sort == 'estado'}">↕</span>
+                </a>
+            </th>
+            <th scope="col">Acción</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="sol : ${solicitudes}">
+            <td th:text="${sol.idRequest}"></td>
+            <td th:text="${nombresUsuarios != null and nombresUsuarios[sol.usuariIdent] != null}
                          ? ${nombresUsuarios[sol.usuariIdent]}
                          : ${sol.usuariIdent}"></td>
-        <td th:text="${sol.tipusServei}"></td>
-        <td>
-            <span th:if="${sol.dies != null and !sol.dies.isEmpty()}" th:text="'Días: ' + ${sol.dies}"></span>
-            <span th:if="${sol.franjaHoraria != null and !sol.franjaHoraria.isEmpty()}" th:text="' | ' + ${sol.franjaHoraria}"></span>
-        </td>
-        <td th:text="${sol.dataCreacio}"></td>
-        <td>
+            <td th:text="${sol.tipusServei}"></td>
+            <td>
+                <span th:if="${sol.dies != null and !sol.dies.isEmpty()}" th:text="'Dies: ' + ${sol.dies}"></span>
+                <span th:if="${sol.franjaHoraria != null and !sol.franjaHoraria.isEmpty()}" th:text="' | ' + ${sol.franjaHoraria}"></span>
+            </td>
+            <td th:text="${sol.dataCreacio}"></td>
+            <td>
             <span th:switch="${sol.estat}">
                 <span th:case="'PENDIENTE'" class="badge bg-warning text-dark">PENDIENTE</span>
-                <span th:case="'APROBADA'" class="badge bg-success">APROBADA</span>
+                <span th:case="'APROBADA'"  class="badge bg-success">APROBADA</span>
                 <span th:case="'RECHAZADA'" class="badge bg-danger">RECHAZADA</span>
-                <span th:case="*" class="badge bg-secondary" th:text="${sol.estat}"></span>
+                <span th:case="*"           class="badge bg-secondary" th:text="${sol.estat}"></span>
             </span>
-        </td>
-        <td>
-            <a th:href="@{/tecnico/solicitud/{id}(id=${sol.idRequest})}" class="btn btn-sm btn-primary">Revisar</a>
-        </td>
-    </tr>
-    <tr th:if="${#lists.isEmpty(solicitudes)}">
-        <td colspan="7" class="text-center text-muted">No hay solicitudes que coincidan.</td>
-    </tr>
-    </tbody>
-</table>
+            </td>
+            <td>
+                <a th:href="@{/tecnico/solicitud/{id}(id=${sol.idRequest})}" class="btn btn-sm btn-primary">Revisar</a>
+            </td>
+        </tr>
+        <tr th:if="${#lists.isEmpty(solicitudes)}">
+            <td colspan="7" class="text-center text-muted">No hay solicitudes que coincidan.</td>
+        </tr>
+        </tbody>
+    </table>
 
-<nav th:if="${totalPaginas > 1}" aria-label="Paginación">
-    <ul class="pagination justify-content-center">
-        <li class="page-item" th:classappend="${page == 1} ? 'disabled'">
-            <a class="page-link" th:href="@{/tecnico/solicitudes(q=${q}, estado=${estado}, tipo=${tipo}, sort=${sort}, dir=${dir}, page=${page - 1})}" aria-label="Página anterior">«</a>
-        </li>
-        <li class="page-item" th:each="p : ${#numbers.sequence(1, totalPaginas)}" th:classappend="${p == page} ? 'active'">
-            <a class="page-link" th:href="@{/tecnico/solicitudes(q=${q}, estado=${estado}, tipo=${tipo}, sort=${sort}, dir=${dir}, page=${p})}" th:text="${p}"></a>
-        </li>
-        <li class="page-item" th:classappend="${page == totalPaginas} ? 'disabled'">
-            <a class="page-link" th:href="@{/tecnico/solicitudes(q=${q}, estado=${estado}, tipo=${tipo}, sort=${sort}, dir=${dir}, page=${page + 1})}" aria-label="Página siguiente">»</a>
-        </li>
-    </ul>
-</nav>
-
-<a th:href="@{/tecnico/panel}" class="btn btn-secondary mt-3">Volver al panel</a>
+    <nav th:if="${totalPaginas > 1}" aria-label="Paginació">
+        <ul class="pagination justify-content-center">
+            <li class="page-item" th:classappend="${page == 1} ? 'disabled'">
+                <a class="page-link" th:href="@{/tecnico/solicitudes(q=${q}, estado=${estado}, tipo=${tipo}, sort=${sort}, dir=${dir}, page=${page - 1})}" aria-label="Pàgina anterior">«</a>
+            </li>
+            <li class="page-item" th:each="p : ${#numbers.sequence(1, totalPaginas)}" th:classappend="${p == page} ? 'active'">
+                <a class="page-link" th:href="@{/tecnico/solicitudes(q=${q}, estado=${estado}, tipo=${tipo}, sort=${sort}, dir=${dir}, page=${p})}" th:text="${p}"></a>
+            </li>
+            <li class="page-item" th:classappend="${page == totalPaginas} ? 'disabled'">
+                <a class="page-link" th:href="@{/tecnico/solicitudes(q=${q}, estado=${estado}, tipo=${tipo}, sort=${sort}, dir=${dir}, page=${page + 1})}" aria-label="Pàgina següent">»</a>
+            </li>
+        </ul>
+    </nav>
 
 </main>
 </body>

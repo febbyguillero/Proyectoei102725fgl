@@ -82,14 +82,14 @@ public class APRequestDao {
     // ---- Listado con busqueda, filtros, ordenacion y paginacion (todo en el servidor) ----
 
     private String columnaOrden(String sort) {
-        if (sort == null) return "id_request";
+        if (sort == null) return "APRequest.id_request";
         switch (sort) {
-            case "id":      return "id_request";
-            case "usuario": return "usuari_ident";
-            case "tipo":    return "tipus_servei";
-            case "fecha":   return "data_creacio";
-            case "estado":  return "estat";
-            default:        return "id_request";
+            case "id":      return "APRequest.id_request";
+            case "usuario": return "APRequest.usuari_ident";
+            case "tipo":    return "APRequest.tipus_servei";
+            case "fecha":   return "APRequest.data_creacio";
+            case "estado":  return "APRequest.estat";
+            default:        return "APRequest.id_request";
         }
     }
 
@@ -97,21 +97,31 @@ public class APRequestDao {
         return "desc".equalsIgnoreCase(dir) ? "DESC" : "ASC";
     }
 
+    // JOIN con UsuariOVI para poder buscar por nombre y apellidos del usuario.
+    // Se usa LEFT JOIN para que aparezcan solicitudes aunque el usuario no exista.
+    private static final String FROM_JOIN =
+            "FROM APRequest " +
+                    "LEFT JOIN UsuariOVI ON APRequest.usuari_ident = CAST(UsuariOVI.id_usuari AS VARCHAR) ";
+
     private StringBuilder construirFiltros(String q, String estado, String tipo, List<Object> params) {
         StringBuilder sql = new StringBuilder(" WHERE 1=1 ");
         if (q != null && !q.trim().isEmpty()) {
-            sql.append("AND (usuari_ident ILIKE ? OR tipus_servei ILIKE ? OR observations ILIKE ?) ");
+            // Busca por nom o cognoms del usuario (via JOIN), tipo de servicio u observaciones.
+            // ILIKE es case-insensitive en PostgreSQL, así "marta" encuentra "Marta".
+            sql.append("AND (UsuariOVI.nom ILIKE ? OR UsuariOVI.cognoms ILIKE ? " +
+                    "OR APRequest.tipus_servei ILIKE ? OR APRequest.observations ILIKE ?) ");
             String like = "%" + q.trim() + "%";
+            params.add(like);
             params.add(like);
             params.add(like);
             params.add(like);
         }
         if (estado != null && !estado.trim().isEmpty()) {
-            sql.append("AND estat = ? ");
+            sql.append("AND APRequest.estat = ? ");
             params.add(estado.trim());
         }
         if (tipo != null && !tipo.trim().isEmpty()) {
-            sql.append("AND tipus_servei = ? ");
+            sql.append("AND APRequest.tipus_servei = ? ");
             params.add(tipo.trim());
         }
         return sql;
@@ -120,7 +130,8 @@ public class APRequestDao {
     public List<APRequest> getRequests(String q, String estado, String tipo,
                                        String sort, String dir, int page, int pageSize) {
         List<Object> params = new ArrayList<>();
-        StringBuilder sql = new StringBuilder("SELECT * FROM APRequest");
+        StringBuilder sql = new StringBuilder("SELECT APRequest.* ");
+        sql.append(FROM_JOIN);
         sql.append(construirFiltros(q, estado, tipo, params));
         sql.append("ORDER BY ").append(columnaOrden(sort)).append(" ").append(direccionOrden(dir)).append(" ");
         sql.append("LIMIT ? OFFSET ?");
@@ -135,7 +146,8 @@ public class APRequestDao {
 
     public int countRequests(String q, String estado, String tipo) {
         List<Object> params = new ArrayList<>();
-        StringBuilder sql = new StringBuilder("SELECT COUNT(*) FROM APRequest");
+        StringBuilder sql = new StringBuilder("SELECT COUNT(*) ");
+        sql.append(FROM_JOIN);
         sql.append(construirFiltros(q, estado, tipo, params));
         Integer total = jdbcTemplate.queryForObject(sql.toString(), Integer.class, params.toArray());
         return total == null ? 0 : total;

@@ -32,7 +32,6 @@ public class UsuarioOVIDao {
 
     // ---- Listado con búsqueda, ordenación y paginación (todo en el servidor) ----
 
-    // Columna de ordenación segura (lista blanca para evitar inyección SQL).
     private String columnaOrden(String sort) {
         if (sort == null) return "id_usuari";
         switch (sort) {
@@ -81,9 +80,21 @@ public class UsuarioOVIDao {
         }
     }
 
-    public void addUsuario(UsuarioOVI usuario) {
-        String sql = "INSERT INTO UsuariOVI (identificador_sgovi, contrasenya, email, nom, cognoms, telefon, adreca, dni, data_naixement, consentiment_informat, estat_tecnic_acceptat, tutor_legal_nom, tutor_legal_contacte, zona_geografica) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    // ---- NUEVO: buscar por identificador_sgovi (usado por LoginController) ----
+    public UsuarioOVI getUsuarioByIdentificador(String identificador) {
+        try {
+            String sql = "SELECT * FROM UsuariOVI WHERE identificador_sgovi = ?";
+            return jdbcTemplate.queryForObject(sql, new UsuarioOVIRowMapper(), identificador);
+        } catch (EmptyResultDataAccessException e) {
+            return null;
+        }
+    }
 
+    public void addUsuario(UsuarioOVI usuario) {
+        String sql = "INSERT INTO UsuariOVI (identificador_sgovi, contrasenya, email, nom, cognoms, " +
+                "telefon, adreca, dni, data_naixement, consentiment_informat, estat_tecnic_acceptat, " +
+                "tutor_legal_nom, tutor_legal_contacte, zona_geografica) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         jdbcTemplate.update(sql,
                 usuario.getIdentificadorSgovi(),
                 usuario.getContrasenya(),
@@ -103,8 +114,10 @@ public class UsuarioOVIDao {
     }
 
     public void updateUsuario(UsuarioOVI usuario) {
-        String sql = "UPDATE UsuariOVI SET identificador_sgovi=?, contrasenya=?, email=?, nom=?, cognoms=?, telefon=?, adreca=?, dni=?, data_naixement=?, consentiment_informat=?, estat_tecnic_acceptat=?, tutor_legal_nom=?, tutor_legal_contacte=?, zona_geografica=? WHERE id_usuari=?";
-
+        String sql = "UPDATE UsuariOVI SET identificador_sgovi=?, contrasenya=?, email=?, nom=?, " +
+                "cognoms=?, telefon=?, adreca=?, dni=?, data_naixement=?, consentiment_informat=?, " +
+                "estat_tecnic_acceptat=?, tutor_legal_nom=?, tutor_legal_contacte=?, zona_geografica=? " +
+                "WHERE id_usuari=?";
         jdbcTemplate.update(sql,
                 usuario.getIdentificadorSgovi(),
                 usuario.getContrasenya(),

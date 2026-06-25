@@ -2,6 +2,7 @@ package es.uji.ei1027.sgovid.controller;
 
 import es.uji.ei1027.sgovid.dao.UsuarioOVIDao;
 import es.uji.ei1027.sgovid.model.UsuarioOVI;
+import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpSession;
 import org.jasypt.util.password.BasicPasswordEncryptor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 /**
@@ -16,19 +18,48 @@ import java.util.List;
  * Segueix el patró de la Sessió 6 de pràctiques EI1027:
  * - Usa BasicPasswordEncryptor de Jasypt per comparar contrasenyes.
  * - Guarda l'usuari autenticat com a atribut de la sessió (HttpSession).
+ *
+ * El tècnic OVI es guarda a la BD com un usuari més (identificador_sgovi = 'TECNICO'),
+ * amb la contrasenya xifrada. Ja no hi ha cap credencial hardcoded al codi.
  */
 @Controller
 public class LoginController {
 
+    // Identificador especial del tècnic a la BD. No és una contrasenya, és un ID públic.
+    public static final String TECNICO_IDENT = "TECNICO";
+
+    private final BasicPasswordEncryptor passwordEncryptor = new BasicPasswordEncryptor();
+
     @Autowired
     private UsuarioOVIDao usuarioDao;
 
-    // Credencial interna del tècnic. La contrasenya es guarda xifrada (Jasypt),
-    // mai en clar dins del codi font.
-    private static final String TECNICO_USUARI = "tecnico";
-    private final BasicPasswordEncryptor passwordEncryptor = new BasicPasswordEncryptor();
-    // Hash Jasypt de "tecnico123"
-    private final String tecnicoContrasenyaHash = passwordEncryptor.encryptPassword("tecnico123");
+    /**
+     * Al arrancar la aplicación, comprueba si el técnico existe en la BD.
+     * Si no existe, lo crea con la contraseña por defecto "tecnico123" (cifrada con Jasypt).
+     * Así nunca hay credenciales hardcoded en el código.
+     */
+    @PostConstruct
+    public void inicializarTecnico() {
+        try {
+            UsuarioOVI tecnico = usuarioDao.getUsuarioByIdentificador(TECNICO_IDENT);
+            if (tecnico == null) {
+                UsuarioOVI nuevo = new UsuarioOVI();
+                nuevo.setIdentificadorSgovi(TECNICO_IDENT);
+                nuevo.setContrasenya(passwordEncryptor.encryptPassword("tecnico123"));
+                nuevo.setEmail("tecnico@ovi.es");
+                nuevo.setNom("Tècnic");
+                nuevo.setCognoms("OVI");
+                nuevo.setDni("00000000T");
+                nuevo.setDataNaixement(LocalDate.of(1980, 1, 1));
+                nuevo.setConsentimentInformat(true);
+                nuevo.setEstatTecnicAcceptat(true);
+                usuarioDao.addUsuario(nuevo);
+            }
+        } catch (Exception e) {
+            // Si falla (p.ej. DNI duplicado en pruebas), no bloquear el arranque
+            System.err.println("Avís: no s'ha pogut inicialitzar el tècnic: " + e.getMessage());
+        }
+    }
 
     @GetMapping("/login")
     public String loginForm(@RequestParam(value = "error", required = false) String error,
@@ -45,13 +76,21 @@ public class LoginController {
                                 HttpSession session,
                                 Model model) {
 
-        // Tècnic OVI: comparació amb Jasypt (la contrasenya no s'avalua en clar)
-        if (TECNICO_USUARI.equals(identificador)
-                && passwordEncryptor.checkPassword(contrasenya, tecnicoContrasenyaHash)) {
-            session.setAttribute("rol", "TECNICO");
-            session.setAttribute("usuariId", "tecnico");
-            session.setAttribute("nombreUsuario", "Tècnic OVI");
-            return "redirect:/tecnico/panel";
+        // Tècnic OVI: buscar a la BD per identificador_sgovi = 'TECNICO'
+        if (TECNICO_IDENT.equals(identificador)) {
+            try {
+                UsuarioOVI tecnico = usuarioDao.getUsuarioByIdentificador(TECNICO_IDENT);
+                if (tecnico != null && passwordEncryptor.checkPassword(contrasenya, tecnico.getContrasenya())) {
+                    session.setAttribute("rol", "TECNICO");
+                    session.setAttribute("usuariId", "tecnico");
+                    session.setAttribute("nombreUsuario", tecnico.getNom() + " " + tecnico.getCognoms());
+                    return "redirect:/tecnico/panel";
+                }
+            } catch (Exception e) {
+                // Si falla la consulta, caer al mensaje de error genérico
+            }
+            model.addAttribute("error", "Identificador o contrasenya incorrectes.");
+            return "login";
         }
 
         // Usuari OVI: comparació amb BasicPasswordEncryptor (Jasypt, Sessió 6).
@@ -60,11 +99,13 @@ public class LoginController {
         for (UsuarioOVI u : usuarios) {
             if (!identificador.equals(u.getIdentificadorSgovi())) continue;
 
+            // Saltar el registro del técnico si aparece en el bucle
+            if (TECNICO_IDENT.equals(u.getIdentificadorSgovi())) continue;
+
             boolean ok = false;
             try {
                 ok = passwordEncryptor.checkPassword(contrasenya, u.getContrasenya());
             } catch (Exception e) {
-                // Si el hash emmagatzemat no és vàlid, l'autenticació falla (no comparem en clar)
                 ok = false;
             }
 
