@@ -19,13 +19,11 @@ import java.util.List;
  * - Guarda l'usuari autenticat com a atribut de la sessió (HttpSession).
  *
  * La inicialització del tècnic OVI a la BD es fa a SgovidApplication.run(),
- * seguint el patró CommandLineRunner de la Sessió 2, que garanteix que
- * la connexió a la BD està disponible abans d'executar cap consulta.
+ * seguint el patró CommandLineRunner de la Sessió 2.
  */
 @Controller
 public class LoginController {
 
-    // Identificador especial del tècnic a la BD.
     public static final String TECNICO_IDENT = "TECNICO";
 
     private final BasicPasswordEncryptor passwordEncryptor = new BasicPasswordEncryptor();
@@ -33,10 +31,21 @@ public class LoginController {
     @Autowired
     private UsuarioOVIDao usuarioDao;
 
+    // Cabeceres anti-caché reutilitzables. Eviten que el navegador guarde en memòria
+    // pàgines protegides; així, al polsar Enrere després de tancar sessió, el navegador
+    // torna a demanar la pàgina al servidor i es comprova la sessió.
+    private void noCachear(HttpServletResponse response) {
+        response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+        response.setHeader("Pragma", "no-cache");
+        response.setDateHeader("Expires", 0);
+    }
+
     @GetMapping("/login")
     public String loginForm(@RequestParam(value = "error", required = false) String error,
                             @RequestParam(value = "logout", required = false) String logout,
+                            HttpServletResponse response,
                             Model model) {
+        noCachear(response);
         if (error != null)  model.addAttribute("error", "Identificador o contrasenya incorrectes.");
         if (logout != null) model.addAttribute("mensaje", "Sessió tancada correctament.");
         return "login";
@@ -95,19 +104,16 @@ public class LoginController {
     }
 
     @GetMapping("/logout-confirm")
-    public String logoutConfirm(HttpSession session) {
+    public String logoutConfirm(HttpSession session, HttpServletResponse response) {
         if (session.getAttribute("rol") == null) return "redirect:/login";
+        noCachear(response);
         return "logout-confirm";
     }
 
     @GetMapping("/logout")
     public String logout(HttpSession session, HttpServletResponse response) {
         session.invalidate();
-        // Cabeceres anti-caché: eviten que el navegador mostre pàgines protegides
-        // al polsar Enrere després de tancar sessió.
-        response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
-        response.setHeader("Pragma", "no-cache");
-        response.setDateHeader("Expires", 0);
+        noCachear(response);
         return "redirect:/login?logout";
     }
 }
