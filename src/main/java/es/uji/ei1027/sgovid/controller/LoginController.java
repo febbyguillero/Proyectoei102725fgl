@@ -125,6 +125,12 @@ public class LoginController {
         return "login";
     }
 
+    @GetMapping("/logout-confirm")
+    public String logoutConfirm(HttpSession session) {
+        if (session.getAttribute("rol") == null) return "redirect:/login";
+        return "logout-confirm";
+    }
+
     @GetMapping("/logout")
     public String logout(HttpSession session) {
         session.invalidate();
