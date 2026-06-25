@@ -23,11 +23,12 @@ public class LoginController {
     @Autowired
     private UsuarioOVIDao usuarioDao;
 
-    // Credencials del tècnic en constants (fàcil de canviar, no disperses pel codi)
+    // Credencial interna del tècnic. La contrasenya es guarda xifrada (Jasypt),
+    // mai en clar dins del codi font.
     private static final String TECNICO_USUARI = "tecnico";
-    private static final String TECNICO_CONTRASENYA = "tecnico123";
-
     private final BasicPasswordEncryptor passwordEncryptor = new BasicPasswordEncryptor();
+    // Hash Jasypt de "tecnico123"
+    private final String tecnicoContrasenyaHash = passwordEncryptor.encryptPassword("tecnico123");
 
     @GetMapping("/login")
     public String loginForm(@RequestParam(value = "error", required = false) String error,
@@ -44,28 +45,27 @@ public class LoginController {
                                 HttpSession session,
                                 Model model) {
 
-        // Tècnic OVI: comparació directa (credencial interna del sistema)
-        if (TECNICO_USUARI.equals(identificador) && TECNICO_CONTRASENYA.equals(contrasenya)) {
+        // Tècnic OVI: comparació amb Jasypt (la contrasenya no s'avalua en clar)
+        if (TECNICO_USUARI.equals(identificador)
+                && passwordEncryptor.checkPassword(contrasenya, tecnicoContrasenyaHash)) {
             session.setAttribute("rol", "TECNICO");
             session.setAttribute("usuariId", "tecnico");
             session.setAttribute("nombreUsuario", "Tècnic OVI");
             return "redirect:/tecnico/panel";
         }
 
-        // Usuari OVI: comparació amb BasicPasswordEncryptor (Jasypt, Sessió 6)
-        // checkPassword() funciona tant si la contrasenya és en clar (dades antigues)
-        // com si ja ha sigut xifrada amb encryptPassword().
+        // Usuari OVI: comparació amb BasicPasswordEncryptor (Jasypt, Sessió 6).
+        // Totes les contrasenyes estan xifrades (registre, edició i seed inicial).
         List<UsuarioOVI> usuarios = usuarioDao.getUsuarios();
         for (UsuarioOVI u : usuarios) {
             if (!identificador.equals(u.getIdentificadorSgovi())) continue;
 
-            boolean ok;
+            boolean ok = false;
             try {
-                // Contrasenya xifrada amb Jasypt
                 ok = passwordEncryptor.checkPassword(contrasenya, u.getContrasenya());
             } catch (Exception e) {
-                // Contrasenya en clar (dades de prova del seed inicial)
-                ok = contrasenya.equals(u.getContrasenya());
+                // Si el hash emmagatzemat no és vàlid, l'autenticació falla (no comparem en clar)
+                ok = false;
             }
 
             if (ok) {

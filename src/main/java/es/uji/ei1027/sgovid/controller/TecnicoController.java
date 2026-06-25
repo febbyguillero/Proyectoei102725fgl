@@ -9,6 +9,7 @@ import es.uji.ei1027.sgovid.model.AsistentePersonal;
 import es.uji.ei1027.sgovid.model.RegistroContrato;
 import es.uji.ei1027.sgovid.model.UsuarioOVI;
 import es.uji.ei1027.sgovid.services.SeleccionService;
+import org.jasypt.util.password.BasicPasswordEncryptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -24,6 +25,9 @@ import java.util.Map;
 public class TecnicoController {
 
     private static final int TAM_PAGINA = 10;
+
+    // Xifrat de contrasenyes amb Jasypt (Sessió 6 EI1027)
+    private final BasicPasswordEncryptor passwordEncryptor = new BasicPasswordEncryptor();
 
     @Autowired private APRequestDao solicitudDao;
     @Autowired private AsistentePersonalDao asistenteDao;
@@ -205,7 +209,8 @@ public class TecnicoController {
                 u.setIdentificadorSgovi("USR" + String.format("%03d", id));
             }
             if (u.getContrasenya() == null || u.getContrasenya().isEmpty()) {
-                u.setContrasenya("ovi" + id + "2026");
+                // Contrasenya per defecte xifrada amb Jasypt (mai en clar a la BD)
+                u.setContrasenya(passwordEncryptor.encryptPassword("ovi" + id + "2026"));
             }
             usuarioDao.updateUsuario(u);
         }
