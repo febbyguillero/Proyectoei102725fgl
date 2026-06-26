@@ -54,6 +54,8 @@ public class TecnicoController {
         response.setDateHeader("Expires", 0);
     }
 
+    // ===================== PANEL =====================
+
     @RequestMapping("/panel")
     public String panel(HttpSession session, HttpServletResponse response) {
         String redir = comprobarRolTecnico(session);
@@ -61,6 +63,8 @@ public class TecnicoController {
         noCachear(response);
         return "tecnico/panel";
     }
+
+    // ===================== SOLICITUDES =====================
 
     @RequestMapping("/solicitudes")
     public String listarSolicitudes(
@@ -127,7 +131,7 @@ public class TecnicoController {
         if ("PENDIENTE".equals(solicitud.getEstat())) {
             List<AsistentePersonal> candidatos = seleccionService.proponerCandidatos(id);
             model.addAttribute("candidatosPropuestos", candidatos);
-        } else if (!"RECHAZADA".equals(solicitud.getEstat())) {
+        } else if (!"APROBADA".equals(solicitud.getEstat()) && !"RECHAZADA".equals(solicitud.getEstat())) {
             List<AsistentePersonal> candidatos = asistenteDao.getAsistentes();
             model.addAttribute("candidatosPropuestos", candidatos);
         }
@@ -162,6 +166,8 @@ public class TecnicoController {
         solicitudDao.cambiarEstado(id, "RECHAZADA");
         return "redirect:/tecnico/solicitudes";
     }
+
+    // ===================== ASISTENTES PENDIENTES =====================
 
     @RequestMapping("/asistentes-pendientes")
     public String listarAsistentesPendientes(
@@ -226,6 +232,8 @@ public class TecnicoController {
         return "asistente/registro";
     }
 
+    // ===================== USUARIOS PENDIENTES =====================
+
     @RequestMapping("/usuarios-pendientes")
     public String listarUsuariosPendientes(
             @RequestParam(defaultValue = "") String q,
@@ -261,12 +269,19 @@ public class TecnicoController {
         UsuarioOVI u = usuarioDao.getUsuario(id);
         if (u != null) {
             u.setEstatTecnicAcceptat(true);
-            if (u.getIdentificadorSgovi() == null || u.getIdentificadorSgovi().isEmpty()) {
+
+            // Genera el identificador USRxxx si aún no tiene uno definitivo.
+            // Cubre tres casos: null, vacío, o temporal (empieza por "PENDENT")
+            String ident = u.getIdentificadorSgovi();
+            if (ident == null || ident.isEmpty() || ident.startsWith("PENDENT")) {
                 u.setIdentificadorSgovi("USR" + String.format("%03d", id));
             }
+
+            // Si por algún motivo no tiene contraseña, asigna una por defecto
             if (u.getContrasenya() == null || u.getContrasenya().isEmpty()) {
                 u.setContrasenya(passwordEncryptor.encryptPassword("ovi" + id + "2026"));
             }
+
             usuarioDao.updateUsuario(u);
         }
         return "redirect:/tecnico/usuarios-pendientes";
@@ -295,6 +310,8 @@ public class TecnicoController {
         model.addAttribute("usuario", u);
         return "usuario/update";
     }
+
+    // ===================== CONTRATOS =====================
 
     @RequestMapping("/contratos")
     public String listarContratos(

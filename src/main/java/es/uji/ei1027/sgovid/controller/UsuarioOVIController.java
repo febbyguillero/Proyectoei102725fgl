@@ -141,9 +141,13 @@ public class UsuarioOVIController {
         if (usuario.getContrasenya() != null && !usuario.getContrasenya().isEmpty()) {
             usuario.setContrasenya(passwordEncryptor.encryptPassword(usuario.getContrasenya()));
         }
+
+        // Identificador únic temporal fins que el tècnic l'accepte i li assigna USRxxx.
+        // Usem el timestamp en milisegons per garantir unicitat (camp UNIQUE a la BD).
         usuario.setDataRegistre(LocalDateTime.now());
         usuario.setEstatTecnicAcceptat(false);
-        usuario.setIdentificadorSgovi("PENDENT");
+        usuario.setIdentificadorSgovi("PENDENT-" + System.currentTimeMillis());
+
         usuarioDao.addUsuario(usuario);
 
         model.addAttribute("ok", "Sol·licitud enviada correctament. El tècnic OVI la revisarà prompte.");
