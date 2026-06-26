@@ -3,64 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <title>Detalle de mi solicitud - SgOVI</title>
-    <style>
-        body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; background: #f4f5f7; color: #1a1a2e; }
-        header { background: #1d4374; color: white; padding: 16px 32px; display: flex; justify-content: space-between; align-items: center; }
-        header a { color: white; text-decoration: none; }
-        main { max-width: 700px; margin: 32px auto; padding: 0 16px; }
-        h1 { color: #15315a; }
-        .card { background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.07); margin-bottom: 24px; overflow: hidden; }
-        .card-header { background: #15315a; color: white; padding: 12px 20px; font-weight: 600; }
-        .card-header.success { background: #1f5728; }
-        .card-body { padding: 20px; }
-        dl { display: grid; grid-template-columns: 180px 1fr; gap: 10px 16px; margin: 0; }
-        dt { font-weight: 600; color: #4a4d57; }
-        dd { margin: 0; }
-        .badge { display: inline-block; padding: 4px 12px; border-radius: 12px; font-size: 0.9rem; font-weight: 600; border: 1px solid; }
-        .badge-pending { background:#fff4d4; color:#5c4400; border-color:#5c4400; }
-        .badge-ok { background:#e6f4e0; color:#1f5728; border-color:#1f5728; }
-        .badge-ko { background:#ffe0e0; color:#a8121a; border-color:#a8121a; }
-        .badge-grey { background:#f0f0f0; color:#444; border-color:#aaa; }
-        .alert { padding: 14px 18px; border-radius: 6px; margin-bottom: 20px; font-size: 0.95rem; }
-        .alert-info { background: #e8f0fb; color: #15315a; border-left: 4px solid #15315a; }
-        .alert-danger { background: #ffe0e0; color: #a8121a; border-left: 4px solid #a8121a; }
-        .breadcrumb { font-size: 0.9rem; margin-bottom: 12px; color: #4a4d57; }
-        .breadcrumb a { color: #15315a; text-decoration: none; }
-        .breadcrumb a:hover { text-decoration: underline; }
-        .btn-back { background: #ffffff; color: #15315a; padding: 10px 20px; border: 1px solid #15315a; border-radius: 4px; text-decoration: none; display: inline-block; margin-top: 8px; }
-        .btn-back:hover { background: #15315a; color: white; }
-    </style>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/sgovid.css}" href="/css/sgovid.css">
 </head>
 <body>
 <header>
-    <strong style="font-size:1.5rem;">SgOVI</strong>
-    <nav>
-        <a href="/solicitudes/mi-perfil">Mi perfil</a>
+    <strong class="logo">SgOVI</strong>
+    <nav aria-label="Navegació principal">
+        <a th:href="@{/solicitudes/mi-perfil}">Mi perfil</a>
         &nbsp;|&nbsp;
         <span th:text="'Hola, ' + ${session.nombreUsuario}">Hola, Usuario</span>
         &nbsp;|&nbsp;
-        <a href="/logout">Cerrar sesión</a>
+        <a th:href="@{/logout}">Cerrar sesión</a>
     </nav>
 </header>
 
 <main>
-    <div class="breadcrumb">
-        <a href="/solicitudes/mis-solicitudes">← Mis solicitudes</a> &rsaquo; Detalle
-    </div>
+    <nav aria-label="Ruta de navegació" class="breadcrumb-sgovid">
+        <a th:href="@{/solicitudes/mis-solicitudes}">← Mis solicitudes</a> &rsaquo; Detalle
+    </nav>
 
     <h1>Detalle de mi solicitud</h1>
 
-    <div th:if="${solicitud.estat == 'PENDIENTE'}" class="alert alert-info">
+    <div th:if="${solicitud.estat == 'PENDIENTE'}" class="alert-sgovid-info" role="status">
         Tu solicitud está siendo revisada por el equipo técnico de la OVI.
         Recibirás respuesta por correo electrónico en un plazo de 5 días laborables.
     </div>
-    <div th:if="${solicitud.estat == 'RECHAZADA'}" class="alert alert-danger">
+    <div th:if="${solicitud.estat == 'RECHAZADA'}" class="alert-sgovid-danger" role="alert">
         Tu solicitud ha sido rechazada. Puedes crear una nueva solicitud si lo necesitas.
     </div>
 
-    <div class="card">
-        <div class="card-header">Datos de la solicitud</div>
-        <div class="card-body">
+    <div class="sgovid-card">
+        <div class="sgovid-card-header">Datos de la solicitud</div>
+        <div class="sgovid-card-body">
             <dl>
                 <dt>Tipo de servicio</dt>
                 <dd th:text="${solicitud.tipusServei}"></dd>
@@ -80,10 +55,10 @@
                 <dt>Estado</dt>
                 <dd>
                     <span th:switch="${solicitud.estat}">
-                        <span th:case="'PENDIENTE'" class="badge badge-pending">En revisión</span>
-                        <span th:case="'APROBADA'" class="badge badge-ok">Aprobada</span>
-                        <span th:case="'RECHAZADA'" class="badge badge-ko">Rechazada</span>
-                        <span th:case="*" class="badge badge-grey" th:text="${solicitud.estat}"></span>
+                        <span th:case="'PENDIENTE'" class="badge-sgovid badge-pending">En revisión</span>
+                        <span th:case="'APROBADA'"  class="badge-sgovid badge-ok">Aprobada</span>
+                        <span th:case="'RECHAZADA'" class="badge-sgovid badge-ko">Rechazada</span>
+                        <span th:case="*"           class="badge-sgovid badge-grey" th:text="${solicitud.estat}"></span>
                     </span>
                 </dd>
             </dl>
@@ -91,9 +66,9 @@
     </div>
 
     <!-- Contrato si existe -->
-    <div th:if="${contrato != null}" class="card">
-        <div class="card-header success">Contrato asignado</div>
-        <div class="card-body">
+    <div th:if="${contrato != null}" class="sgovid-card">
+        <div class="sgovid-card-header success">Contrato asignado</div>
+        <div class="sgovid-card-body">
             <dl>
                 <dt>Fecha de inicio</dt>
                 <dd th:text="${contrato.fechaInicio}"></dd>
@@ -104,9 +79,10 @@
                 <dt>Estado del contrato</dt>
                 <dd>
                     <span th:switch="${contrato.estadoContrato}">
-                        <span th:case="'activo'" class="badge badge-ok">Activo</span>
-                        <span th:case="'finalizado'" class="badge badge-grey">Finalizado</span>
-                        <span th:case="'rescindido'" class="badge badge-ko">Rescindido</span>
+                        <span th:case="'activo'"     class="badge-sgovid badge-ok">Activo</span>
+                        <span th:case="'finalizado'" class="badge-sgovid badge-grey">Finalizado</span>
+                        <span th:case="'rescindido'" class="badge-sgovid badge-ko">Rescindido</span>
+                        <span th:case="*"            class="badge-sgovid badge-grey" th:text="${contrato.estadoContrato}"></span>
                     </span>
                 </dd>
 
@@ -116,7 +92,7 @@
         </div>
     </div>
 
-    <a href="/solicitudes/mis-solicitudes" class="btn-back">← Volver a mis solicitudes</a>
+    <a th:href="@{/solicitudes/mis-solicitudes}" class="btn-back">← Volver a mis solicitudes</a>
 </main>
 </body>
 </html>

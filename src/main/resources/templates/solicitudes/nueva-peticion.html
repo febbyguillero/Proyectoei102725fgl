@@ -3,60 +3,121 @@
 <head>
     <meta charset="UTF-8">
     <title>Registrar petición - SgOVI</title>
-    <style>
-        body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; background: #f4f5f7; color: #1a1a2e; }
-        header { background: #1d4374; color: white; padding: 16px 32px; display: flex; justify-content: space-between; align-items: center; }
-        header a { color: white; text-decoration: none; }
-        main { max-width: 800px; margin: 32px auto; background: white; padding: 32px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
-        h1 { color: #15315a; margin-top: 0; }
-        fieldset { border: 1px solid #c0c4c9; border-radius: 6px; padding: 16px 24px; margin-bottom: 24px; }
-        legend { font-weight: 600; padding: 0 8px; color: #15315a; }
-        textarea { width: 100%; padding: 10px; border: 1px solid #6a6e76; border-radius: 4px; font-family: inherit; font-size: 1rem; }
-        .actions { display: flex; gap: 12px; justify-content: flex-end; margin-top: 24px; }
-        .btn-primary { background: #15315a; color: white; padding: 10px 20px; border: 1px solid #15315a; border-radius: 4px; cursor: pointer; }
-        .btn-secondary { background: white; color: #15315a; padding: 10px 20px; border: 1px solid #15315a; border-radius: 4px; cursor: pointer; text-decoration: none; }
-        .radio-option { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
-        .info-note { background: #e8eef7; border-left: 4px solid #15315a; padding: 12px 16px; margin-top: 24px; color: #15315a; }
-    </style>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/sgovid.css}" href="/css/sgovid.css">
 </head>
 <body>
 <header>
-    <strong style="font-size:1.5rem;">SgOVI</strong>
-    <nav>
-        <a href="/solicitudes/mis-solicitudes">Mis solicitudes</a>
+    <strong class="logo">SgOVI</strong>
+    <nav aria-label="Navegació principal">
+        <a th:href="@{/solicitudes/mis-solicitudes}">Mis solicitudes</a>
         &nbsp;|&nbsp;
-        <span>Hola, Ana García</span>
+        <span th:text="'Hola, ' + ${session.nombreUsuario}">Hola, Usuario</span>
+        &nbsp;|&nbsp;
+        <a th:href="@{/logout}">Cerrar sesión</a>
     </nav>
 </header>
 
-<main>
+<main class="form-container">
     <h1>Registrar petición de asistencia personal</h1>
-    <p>Rellena los datos para que un técnico de la OVI revise tu solicitud.</p>
+    <p class="lead">Rellena los datos para que un técnico de la OVI revise tu solicitud.</p>
+
+    <!-- Mensaje de error general -->
+    <div th:if="${errorTipus}" class="alert-sgovid-danger" role="alert">
+        <span th:text="${errorTipus}"></span>
+    </div>
 
     <form th:action="@{/solicitudes/nueva}" th:object="${solicitud}" method="post">
+
         <fieldset>
-            <legend>Tipo de servicio</legend>
+            <legend>Tipo de servicio <span class="required-mark" aria-hidden="true">*</span></legend>
             <div class="radio-option">
-                <input type="radio" id="tipo-pap" th:field="*{tipusServei}" value="PAP">
-                <label for="tipo-pap">PAP - Personal de Apoyo Personal</label>
+                <input type="radio" id="tipo-pap" th:field="*{tipusServei}" value="PAP" required>
+                <label for="tipo-pap">PAP — Personal de Apoyo Personal</label>
             </div>
             <div class="radio-option">
                 <input type="radio" id="tipo-pati" th:field="*{tipusServei}" value="PATI">
-                <label for="tipo-pati">PATI - Personal de Acompañamiento</label>
+                <label for="tipo-pati">PATI — Personal de Acompañamiento Terapéutico Infantil</label>
+            </div>
+            <div th:if="${#fields.hasErrors('tipusServei')}" class="alert-sgovid-danger mt-2" role="alert"
+                 th:errors="*{tipusServei}"></div>
+        </fieldset>
+
+        <fieldset>
+            <legend>Días de la semana que necesitas asistencia <span class="required-mark" aria-hidden="true">*</span></legend>
+            <div class="day-row">
+                <div class="checkbox-option">
+                    <input type="checkbox" id="dia-l" name="dies" value="L"
+                           th:checked="${solicitud.dies != null and solicitud.dies.contains('L')}">
+                    <label for="dia-l">Lunes</label>
+                </div>
+                <div class="checkbox-option">
+                    <input type="checkbox" id="dia-m" name="dies" value="M"
+                           th:checked="${solicitud.dies != null and solicitud.dies.contains('M')}">
+                    <label for="dia-m">Martes</label>
+                </div>
+                <div class="checkbox-option">
+                    <input type="checkbox" id="dia-x" name="dies" value="X"
+                           th:checked="${solicitud.dies != null and solicitud.dies.contains('X')}">
+                    <label for="dia-x">Miércoles</label>
+                </div>
+                <div class="checkbox-option">
+                    <input type="checkbox" id="dia-j" name="dies" value="J"
+                           th:checked="${solicitud.dies != null and solicitud.dies.contains('J')}">
+                    <label for="dia-j">Jueves</label>
+                </div>
+                <div class="checkbox-option">
+                    <input type="checkbox" id="dia-v" name="dies" value="V"
+                           th:checked="${solicitud.dies != null and solicitud.dies.contains('V')}">
+                    <label for="dia-v">Viernes</label>
+                </div>
+                <div class="checkbox-option">
+                    <input type="checkbox" id="dia-s" name="dies" value="S"
+                           th:checked="${solicitud.dies != null and solicitud.dies.contains('S')}">
+                    <label for="dia-s">Sábado</label>
+                </div>
+                <div class="checkbox-option">
+                    <input type="checkbox" id="dia-d" name="dies" value="D"
+                           th:checked="${solicitud.dies != null and solicitud.dies.contains('D')}">
+                    <label for="dia-d">Domingo</label>
+                </div>
             </div>
         </fieldset>
 
         <fieldset>
-            <legend>Describe tu necesidad</legend>
-            <textarea th:field="*{observations}" rows="5" maxlength="300" placeholder="Indica horarios, tareas y cualquier detalle relevante..."></textarea>
+            <legend>Franja horaria preferida <span class="required-mark" aria-hidden="true">*</span></legend>
+            <div class="radio-option">
+                <input type="radio" id="franja-manana" th:field="*{franjaHoraria}" value="Mañana">
+                <label for="franja-manana">Mañana</label>
+            </div>
+            <div class="radio-option">
+                <input type="radio" id="franja-tarde" th:field="*{franjaHoraria}" value="Tarde">
+                <label for="franja-tarde">Tarde</label>
+            </div>
+            <div class="radio-option">
+                <input type="radio" id="franja-noche" th:field="*{franjaHoraria}" value="Noche">
+                <label for="franja-noche">Noche</label>
+            </div>
         </fieldset>
 
-        <p class="info-note">Tu solicitud será revisada por un técnico de la OVI. Recibirás respuesta por correo electrónico.</p>
+        <div class="form-group">
+            <label for="observations">Describe tu necesidad</label>
+            <textarea id="observations" th:field="*{observations}" rows="5" maxlength="300"
+                      aria-describedby="obs-help"
+                      placeholder="Indica horarios concretos, tareas específicas o cualquier detalle relevante..."></textarea>
+            <p id="obs-help" class="help-text">Máximo 300 caracteres.</p>
+            <div th:if="${#fields.hasErrors('observations')}" class="alert-sgovid-danger mt-2" role="alert"
+                 th:errors="*{observations}"></div>
+        </div>
+
+        <p class="info-note">Tu solicitud será revisada por un técnico de la OVI.
+            Recibirás respuesta por correo electrónico en un plazo de 5 días laborables.</p>
 
         <div class="actions">
-            <a href="/solicitudes/mis-solicitudes" class="btn-secondary">Cancelar</a>
-            <button type="submit" class="btn-primary">Enviar solicitud</button>
+            <a th:href="@{/solicitudes/mis-solicitudes}" class="btn-sgovid-secondary">Cancelar</a>
+            <button type="submit" class="btn-sgovid-primary">Enviar solicitud</button>
         </div>
+
     </form>
 </main>
 </body>
