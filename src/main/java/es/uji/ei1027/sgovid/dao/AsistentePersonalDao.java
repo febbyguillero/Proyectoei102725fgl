@@ -26,14 +26,11 @@ public class AsistentePersonalDao {
                 ? "PENDIENTE" : asistente.getEstado();
         jdbcTemplate.update(
                 "INSERT INTO AsistentePersonal " +
-                        "(dni, nombre, apellidos, email, telefono, edad, titulacion, estado, " +
-                        " zona_geografica, disponibilidad, formacion, experiencia) " +
-                        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                        "(dni, nombre, apellidos, email, telefono, edad, titulacion, estado, zona_geografica) " +
+                        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
                 asistente.getDni(), asistente.getNombre(), asistente.getApellidos(),
                 asistente.getEmail(), asistente.getTelefono(), asistente.getEdad(),
-                asistente.getTitulacion(), estado,
-                asistente.getZonaGeografica(), asistente.getDisponibilidad(),
-                asistente.getFormacion(), asistente.getExperiencia());
+                asistente.getTitulacion(), estado, asistente.getZonaGeografica());
     }
 
     public void deleteAsistente(String dni) {
@@ -43,12 +40,10 @@ public class AsistentePersonalDao {
     public void updateAsistente(AsistentePersonal asistente) {
         jdbcTemplate.update(
                 "UPDATE AsistentePersonal SET nombre=?, apellidos=?, email=?, telefono=?, edad=?, " +
-                        "titulacion=?, estado=?, zona_geografica=?, disponibilidad=?, formacion=?, experiencia=? " +
-                        "WHERE dni=?",
+                        "titulacion=?, estado=?, zona_geografica=? WHERE dni=?",
                 asistente.getNombre(), asistente.getApellidos(), asistente.getEmail(),
                 asistente.getTelefono(), asistente.getEdad(), asistente.getTitulacion(),
-                asistente.getEstado(), asistente.getZonaGeografica(), asistente.getDisponibilidad(),
-                asistente.getFormacion(), asistente.getExperiencia(),
+                asistente.getEstado(), asistente.getZonaGeografica(),
                 asistente.getDni());
     }
 
