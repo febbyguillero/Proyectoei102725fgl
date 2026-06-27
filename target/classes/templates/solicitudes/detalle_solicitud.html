@@ -33,6 +33,7 @@
         Tu solicitud ha sido rechazada. Puedes crear una nueva solicitud si lo necesitas.
     </div>
 
+    <!-- Dades de la sol·licitud -->
     <div class="sgovid-card">
         <div class="sgovid-card-header">Datos de la solicitud</div>
         <div class="sgovid-card-body">
@@ -65,11 +66,20 @@
         </div>
     </div>
 
-    <!-- Contrato si existe -->
+    <!-- Contracte assignat -->
     <div th:if="${contrato != null}" class="sgovid-card">
         <div class="sgovid-card-header success">Contrato asignado</div>
         <div class="sgovid-card-body">
             <dl>
+                <!-- Nom del PAP/PATI assignat -->
+                <dt>Asistente personal (PAP/PATI)</dt>
+                <dd>
+                    <span th:if="${nombreAsistente != null}"
+                          th:text="${nombreAsistente}"></span>
+                    <span th:unless="${nombreAsistente != null}"
+                          class="text-muted">Pendent d'assignació</span>
+                </dd>
+
                 <dt>Fecha de inicio</dt>
                 <dd th:text="${contrato.fechaInicio}"></dd>
 
@@ -89,6 +99,14 @@
                 <dt th:if="${contrato.observaciones != null}">Observaciones</dt>
                 <dd th:if="${contrato.observaciones != null}" th:text="${contrato.observaciones}"></dd>
             </dl>
+
+            <!-- Accés a les comunicacions -->
+            <div class="mt-3">
+                <a th:href="@{/comunicaciones/solicitud/{id}(id=${solicitud.idRequest})}"
+                   class="btn-sgovid-primary">
+                    💬 Comunicar-me amb el tècnic OVI
+                </a>
+            </div>
         </div>
     </div>
 

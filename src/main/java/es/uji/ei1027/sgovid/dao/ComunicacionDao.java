@@ -22,36 +22,34 @@ public class ComunicacionDao {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
-    // Obtenir totes les comunicacions d'una sol·licitud concreta
+    // Obtenir totes les comunicacions d'una sol·licitud (ordre cronològic: les primeres primer)
     public List<ComunicacionUsuarioViPAP> getComunicacionesBySolicitud(int idSolicitud) {
         try {
             return jdbcTemplate.query(
-                    "SELECT * FROM comunicacionusuariovipap WHERE id_solicitud = ? ORDER BY fecha_comunicacion DESC",
+                    "SELECT * FROM comunicacionusuariovipap WHERE id_solicitud = ? ORDER BY fecha_comunicacion ASC",
                     new ComunicacionUsuarioViPAPRowMapper(), idSolicitud);
         } catch (EmptyResultDataAccessException e) {
             return new ArrayList<>();
         }
     }
 
-    // Registrar una nova comunicació
+    // Registrar un nou missatge
     public void addComunicacion(ComunicacionUsuarioViPAP comunicacion) {
         if (comunicacion.getFechaComunicacion() == null) {
             comunicacion.setFechaComunicacion(LocalDateTime.now());
         }
         jdbcTemplate.update(
                 "INSERT INTO comunicacionusuariovipap " +
-                        "(id_solicitud, dni_asistente, fecha_comunicacion, tipo_comunicacion, direccion, resumen, observaciones) " +
-                        "VALUES (?, ?, ?, ?, ?, ?, ?)",
+                        "(id_solicitud, fecha_comunicacion, tipo_comunicacion, direccion, resumen) " +
+                        "VALUES (?, ?, ?, ?, ?)",
                 comunicacion.getIdSolicitud(),
-                comunicacion.getDniAsistente(),
                 comunicacion.getFechaComunicacion(),
                 comunicacion.getTipoComunicacion(),
                 comunicacion.getDireccion(),
-                comunicacion.getResumen(),
-                comunicacion.getObservaciones());
+                comunicacion.getResumen());
     }
 
-    // Eliminar una comunicació
+    // Eliminar un missatge (operació reservada al tècnic)
     public void deleteComunicacion(int idComunicacion) {
         jdbcTemplate.update(
                 "DELETE FROM comunicacionusuariovipap WHERE id_comunicacion = ?",

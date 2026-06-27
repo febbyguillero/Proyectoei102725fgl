@@ -4,6 +4,11 @@
     <meta charset="UTF-8">
     <title>Comunicacions - SgOVI</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .msg-tecnico  { background: #e8f4fd; border-left: 4px solid #0d6efd; }
+        .msg-usuario  { background: #f0fdf4; border-left: 4px solid #198754; }
+        .msg-box { border-radius: 6px; padding: 10px 14px; margin-bottom: 10px; }
+    </style>
 </head>
 <body>
 <nav th:replace="~{fragments/navbar-tecnico :: navbar-tecnico}" th:if="${esTecnico}"></nav>
@@ -16,71 +21,71 @@
     </div>
 </nav>
 
-<main class="container mt-4">
+<main class="container mt-4" style="max-width: 720px">
 
-    <h1>Comunicacions de la Sol·licitud <span th:text="${solicitud.idRequest}"></span></h1>
+    <h1 class="h4 mb-1">Comunicacions</h1>
+    <p class="text-muted small mb-3">
+        Sol·licitud #<span th:text="${solicitud.idRequest}"></span>
+        — <span th:text="${solicitud.tipusServei}"></span>
+        <span th:switch="${solicitud.estat}">
+            <span th:case="'PENDIENTE'" class="badge bg-warning text-dark ms-1">Pendent</span>
+            <span th:case="'APROBADA'"  class="badge bg-success ms-1">Aprovada</span>
+            <span th:case="'RECHAZADA'" class="badge bg-danger ms-1">Rebutjada</span>
+        </span>
+    </p>
 
-    <div class="mb-3">
-        <p class="text-muted">
-            Tipus: <strong th:text="${solicitud.tipusServei}"></strong> |
-            Estat:
-            <span th:switch="${solicitud.estat}">
-                <span th:case="'PENDIENTE'" class="badge bg-warning text-dark">PENDENT</span>
-                <span th:case="'APROBADA'"  class="badge bg-success">APROVADA</span>
-                <span th:case="'RECHAZADA'" class="badge bg-danger">REBUTJADA</span>
-                <span th:case="*" class="badge bg-secondary" th:text="${solicitud.estat}"></span>
-            </span>
-        </p>
+    <div th:if="${#lists.isEmpty(comunicaciones)}" class="alert alert-light border text-muted">
+        Encara no hi ha missatges en aquesta sol·licitud.
     </div>
 
-    <a th:href="@{/comunicaciones/solicitud/{id}/add(id=${solicitud.idRequest})}"
-       class="btn btn-primary mb-3">+ Registrar nova comunicació</a>
+    <div th:each="com : ${comunicaciones}">
+        <div th:classappend="${com.direccion == 'TECNICO'} ? 'msg-tecnico' : 'msg-usuario'"
+             class="msg-box">
+            <div class="d-flex justify-content-between align-items-start">
+                <small class="fw-semibold">
+                    <span th:if="${com.direccion == 'TECNICO'}">🔵 Tècnic OVI</span>
+                    <span th:unless="${com.direccion == 'TECNICO'}">🟢 Usuari OVI</span>
+                </small>
+                <small class="text-muted"
+                       th:text="${#temporals.format(com.fechaComunicacion, 'dd/MM/yyyy HH:mm')}"></small>
+            </div>
+            <p class="mb-1 mt-1" th:text="${com.resumen}"></p>
+            <!-- Eliminar: només visible per al tècnic -->
+            <div th:if="${esTecnico}" class="text-end">
+                <a th:href="@{/comunicaciones/delete/{id}/solicitud/{sid}(id=${com.idComunicacion},sid=${solicitud.idRequest})}"
+                   class="btn btn-outline-danger btn-sm py-0 px-2"
+                   onclick="return confirm('Eliminar aquest missatge?')">✕</a>
+            </div>
+        </div>
+    </div>
 
-    <table class="table table-striped table-hover" th:unless="${#lists.isEmpty(comunicaciones)}">
-        <thead class="table-dark">
-        <tr>
-            <th scope="col">Data</th>
-            <th scope="col">Tipus</th>
-            <th scope="col">Direcció</th>
-            <th scope="col">Assistent</th>
-            <th scope="col">Resum</th>
-            <th scope="col">Observacions</th>
-            <th scope="col" th:if="${esTecnico}">Acció</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:each="com : ${comunicaciones}">
-            <td th:text="${#temporals.format(com.fechaComunicacion, 'dd/MM/yyyy HH:mm')}"></td>
-            <td th:text="${com.tipoComunicacion}"></td>
-            <td>
-                <span th:if="${com.direccion == 'saliente'}" class="badge bg-info text-dark">Eixint</span>
-                <span th:if="${com.direccion == 'entrante'}" class="badge bg-secondary">Entrant</span>
-            </td>
-            <td>
-                <span th:if="${nombresAsistentes != null and com.dniAsistente != null and nombresAsistentes[com.dniAsistente] != null}"
-                      th:text="${nombresAsistentes[com.dniAsistente]}"></span>
-                <span th:unless="${nombresAsistentes != null and com.dniAsistente != null and nombresAsistentes[com.dniAsistente] != null}"
-                      th:text="${com.dniAsistente != null ? com.dniAsistente : '-'}"></span>
-            </td>
-            <td th:text="${com.resumen}"></td>
-            <td th:text="${com.observaciones != null ? com.observaciones : '-'}"></td>
-            <td th:if="${esTecnico}">
-                <a th:href="@{/comunicaciones/delete/{id}/solicitud/{sid}(id=${com.idComunicacion}, sid=${solicitud.idRequest})}"
-                   class="btn btn-sm btn-danger">Eliminar</a>
-            </td>
-        </tr>
-        </tbody>
-    </table>
+    <div class="card mt-4">
+        <div class="card-body">
+            <h2 class="h6 mb-3">Escriu un missatge</h2>
 
-    <div th:if="${#lists.isEmpty(comunicaciones)}" class="alert alert-info">
-        No hi ha comunicacions registrades per a aquesta sol·licitud.
+            <div th:if="${errorText}" class="alert alert-danger py-2" th:text="${errorText}"></div>
+
+            <form th:action="@{/comunicaciones/solicitud/{id}(id=${solicitud.idRequest})}"
+                  method="post">
+                <div class="mb-3">
+                    <label for="text" class="visually-hidden">Missatge</label>
+                    <textarea id="text" name="text" class="form-control" rows="3"
+                              maxlength="500" required
+                              placeholder="Escriu el teu missatge aquí..."></textarea>
+                    <div class="form-text">Màxim 500 caràcters.</div>
+                </div>
+                <button type="submit" class="btn btn-primary">Enviar missatge</button>
+            </form>
+        </div>
     </div>
 
     <div class="mt-3">
-        <a th:href="@{/tecnico/solicitud/{id}(id=${solicitud.idRequest})}"
-           class="btn btn-secondary" th:if="${esTecnico}">Tornar al detall</a>
-        <a th:href="@{/solicitudes/detalle/{id}(id=${solicitud.idRequest})}"
-           class="btn btn-secondary" th:unless="${esTecnico}">Tornar al detall</a>
+        <a th:if="${esTecnico}"
+           th:href="@{/tecnico/solicitud/{id}(id=${solicitud.idRequest})}"
+           class="btn btn-secondary btn-sm">← Tornar al detall</a>
+        <a th:unless="${esTecnico}"
+           th:href="@{/solicitudes/detalle/{id}(id=${solicitud.idRequest})}"
+           class="btn btn-secondary btn-sm">← Tornar al detall</a>
     </div>
 
 </main>
