@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <title>Llista d'Usuaris OVI - SgOVI</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<nav th:replace="~{fragments/navbar-tecnico :: navbar-tecnico}"></nav>
+<main class="container mt-4">
+
+<h1>Usuaris OVI</h1>
+
+<form method="get" th:action="@{/usuario/list}" class="row g-2 mb-3" role="search">
+    <input type="hidden" name="sort" th:value="${sort}">
+    <input type="hidden" name="dir" th:value="${dir}">
+    <div class="col-md-8">
+        <label for="q" class="visually-hidden">Buscar per nom, DNI o email</label>
+        <input type="text" id="q" name="q" th:value="${q}" class="form-control"
+               placeholder="Buscar per nom, DNI o email...">
+    </div>
+    <div class="col-md-4">
+        <button type="submit" class="btn btn-primary">Buscar</button>
+        <a th:href="@{/usuario/list}" class="btn btn-outline-secondary">Netejar</a>
+    </div>
+</form>
+
+<p class="text-muted" th:text="${total} + ' usuari(s) trobats'">0 usuaris</p>
+
+<table class="table table-striped table-hover">
+    <thead class="table-dark">
+    <tr>
+        <th scope="col">
+            <a class="link-light text-decoration-none"
+               th:href="@{/usuario/list(q=${q}, sort='id', dir=${sort == 'id' and dir == 'asc' ? 'desc' : 'asc'}, page=1)}">
+                ID <span th:if="${sort == 'id'}" th:text="${dir == 'asc' ? '▲' : '▼'}"></span><span th:unless="${sort == 'id'}">↕</span>
+            </a>
+        </th>
+        <th scope="col">
+            <a class="link-light text-decoration-none"
+               th:href="@{/usuario/list(q=${q}, sort='nom', dir=${sort == 'nom' and dir == 'asc' ? 'desc' : 'asc'}, page=1)}">
+                Nom <span th:if="${sort == 'nom'}" th:text="${dir == 'asc' ? '▲' : '▼'}"></span><span th:unless="${sort == 'nom'}">↕</span>
+            </a>
+        </th>
+        <th scope="col">
+            <a class="link-light text-decoration-none"
+               th:href="@{/usuario/list(q=${q}, sort='cognoms', dir=${sort == 'cognoms' and dir == 'asc' ? 'desc' : 'asc'}, page=1)}">
+                Cognoms <span th:if="${sort == 'cognoms'}" th:text="${dir == 'asc' ? '▲' : '▼'}"></span><span th:unless="${sort == 'cognoms'}">↕</span>
+            </a>
+        </th>
+        <th scope="col">
+            <a class="link-light text-decoration-none"
+               th:href="@{/usuario/list(q=${q}, sort='dni', dir=${sort == 'dni' and dir == 'asc' ? 'desc' : 'asc'}, page=1)}">
+                DNI <span th:if="${sort == 'dni'}" th:text="${dir == 'asc' ? '▲' : '▼'}"></span><span th:unless="${sort == 'dni'}">↕</span>
+            </a>
+        </th>
+        <th scope="col">
+            <a class="link-light text-decoration-none"
+               th:href="@{/usuario/list(q=${q}, sort='email', dir=${sort == 'email' and dir == 'asc' ? 'desc' : 'asc'}, page=1)}">
+                Email <span th:if="${sort == 'email'}" th:text="${dir == 'asc' ? '▲' : '▼'}"></span><span th:unless="${sort == 'email'}">↕</span>
+            </a>
+        </th>
+        <th scope="col">Telèfon</th>
+        <th scope="col">Estat</th>
+        <th scope="col">Accions</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="usuario : ${usuarios}">
+        <td th:text="${usuario.idUsuari}"></td>
+        <td th:text="${usuario.nom}"></td>
+        <td th:text="${usuario.cognoms}"></td>
+        <td th:text="${usuario.dni}"></td>
+        <td th:text="${usuario.email}"></td>
+        <td th:text="${usuario.telefon}"></td>
+        <td>
+            <span th:if="${usuario.estatTecnicAcceptat}" class="badge bg-success">Acceptat</span>
+            <span th:unless="${usuario.estatTecnicAcceptat}" class="badge bg-warning text-dark">Pendent</span>
+        </td>
+        <td>
+            <a th:href="@{/usuario/update/{id}(id=${usuario.idUsuari})}" class="btn btn-sm btn-warning">Editar</a>
+            <a th:href="@{/usuario/delete/{id}(id=${usuario.idUsuari})}" class="btn btn-sm btn-danger">Eliminar</a>
+        </td>
+    </tr>
+    <tr th:if="${#lists.isEmpty(usuarios)}">
+        <td colspan="8" class="text-center text-muted">No hi ha usuaris que coincidisquen amb la cerca.</td>
+    </tr>
+    </tbody>
+</table>
+
+<nav th:if="${totalPaginas > 1}" aria-label="Paginació">
+    <ul class="pagination justify-content-center">
+        <li class="page-item" th:classappend="${page == 1} ? 'disabled'">
+            <a class="page-link"
+               th:href="@{/usuario/list(q=${q}, sort=${sort}, dir=${dir}, page=${page - 1})}" aria-label="Pàgina anterior">«</a>
+        </li>
+        <li class="page-item" th:each="p : ${#numbers.sequence(1, totalPaginas)}"
+            th:classappend="${p == page} ? 'active'">
+            <a class="page-link"
+               th:href="@{/usuario/list(q=${q}, sort=${sort}, dir=${dir}, page=${p})}"
+               th:text="${p}"></a>
+        </li>
+        <li class="page-item" th:classappend="${page == totalPaginas} ? 'disabled'">
+            <a class="page-link"
+               th:href="@{/usuario/list(q=${q}, sort=${sort}, dir=${dir}, page=${page + 1})}" aria-label="Pàgina següent">»</a>
+        </li>
+    </ul>
+</nav>
+
+</main>
+</body>
+</html>
