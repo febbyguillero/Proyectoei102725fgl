@@ -9,6 +9,9 @@ import es.uji.ei1027.sgovid.model.AsistentePersonal;
 import es.uji.ei1027.sgovid.model.RegistroContrato;
 import es.uji.ei1027.sgovid.model.UsuarioOVI;
 import es.uji.ei1027.sgovid.services.SeleccionService;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+import org.jasypt.util.password.BasicPasswordEncryptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -25,14 +28,32 @@ public class TecnicoController {
 
     private static final int TAM_PAGINA = 10;
 
+    private final BasicPasswordEncryptor passwordEncryptor = new BasicPasswordEncryptor();
+
     @Autowired private APRequestDao solicitudDao;
     @Autowired private AsistentePersonalDao asistenteDao;
     @Autowired private UsuarioOVIDao usuarioDao;
     @Autowired private SeleccionService seleccionService;
     @Autowired private RegistroContratoDao contratoDao;
 
+    private String comprobarRolTecnico(HttpSession session) {
+        Object rol = session.getAttribute("rol");
+        if (rol == null) return "redirect:/login";
+        if (!"TECNICO".equals(rol)) return "redirect:/solicitudes/mis-solicitudes";
+        return null;
+    }
+
+    private void noCachear(HttpServletResponse response) {
+        response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+        response.setHeader("Pragma", "no-cache");
+        response.setDateHeader("Expires", 0);
+    }
+
     @RequestMapping("/panel")
-    public String panel() {
+    public String panel(HttpSession session, HttpServletResponse response) {
+        String redir = comprobarRolTecnico(session);
+        if (redir != null) return redir;
+        noCachear(response);
         return "tecnico/panel";
     }
 
@@ -44,7 +65,12 @@ public class TecnicoController {
             @RequestParam(defaultValue = "") String sort,
             @RequestParam(defaultValue = "asc") String dir,
             @RequestParam(defaultValue = "1") int page,
+            HttpSession session, HttpServletResponse response,
             Model model) {
+
+        String redir = comprobarRolTecnico(session);
+        if (redir != null) return redir;
+        noCachear(response);
 
         if (page < 1) page = 1;
         int total = solicitudDao.countRequests(q, estado, tipo);
@@ -54,7 +80,6 @@ public class TecnicoController {
         List<APRequest> solicitudes = solicitudDao.getRequests(q, estado, tipo, sort, dir, page, TAM_PAGINA);
         model.addAttribute("solicitudes", solicitudes);
 
-        // Nombre del usuario por cada solicitud de la página (sin id en la tabla)
         Map<String, String> nombresUsuarios = new HashMap<>();
         for (APRequest sol : solicitudes) {
             String ident = sol.getUsuariIdent();
@@ -66,7 +91,6 @@ public class TecnicoController {
             }
         }
         model.addAttribute("nombresUsuarios", nombresUsuarios);
-
         model.addAttribute("q", q);
         model.addAttribute("estado", estado);
         model.addAttribute("tipo", tipo);
@@ -79,7 +103,13 @@ public class TecnicoController {
     }
 
     @RequestMapping("/solicitud/{id}")
-    public String verSolicitud(@PathVariable int id, Model model) {
+    public String verSolicitud(@PathVariable int id,
+                               HttpSession session, HttpServletResponse response,
+                               Model model) {
+        String redir = comprobarRolTecnico(session);
+        if (redir != null) return redir;
+        noCachear(response);
+
         APRequest solicitud = solicitudDao.getRequest(id);
         if (solicitud == null) return "redirect:/tecnico/solicitudes";
         model.addAttribute("solicitud", solicitud);
@@ -92,7 +122,7 @@ public class TecnicoController {
         if ("PENDIENTE".equals(solicitud.getEstat())) {
             List<AsistentePersonal> candidatos = seleccionService.proponerCandidatos(id);
             model.addAttribute("candidatosPropuestos", candidatos);
-        } else if (!"RECHAZADA".equals(solicitud.getEstat())) {
+        } else if (!"APROBADA".equals(solicitud.getEstat()) && !"RECHAZADA".equals(solicitud.getEstat())) {
             List<AsistentePersonal> candidatos = asistenteDao.getAsistentes();
             model.addAttribute("candidatosPropuestos", candidatos);
         }
@@ -104,20 +134,43 @@ public class TecnicoController {
     }
 
     @RequestMapping("/solicitud/{id}/asignar/{dni}")
-    public String asignarCandidato(@PathVariable int id, @PathVariable String dni) {
+    public String asignarCandidato(@PathVariable int id, @PathVariable String dni,
+                                   HttpSession session, Model model) {
+        String redir = comprobarRolTecnico(session);
+        if (redir != null) return redir;
+
+        APRequest solicitud = solicitudDao.getRequest(id);
+        if (solicitud == null) return "redirect:/tecnico/solicitudes";
+
+        AsistentePersonal asistente = asistenteDao.getAsistente(dni);
+        if (asistente == null) {
+            model.addAttribute("solicitud", solicitud);
+            model.addAttribute("errorAsignacion", "No s'ha trobat l'assistent amb DNI: " + dni);
+            List<AsistentePersonal> candidatos = seleccionService.proponerCandidatos(id);
+            model.addAttribute("candidatosPropuestos", candidatos);
+            return "tecnico/solicitud-detalle";
+        }
+
+        RegistroContrato contratoExistente = contratoDao.getContratoBySolicitud(id);
+        if (contratoExistente != null && "activo".equals(contratoExistente.getEstadoContrato())) {
+            return "redirect:/tecnico/solicitud/" + id;
+        }
+
         RegistroContrato contrato = new RegistroContrato();
         contrato.setIdSolicitud(id);
         contrato.setDniAsistente(dni);
         contrato.setFechaInicio(LocalDate.now());
         contrato.setEstadoContrato("activo");
-        contrato.setObservaciones("Contrato generado automáticamente al asignar candidato");
+        contrato.setObservaciones("Contrato generado automàticament al assignar candidat");
         contratoDao.addContrato(contrato);
         solicitudDao.cambiarEstado(id, "APROBADA");
         return "redirect:/tecnico/solicitud/" + id;
     }
 
     @RequestMapping("/solicitud/{id}/rechazar")
-    public String rechazarSolicitud(@PathVariable int id) {
+    public String rechazarSolicitud(@PathVariable int id, HttpSession session) {
+        String redir = comprobarRolTecnico(session);
+        if (redir != null) return redir;
         solicitudDao.cambiarEstado(id, "RECHAZADA");
         return "redirect:/tecnico/solicitudes";
     }
@@ -128,7 +181,12 @@ public class TecnicoController {
             @RequestParam(defaultValue = "") String sort,
             @RequestParam(defaultValue = "asc") String dir,
             @RequestParam(defaultValue = "1") int page,
+            HttpSession session, HttpServletResponse response,
             Model model) {
+
+        String redir = comprobarRolTecnico(session);
+        if (redir != null) return redir;
+        noCachear(response);
 
         if (page < 1) page = 1;
         int total = asistenteDao.countAsistentes(q);
@@ -146,7 +204,9 @@ public class TecnicoController {
     }
 
     @RequestMapping("/aceptar-asistente/{dni}")
-    public String aceptarAsistente(@PathVariable String dni) {
+    public String aceptarAsistente(@PathVariable String dni, HttpSession session) {
+        String redir = comprobarRolTecnico(session);
+        if (redir != null) return redir;
         AsistentePersonal a = asistenteDao.getAsistente(dni);
         if (a != null) {
             a.setEstado("ACEPTADO");
@@ -156,7 +216,9 @@ public class TecnicoController {
     }
 
     @RequestMapping("/rechazar-asistente/{dni}")
-    public String rechazarAsistente(@PathVariable String dni) {
+    public String rechazarAsistente(@PathVariable String dni, HttpSession session) {
+        String redir = comprobarRolTecnico(session);
+        if (redir != null) return redir;
         AsistentePersonal a = asistenteDao.getAsistente(dni);
         if (a != null) {
             a.setEstado("RECHAZADO");
@@ -166,7 +228,10 @@ public class TecnicoController {
     }
 
     @RequestMapping("/editar-asistente/{dni}")
-    public String editarAsistente(@PathVariable String dni, Model model) {
+    public String editarAsistente(@PathVariable String dni,
+                                  HttpSession session, Model model) {
+        String redir = comprobarRolTecnico(session);
+        if (redir != null) return redir;
         AsistentePersonal a = asistenteDao.getAsistente(dni);
         if (a == null) return "redirect:/tecnico/asistentes-pendientes";
         model.addAttribute("asistente", a);
@@ -179,7 +244,12 @@ public class TecnicoController {
             @RequestParam(defaultValue = "") String sort,
             @RequestParam(defaultValue = "asc") String dir,
             @RequestParam(defaultValue = "1") int page,
+            HttpSession session, HttpServletResponse response,
             Model model) {
+
+        String redir = comprobarRolTecnico(session);
+        if (redir != null) return redir;
+        noCachear(response);
 
         if (page < 1) page = 1;
         int total = usuarioDao.countUsuarios(q);
@@ -197,15 +267,18 @@ public class TecnicoController {
     }
 
     @RequestMapping("/aceptar-usuario/{id}")
-    public String aceptarUsuario(@PathVariable int id) {
+    public String aceptarUsuario(@PathVariable int id, HttpSession session) {
+        String redir = comprobarRolTecnico(session);
+        if (redir != null) return redir;
         UsuarioOVI u = usuarioDao.getUsuario(id);
         if (u != null) {
             u.setEstatTecnicAcceptat(true);
-            if (u.getIdentificadorSgovi() == null || u.getIdentificadorSgovi().isEmpty()) {
+            String ident = u.getIdentificadorSgovi();
+            if (ident == null || ident.isEmpty() || ident.startsWith("PENDENT")) {
                 u.setIdentificadorSgovi("USR" + String.format("%03d", id));
             }
             if (u.getContrasenya() == null || u.getContrasenya().isEmpty()) {
-                u.setContrasenya("ovi" + id + "2026");
+                u.setContrasenya(passwordEncryptor.encryptPassword("ovi" + id + "2026"));
             }
             usuarioDao.updateUsuario(u);
         }
@@ -213,7 +286,9 @@ public class TecnicoController {
     }
 
     @RequestMapping("/rechazar-usuario/{id}")
-    public String rechazarUsuario(@PathVariable int id) {
+    public String rechazarUsuario(@PathVariable int id, HttpSession session) {
+        String redir = comprobarRolTecnico(session);
+        if (redir != null) return redir;
         UsuarioOVI u = usuarioDao.getUsuario(id);
         if (u != null) {
             u.setEstatTecnicAcceptat(false);
@@ -223,10 +298,12 @@ public class TecnicoController {
     }
 
     @RequestMapping("/editar-usuario/{id}")
-    public String editarUsuario(@PathVariable int id, Model model) {
+    public String editarUsuario(@PathVariable int id,
+                                HttpSession session, Model model) {
+        String redir = comprobarRolTecnico(session);
+        if (redir != null) return redir;
         UsuarioOVI u = usuarioDao.getUsuario(id);
         if (u == null) return "redirect:/tecnico/usuarios-pendientes";
-        // No mostramos el hash de la contrasena en el formulario de edicion
         u.setContrasenya("");
         model.addAttribute("usuario", u);
         return "usuario/update";
@@ -238,14 +315,41 @@ public class TecnicoController {
             @RequestParam(defaultValue = "") String sort,
             @RequestParam(defaultValue = "asc") String dir,
             @RequestParam(defaultValue = "1") int page,
+            HttpSession session, HttpServletResponse response,
             Model model) {
+
+        String redir = comprobarRolTecnico(session);
+        if (redir != null) return redir;
+        noCachear(response);
 
         if (page < 1) page = 1;
         int total = contratoDao.countContratos(q);
         int totalPaginas = Math.max(1, (int) Math.ceil(total / (double) TAM_PAGINA));
         if (page > totalPaginas) page = totalPaginas;
 
-        model.addAttribute("contratos", contratoDao.getContratos(q, sort, dir, page, TAM_PAGINA));
+        List<RegistroContrato> contratos = contratoDao.getContratos(q, sort, dir, page, TAM_PAGINA);
+        model.addAttribute("contratos", contratos);
+
+        Map<Integer, String> nombresUsuarios = new HashMap<>();
+        Map<String, String> nombresAsistentes = new HashMap<>();
+        for (RegistroContrato c : contratos) {
+            if (c.getIdSolicitud() != null && !nombresUsuarios.containsKey(c.getIdSolicitud())) {
+                try {
+                    APRequest sol = solicitudDao.getRequest(c.getIdSolicitud());
+                    if (sol != null) {
+                        UsuarioOVI u = usuarioDao.getUsuario(Integer.parseInt(sol.getUsuariIdent()));
+                        if (u != null) nombresUsuarios.put(c.getIdSolicitud(), u.getNom() + " " + u.getCognoms());
+                    }
+                } catch (Exception ignored) {}
+            }
+            if (c.getDniAsistente() != null && !nombresAsistentes.containsKey(c.getDniAsistente())) {
+                AsistentePersonal a = asistenteDao.getAsistente(c.getDniAsistente());
+                if (a != null) nombresAsistentes.put(c.getDniAsistente(), a.getNombre() + " " + a.getApellidos());
+            }
+        }
+        model.addAttribute("nombresUsuarios", nombresUsuarios);
+        model.addAttribute("nombresAsistentes", nombresAsistentes);
+
         model.addAttribute("q", q);
         model.addAttribute("sort", sort);
         model.addAttribute("dir", dir);
@@ -256,21 +360,56 @@ public class TecnicoController {
     }
 
     @RequestMapping(value = "/contrato/{id}/editar", method = RequestMethod.GET)
-    public String editarContrato(@PathVariable int id, Model model) {
+    public String editarContrato(@PathVariable int id,
+                                 HttpSession session, Model model) {
+        String redir = comprobarRolTecnico(session);
+        if (redir != null) return redir;
         RegistroContrato contrato = contratoDao.getContrato(id);
         if (contrato == null) return "redirect:/tecnico/contratos";
+
+        if (contrato.getDniAsistente() != null) {
+            AsistentePersonal a = asistenteDao.getAsistente(contrato.getDniAsistente());
+            if (a != null) model.addAttribute("nombreAsistente", a.getNombre() + " " + a.getApellidos());
+        }
+        try {
+            APRequest sol = solicitudDao.getRequest(contrato.getIdSolicitud());
+            if (sol != null) {
+                UsuarioOVI u = usuarioDao.getUsuario(Integer.parseInt(sol.getUsuariIdent()));
+                if (u != null) model.addAttribute("nombreUsuario", u.getNom() + " " + u.getCognoms());
+            }
+        } catch (Exception ignored) {}
+
         model.addAttribute("contrato", contrato);
         return "tecnico/contrato-editar";
     }
 
     @RequestMapping(value = "/contrato/actualizar", method = RequestMethod.POST)
-    public String actualizarContrato(@ModelAttribute("contrato") RegistroContrato contrato) {
-        contratoDao.updateContrato(contrato);
+    public String actualizarContrato(@ModelAttribute("contrato") RegistroContrato contrato,
+                                     HttpSession session, Model model) {
+        String redir = comprobarRolTecnico(session);
+        if (redir != null) return redir;
+
+        RegistroContrato original = contratoDao.getContrato(contrato.getIdContrato());
+        if (original == null) return "redirect:/tecnico/contratos";
+
+        contrato.setFechaInicio(original.getFechaInicio());
+        contrato.setFechaRegistro(original.getFechaRegistro());
+        contrato.setDocumentoPdf(original.getDocumentoPdf());
+
+        try {
+            contratoDao.updateContrato(contrato);
+        } catch (Exception e) {
+            model.addAttribute("contrato", contrato);
+            model.addAttribute("errorActualizar", "Error en guardar els canvis: " + e.getMessage());
+            return "tecnico/contrato-editar";
+        }
         return "redirect:/tecnico/contratos";
     }
 
     @RequestMapping("/contrato/{id}/cerrar")
-    public String cerrarContrato(@PathVariable int id) {
+    public String cerrarContrato(@PathVariable int id, HttpSession session) {
+        String redir = comprobarRolTecnico(session);
+        if (redir != null) return redir;
         RegistroContrato contrato = contratoDao.getContrato(id);
         if (contrato != null) {
             contrato.setEstadoContrato("finalizado");

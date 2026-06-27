@@ -6,6 +6,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
+<nav th:replace="~{fragments/navbar-tecnico :: navbar-tecnico}"></nav>
 <main class="container mt-4">
 <h1>Gestió de Contractes</h1>
 
@@ -13,9 +14,9 @@
     <input type="hidden" name="sort" th:value="${sort}">
     <input type="hidden" name="dir" th:value="${dir}">
     <div class="col-md-8">
-        <label for="q" class="visually-hidden">Cercar per DNI o estat</label>
+        <label for="q" class="visually-hidden">Cercar per nom d'assistent, usuari o estat</label>
         <input type="text" id="q" name="q" th:value="${q}" class="form-control"
-               placeholder="Cercar per DNI o estat...">
+               placeholder="Cercar per nom, assistent o estat...">
     </div>
     <div class="col-md-4">
         <button type="submit" class="btn btn-primary">Cercar</button>
@@ -34,18 +35,8 @@
                 ID <span th:if="${sort == 'id'}" th:text="${dir == 'asc' ? '▲' : '▼'}"></span><span th:unless="${sort == 'id'}">↕</span>
             </a>
         </th>
-        <th scope="col">
-            <a class="link-light text-decoration-none"
-               th:href="@{/tecnico/contratos(q=${q}, sort='solicitud', dir=${sort == 'solicitud' and dir == 'asc' ? 'desc' : 'asc'}, page=1)}">
-                Sol·licitud <span th:if="${sort == 'solicitud'}" th:text="${dir == 'asc' ? '▲' : '▼'}"></span><span th:unless="${sort == 'solicitud'}">↕</span>
-            </a>
-        </th>
-        <th scope="col">
-            <a class="link-light text-decoration-none"
-               th:href="@{/tecnico/contratos(q=${q}, sort='dni', dir=${sort == 'dni' and dir == 'asc' ? 'desc' : 'asc'}, page=1)}">
-                DNI Assistent <span th:if="${sort == 'dni'}" th:text="${dir == 'asc' ? '▲' : '▼'}"></span><span th:unless="${sort == 'dni'}">↕</span>
-            </a>
-        </th>
+        <th scope="col">Usuari OVI</th>
+        <th scope="col">Assistent PAP/PATI</th>
         <th scope="col">
             <a class="link-light text-decoration-none"
                th:href="@{/tecnico/contratos(q=${q}, sort='inicio', dir=${sort == 'inicio' and dir == 'asc' ? 'desc' : 'asc'}, page=1)}">
@@ -70,8 +61,18 @@
     <tbody>
     <tr th:each="c : ${contratos}">
         <td th:text="${c.idContrato}"></td>
-        <td th:text="${c.idSolicitud}"></td>
-        <td th:text="${c.dniAsistente}"></td>
+        <td>
+            <span th:if="${nombresUsuarios != null and nombresUsuarios[c.idSolicitud] != null}"
+                  th:text="${nombresUsuarios[c.idSolicitud]}"></span>
+            <span th:unless="${nombresUsuarios != null and nombresUsuarios[c.idSolicitud] != null}"
+                  class="text-muted" th:text="'Sol·licitud #' + ${c.idSolicitud}"></span>
+        </td>
+        <td>
+            <span th:if="${nombresAsistentes != null and nombresAsistentes[c.dniAsistente] != null}"
+                  th:text="${nombresAsistentes[c.dniAsistente]}"></span>
+            <span th:unless="${nombresAsistentes != null and nombresAsistentes[c.dniAsistente] != null}"
+                  class="text-muted" th:text="${c.dniAsistente != null ? c.dniAsistente : '—'}"></span>
+        </td>
         <td th:text="${c.fechaInicio}"></td>
         <td th:text="${c.fechaFin != null ? c.fechaFin : 'En curs'}"></td>
         <td>
@@ -98,18 +99,16 @@
 <nav th:if="${totalPaginas > 1}" aria-label="Paginació">
     <ul class="pagination justify-content-center">
         <li class="page-item" th:classappend="${page == 1} ? 'disabled'">
-            <a class="page-link" th:href="@{/tecnico/contratos(q=${q}, sort=${sort}, dir=${dir}, page=${page - 1})}" aria-label="Página anterior">«</a>
+            <a class="page-link" th:href="@{/tecnico/contratos(q=${q}, sort=${sort}, dir=${dir}, page=${page - 1})}" aria-label="Pàgina anterior">«</a>
         </li>
         <li class="page-item" th:each="p : ${#numbers.sequence(1, totalPaginas)}" th:classappend="${p == page} ? 'active'">
             <a class="page-link" th:href="@{/tecnico/contratos(q=${q}, sort=${sort}, dir=${dir}, page=${p})}" th:text="${p}"></a>
         </li>
         <li class="page-item" th:classappend="${page == totalPaginas} ? 'disabled'">
-            <a class="page-link" th:href="@{/tecnico/contratos(q=${q}, sort=${sort}, dir=${dir}, page=${page + 1})}" aria-label="Página siguiente">»</a>
+            <a class="page-link" th:href="@{/tecnico/contratos(q=${q}, sort=${sort}, dir=${dir}, page=${page + 1})}" aria-label="Pàgina següent">»</a>
         </li>
     </ul>
 </nav>
-
-<a th:href="@{/tecnico/panel}" class="btn btn-secondary mt-3">Tornar al panel</a>
 
 </main>
 </body>
