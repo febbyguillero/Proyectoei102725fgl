@@ -1,8 +1,8 @@
 package es.uji.ei1027.sgovid.controller;
 
-
 import es.uji.ei1027.sgovid.dao.AsistentePersonalDao;
 import es.uji.ei1027.sgovid.model.AsistentePersonal;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -16,29 +16,36 @@ public class AsistentePersonalController {
     @Autowired
     private AsistentePersonalDao asistenteDao;
 
-    @RequestMapping("/registro")
+    private String comprobarRolTecnico(HttpSession session) {
+        Object rol = session.getAttribute("rol");
+        if (rol == null) return "redirect:/login";
+        if (!"TECNICO".equals(rol)) return "redirect:/solicitudes/mis-solicitudes";
+        return null;
+    }
+
+
+    @GetMapping("/registro")
     public String registroAsistente(Model model) {
         model.addAttribute("asistente", new AsistentePersonal());
         return "asistente/registro";
     }
 
-    @RequestMapping(value = "/registro", method = RequestMethod.POST)
+    @PostMapping("/registro")
     public String procesarRegistro(@ModelAttribute("asistente") AsistentePersonal asistente,
                                    BindingResult bindingResult) {
-        es.uji.ei1027.sgovid.controller.AsistentePersonalValidator validator = new es.uji.ei1027.sgovid.controller.AsistentePersonalValidator();
+        AsistentePersonalValidator validator = new AsistentePersonalValidator();
         validator.validate(asistente, bindingResult);
-
-        if (bindingResult.hasErrors()) {
-            return "asistente/registro";
-        }
-
+        if (bindingResult.hasErrors()) return "asistente/registro";
         asistente.setEstado("PENDIENTE");
         asistenteDao.addAsistente(asistente);
         return "redirect:/login?registroOK";
     }
+
+
     @RequestMapping("/list")
-    public String listAsistentes(Model model) {
-        model.addAttribute("asistentes", asistenteDao.getAsistentes());
-        return "asistente/list";
+    public String listAsistentes(HttpSession session) {
+        String redir = comprobarRolTecnico(session);
+        if (redir != null) return redir;
+        return "redirect:/tecnico/asistentes-pendientes";
     }
 }

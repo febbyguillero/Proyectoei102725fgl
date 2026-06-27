@@ -2,11 +2,13 @@ package es.uji.ei1027.sgovid.controller;
 
 import es.uji.ei1027.sgovid.dao.ActividadFormacionDao;
 import es.uji.ei1027.sgovid.model.ActividadFormacion;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+
 
 @Controller
 @RequestMapping("/actividad")
@@ -17,11 +19,20 @@ public class ActividadFormacionController {
     @Autowired
     private ActividadFormacionDao actividadDao;
 
+    private String comprobarRolTecnico(HttpSession session) {
+        Object rol = session.getAttribute("rol");
+        if (rol == null) return "redirect:/login";
+        if (!"TECNICO".equals(rol)) return "redirect:/solicitudes/mis-solicitudes";
+        return null;
+    }
+
+
     @GetMapping("/agenda")
     public String agendaPublica(Model model) {
         model.addAttribute("actividades", actividadDao.getActividades());
         return "actividad/agenda";
     }
+
 
     @GetMapping("/list")
     public String listActividades(
@@ -29,13 +40,13 @@ public class ActividadFormacionController {
             @RequestParam(defaultValue = "") String sort,
             @RequestParam(defaultValue = "asc") String dir,
             @RequestParam(defaultValue = "1") int page,
-            Model model) {
-
+            HttpSession session, Model model) {
+        String redir = comprobarRolTecnico(session);
+        if (redir != null) return redir;
         if (page < 1) page = 1;
         int total = actividadDao.countActividades(q);
         int totalPaginas = Math.max(1, (int) Math.ceil(total / (double) TAM_PAGINA));
         if (page > totalPaginas) page = totalPaginas;
-
         model.addAttribute("actividades", actividadDao.getActividades(q, sort, dir, page, TAM_PAGINA));
         model.addAttribute("q", q);
         model.addAttribute("sort", sort);
@@ -47,32 +58,33 @@ public class ActividadFormacionController {
     }
 
     @GetMapping("/add")
-    public String addActividad(Model model) {
+    public String addActividad(Model model, HttpSession session) {
+        String redir = comprobarRolTecnico(session);
+        if (redir != null) return redir;
         model.addAttribute("actividad", new ActividadFormacion());
         return "actividad/add";
     }
 
     @PostMapping("/add")
     public String processAdd(@ModelAttribute("actividad") ActividadFormacion actividad,
-                             BindingResult bindingResult) {
-        if (actividad.getTitulo() == null || actividad.getTitulo().isEmpty()) {
+                             BindingResult bindingResult, HttpSession session) {
+        String redir = comprobarRolTecnico(session);
+        if (redir != null) return redir;
+        if (actividad.getTitulo() == null || actividad.getTitulo().isEmpty())
             bindingResult.rejectValue("titulo", "required", "El títol és obligatori");
-        }
-        if (actividad.getTipoActividad() == null || actividad.getTipoActividad().isEmpty()) {
+        if (actividad.getTipoActividad() == null || actividad.getTipoActividad().isEmpty())
             bindingResult.rejectValue("tipoActividad", "required", "El tipus és obligatori");
-        }
-        if (bindingResult.hasErrors()) {
-            return "actividad/add";
-        }
-        if (actividad.getEstado() == null || actividad.getEstado().isEmpty()) {
+        if (bindingResult.hasErrors()) return "actividad/add";
+        if (actividad.getEstado() == null || actividad.getEstado().isEmpty())
             actividad.setEstado("programada");
-        }
         actividadDao.addActividad(actividad);
         return "redirect:/actividad/list";
     }
 
     @GetMapping("/update/{id}")
-    public String editActividad(@PathVariable int id, Model model) {
+    public String editActividad(@PathVariable int id, Model model, HttpSession session) {
+        String redir = comprobarRolTecnico(session);
+        if (redir != null) return redir;
         ActividadFormacion a = actividadDao.getActividad(id);
         if (a == null) return "redirect:/actividad/list";
         model.addAttribute("actividad", a);
@@ -80,7 +92,10 @@ public class ActividadFormacionController {
     }
 
     @PostMapping("/update")
-    public String processUpdate(@ModelAttribute("actividad") ActividadFormacion actividad) {
+    public String processUpdate(@ModelAttribute("actividad") ActividadFormacion actividad,
+                                HttpSession session) {
+        String redir = comprobarRolTecnico(session);
+        if (redir != null) return redir;
         if (actividad.getFechaInicio() == null || actividad.getFechaFin() == null) {
             ActividadFormacion original = actividadDao.getActividad(actividad.getIdActividad());
             if (original != null) {
@@ -93,7 +108,9 @@ public class ActividadFormacionController {
     }
 
     @GetMapping("/delete/{id}")
-    public String deleteActividad(@PathVariable int id) {
+    public String deleteActividad(@PathVariable int id, HttpSession session) {
+        String redir = comprobarRolTecnico(session);
+        if (redir != null) return redir;
         actividadDao.deleteActividad(id);
         return "redirect:/actividad/list";
     }
