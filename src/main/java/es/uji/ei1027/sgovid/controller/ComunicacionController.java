@@ -75,7 +75,6 @@ public class ComunicacionController {
         String rol = (String) session.getAttribute("rol");
         if ("TECNICO".equals(rol)) model.addAttribute("esTecnico", true);
         return "comunicaciones/add";
-        return "comunicaciones/add";
     }
 
     @PostMapping("/solicitud/{idSolicitud}/add")
