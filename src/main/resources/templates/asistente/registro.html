@@ -11,6 +11,8 @@
     <h1>Sol·licitud per ser Assistent Personal (PAP/PATI)</h1>
     <p class="text-muted">Omple el formulari. Un tècnic OVI revisarà la sol·licitud.</p>
 
+    <div th:if="${errorDni}" class="alert alert-danger" th:text="${errorDni}"></div>
+
     <form th:action="@{/asistente/registro}" th:object="${asistente}" method="post">
 
         <div class="mb-3 col-md-8">

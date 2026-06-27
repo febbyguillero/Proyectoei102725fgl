@@ -32,12 +32,19 @@ public class AsistentePersonalController {
 
     @PostMapping("/registro")
     public String procesarRegistro(@ModelAttribute("asistente") AsistentePersonal asistente,
-                                   BindingResult bindingResult) {
+                                   BindingResult bindingResult, Model model) {
         AsistentePersonalValidator validator = new AsistentePersonalValidator();
         validator.validate(asistente, bindingResult);
         if (bindingResult.hasErrors()) return "asistente/registro";
+
         asistente.setEstado("PENDIENTE");
-        asistenteDao.addAsistente(asistente);
+        try {
+            asistenteDao.addAsistente(asistente);
+        } catch (org.springframework.dao.DuplicateKeyException e) {
+            model.addAttribute("asistente", asistente);
+            model.addAttribute("errorDni", "Ja existeix un candidat registrat amb aquest DNI. Si ja estàs registrat/da, contacta amb l'OVI.");
+            return "asistente/registro";
+        }
         return "redirect:/login?registroOK";
     }
 
