@@ -129,7 +129,14 @@ public class TecnicoController {
         }
 
         RegistroContrato contrato = contratoDao.getContratoBySolicitud(id);
-        if (contrato != null) model.addAttribute("contrato", contrato);
+        if (contrato != null) {
+            model.addAttribute("contrato", contrato);
+            if (contrato.getDniAsistente() != null) {
+                AsistentePersonal asistente = asistenteDao.getAsistente(contrato.getDniAsistente());
+                if (asistente != null)
+                    model.addAttribute("nombreAsistente", asistente.getNombre() + " " + asistente.getApellidos());
+            }
+        }
 
         return "tecnico/solicitud-detalle";
     }

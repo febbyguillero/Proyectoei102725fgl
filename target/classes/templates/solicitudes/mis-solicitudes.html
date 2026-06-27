@@ -38,6 +38,7 @@
         <h1>Mis solicitudes</h1>
         <a href="/solicitudes/nueva" class="btn-primary">+ Nueva solicitud</a>
     </div>
+    <div th:if="${missatgeOk}" class="alert alert-success" th:text="${missatgeOk}"></div>
     <p>Aquí puedes consultar el estado de las peticiones que has realizado.</p>
 
     <table>
