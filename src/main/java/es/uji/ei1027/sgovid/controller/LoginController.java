@@ -77,7 +77,8 @@ public class LoginController {
         // Usuari OVI: comparació amb BasicPasswordEncryptor (Jasypt, Sessió 6).
         List<UsuarioOVI> usuarios = usuarioDao.getUsuarios();
         for (UsuarioOVI u : usuarios) {
-            if (!identificador.equals(u.getIdentificadorSgovi())) continue;
+            if (!identificador.equals(u.getIdentificadorSgovi())
+                    && !identificador.equals(u.getEmail())) continue;
             if (TECNICO_IDENT.equals(u.getIdentificadorSgovi())) continue;
 
             boolean ok = false;
