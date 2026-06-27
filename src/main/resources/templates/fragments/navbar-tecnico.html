@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ca">
+<body>
+<nav class="navbar navbar-dark bg-dark px-3" th:fragment="navbar-tecnico">
+    <a class="navbar-brand" th:href="@{/tecnico/panel}">SgOVI — Tècnic OVI</a>
+    <div class="d-flex gap-2 align-items-center">
+        <a th:href="@{/tecnico/solicitudes}"            class="btn btn-outline-light btn-sm">Sol·licituds</a>
+        <a th:href="@{/tecnico/asistentes-pendientes}"  class="btn btn-outline-light btn-sm">Candidats</a>
+        <a th:href="@{/tecnico/usuarios-pendientes}"    class="btn btn-outline-light btn-sm">Usuaris</a>
+        <a th:href="@{/tecnico/contratos}"              class="btn btn-outline-light btn-sm">Contractes</a>
+        <a th:href="@{/actividad/list}"                 class="btn btn-outline-light btn-sm">Formació</a>
+        <a th:href="@{/logout-confirm}"                 class="btn btn-danger btn-sm">Tancar sessió</a>
+    </div>
+</nav>
+</body>
+</html>

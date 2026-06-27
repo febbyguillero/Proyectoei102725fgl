@@ -2,6 +2,7 @@ package es.uji.ei1027.sgovid.controller;
 
 import es.uji.ei1027.sgovid.dao.UsuarioOVIDao;
 import es.uji.ei1027.sgovid.model.UsuarioOVI;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import org.jasypt.util.password.BasicPasswordEncryptor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,23 +17,35 @@ import java.util.List;
  * Segueix el patró de la Sessió 6 de pràctiques EI1027:
  * - Usa BasicPasswordEncryptor de Jasypt per comparar contrasenyes.
  * - Guarda l'usuari autenticat com a atribut de la sessió (HttpSession).
+ *
+ * La inicialització del tècnic OVI a la BD es fa a SgovidApplication.run(),
+ * seguint el patró CommandLineRunner de la Sessió 2.
  */
 @Controller
 public class LoginController {
 
+    public static final String TECNICO_IDENT = "TECNICO";
+
+    private final BasicPasswordEncryptor passwordEncryptor = new BasicPasswordEncryptor();
+
     @Autowired
     private UsuarioOVIDao usuarioDao;
 
-    // Credencials del tècnic en constants (fàcil de canviar, no disperses pel codi)
-    private static final String TECNICO_USUARI = "tecnico";
-    private static final String TECNICO_CONTRASENYA = "tecnico123";
-
-    private final BasicPasswordEncryptor passwordEncryptor = new BasicPasswordEncryptor();
+    // Cabeceres anti-caché reutilitzables. Eviten que el navegador guarde en memòria
+    // pàgines protegides; així, al polsar Enrere després de tancar sessió, el navegador
+    // torna a demanar la pàgina al servidor i es comprova la sessió.
+    private void noCachear(HttpServletResponse response) {
+        response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+        response.setHeader("Pragma", "no-cache");
+        response.setDateHeader("Expires", 0);
+    }
 
     @GetMapping("/login")
     public String loginForm(@RequestParam(value = "error", required = false) String error,
                             @RequestParam(value = "logout", required = false) String logout,
+                            HttpServletResponse response,
                             Model model) {
+        noCachear(response);
         if (error != null)  model.addAttribute("error", "Identificador o contrasenya incorrectes.");
         if (logout != null) model.addAttribute("mensaje", "Sessió tancada correctament.");
         return "login";
@@ -44,28 +57,34 @@ public class LoginController {
                                 HttpSession session,
                                 Model model) {
 
-        // Tècnic OVI: comparació directa (credencial interna del sistema)
-        if (TECNICO_USUARI.equals(identificador) && TECNICO_CONTRASENYA.equals(contrasenya)) {
-            session.setAttribute("rol", "TECNICO");
-            session.setAttribute("usuariId", "tecnico");
-            session.setAttribute("nombreUsuario", "Tècnic OVI");
-            return "redirect:/tecnico/panel";
+        // Tècnic OVI: buscar a la BD per identificador_sgovi = 'TECNICO'
+        if (TECNICO_IDENT.equals(identificador)) {
+            try {
+                UsuarioOVI tecnico = usuarioDao.getUsuarioByIdentificador(TECNICO_IDENT);
+                if (tecnico != null && passwordEncryptor.checkPassword(contrasenya, tecnico.getContrasenya())) {
+                    session.setAttribute("rol", "TECNICO");
+                    session.setAttribute("usuariId", "tecnico");
+                    session.setAttribute("nombreUsuario", tecnico.getNom() + " " + tecnico.getCognoms());
+                    return "redirect:/tecnico/panel";
+                }
+            } catch (Exception e) {
+                // Si falla la consulta, caer al mensaje de error genérico
+            }
+            model.addAttribute("error", "Identificador o contrasenya incorrectes.");
+            return "login";
         }
 
-        // Usuari OVI: comparació amb BasicPasswordEncryptor (Jasypt, Sessió 6)
-        // checkPassword() funciona tant si la contrasenya és en clar (dades antigues)
-        // com si ja ha sigut xifrada amb encryptPassword().
+        // Usuari OVI: comparació amb BasicPasswordEncryptor (Jasypt, Sessió 6).
         List<UsuarioOVI> usuarios = usuarioDao.getUsuarios();
         for (UsuarioOVI u : usuarios) {
             if (!identificador.equals(u.getIdentificadorSgovi())) continue;
+            if (TECNICO_IDENT.equals(u.getIdentificadorSgovi())) continue;
 
-            boolean ok;
+            boolean ok = false;
             try {
-                // Contrasenya xifrada amb Jasypt
                 ok = passwordEncryptor.checkPassword(contrasenya, u.getContrasenya());
             } catch (Exception e) {
-                // Contrasenya en clar (dades de prova del seed inicial)
-                ok = contrasenya.equals(u.getContrasenya());
+                ok = false;
             }
 
             if (ok) {
@@ -84,9 +103,17 @@ public class LoginController {
         return "login";
     }
 
+    @GetMapping("/logout-confirm")
+    public String logoutConfirm(HttpSession session, HttpServletResponse response) {
+        if (session.getAttribute("rol") == null) return "redirect:/login";
+        noCachear(response);
+        return "logout-confirm";
+    }
+
     @GetMapping("/logout")
-    public String logout(HttpSession session) {
+    public String logout(HttpSession session, HttpServletResponse response) {
         session.invalidate();
+        noCachear(response);
         return "redirect:/login?logout";
     }
 }

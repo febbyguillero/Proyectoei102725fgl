@@ -15,16 +15,18 @@ SET client_min_messages = warning;
 SET row_security = off;
 
 --
--- usuariovi
+-- usuariovi  (contrasenyes xifrades amb Jasypt BasicPasswordEncryptor)
+-- Contrasenyes en clar per a provar el login:
+--   USR001/pass1234  USR002/pass5678  USR003/pass9012  USR004/pass3456  USR005/pass7890
 --
 INSERT INTO public.usuariovi
     (id_usuari, identificador_sgovi, contrasenya, email, nom, cognoms, telefon, adreca, dni, data_naixement, consentiment_informat, data_registre, estat_tecnic_acceptat, tutor_legal_nom, tutor_legal_contacte, zona_geografica)
 VALUES
-(1, 'USR001', 'pass1234', 'marta.lopez@email.com', 'Marta', 'López García', '654321987', 'C/ Mayor 23, Castelló', '12345678A', '1985-03-15', true, '2026-02-21 10:30:00', true,  NULL, NULL, 'Castelló Centre'),
-(2, 'USR002', 'pass5678', 'joan.martinez@email.com', 'Joan', 'Martínez Ruiz', '678543219', 'Av/ de la Plana 45, Castelló', '87654321B', '1990-07-22', true, '2026-02-21 10:30:00', true,  NULL, NULL, 'Castelló Sud'),
-(3, 'USR003', 'pass9012', 'carla.sanchez@email.com', 'Carla', 'Sánchez Pérez', '612345678', 'C/ Colom 12, Castelló', '11223344C', '1978-11-30', true, '2026-02-21 10:30:00', false, NULL, NULL, 'Castelló Nord'),
-(4, 'USR004', 'pass3456', 'pere.ramirez@email.com', 'Pere', 'Ramírez Gómez', '699887766', 'Plça Major 3, Castelló', '22334455D', '1982-09-10', true, '2026-02-21 10:30:00', true,  NULL, NULL, 'Grau de Castelló'),
-(5, 'USR005', 'pass7890', 'anna.ferrer@email.com', 'Anna', 'Ferrer Navarro', '677889900', 'C/ La Pau 67, Castelló', '33445566E', '1995-05-18', true, '2026-02-21 10:30:00', false, NULL, NULL, 'Castelló Centre');
+(1, 'USR001', 'hdwXCBaFZGviK7Xvws0pCSaLshUYMaCs', 'marta.lopez@email.com', 'Marta', 'López García', '654321987', 'C/ Mayor 23, Castelló', '12345678A', '1985-03-15', true, '2026-02-21 10:30:00', true,  NULL, NULL, 'Castelló Centre'),
+(2, 'USR002', 'DfzoS374krPVcQbDwaPTxtlVBhoDwoND', 'joan.martinez@email.com', 'Joan', 'Martínez Ruiz', '678543219', 'Av/ de la Plana 45, Castelló', '87654321B', '1990-07-22', true, '2026-02-21 10:30:00', true,  NULL, NULL, 'Castelló Sud'),
+(3, 'USR003', '+60pWxzPD2o2lAtmEqi3LPVpKYOSIfl0', 'carla.sanchez@email.com', 'Carla', 'Sánchez Pérez', '612345678', 'C/ Colom 12, Castelló', '11223344C', '1978-11-30', true, '2026-02-21 10:30:00', false, NULL, NULL, 'Castelló Nord'),
+(4, 'USR004', 'RomSt5H4coqW8VleJtSPuD0qynFKhKKU', 'pere.ramirez@email.com', 'Pere', 'Ramírez Gómez', '699887766', 'Plça Major 3, Castelló', '22334455D', '1982-09-10', true, '2026-02-21 10:30:00', true,  NULL, NULL, 'Grau de Castelló'),
+(5, 'USR005', 'jrBvYDDUyYw0LtF1bppnskDaiGocVvG9', 'anna.ferrer@email.com', 'Anna', 'Ferrer Navarro', '677889900', 'C/ La Pau 67, Castelló', '33445566E', '1995-05-18', true, '2026-02-21 10:30:00', false, NULL, NULL, 'Castelló Centre');
 
 --
 -- asistentepersonal
