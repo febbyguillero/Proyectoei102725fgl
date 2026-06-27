@@ -72,6 +72,9 @@ public class ComunicacionController {
         model.addAttribute("solicitud", solicitud);
         model.addAttribute("comunicacion", nueva);
         model.addAttribute("asistentes", asistentes);
+        String rol = (String) session.getAttribute("rol");
+        if ("TECNICO".equals(rol)) model.addAttribute("esTecnico", true);
+        return "comunicaciones/add";
         return "comunicaciones/add";
     }
 
