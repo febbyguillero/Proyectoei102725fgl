@@ -1,58 +1,89 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<html xmlns:th="http://www.thymeleaf.org" lang="ca">
 <head>
     <meta charset="UTF-8">
-    <title>Solicitud PAP/PATI - OVI</title>
+    <title>Sol·licitud PAP/PATI - OVI</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
-<body class="container mt-5">
-<h1>Solicitud para ser Asistente Personal (PAP/PATI)</h1>
-<p class="text-muted">Complete el formulario. Un técnico revisará su solicitud.</p>
-<form th:action="@{/asistente/registro}" th:object="${asistente}" method="post">
+<body class="bg-light">
+<main class="container mt-4" style="max-width:700px">
 
-    <div class="mb-3 col-md-6">
-        <label for="dni" class="form-label">DNI *</label>
-        <input type="text" class="form-control" id="dni" th:field="*{dni}" placeholder="12345678A">
-        <div class="text-danger" th:if="${#fields.hasErrors('dni')}" th:errors="*{dni}"></div>
-    </div>
+    <h1>Sol·licitud per ser Assistent Personal (PAP/PATI)</h1>
+    <p class="text-muted">Omple el formulari. Un tècnic OVI revisarà la sol·licitud.</p>
 
-    <div class="mb-3 col-md-6">
-        <label for="nombre" class="form-label">Nombre *</label>
-        <input type="text" class="form-control" id="nombre" th:field="*{nombre}">
-        <div class="text-danger" th:if="${#fields.hasErrors('nombre')}" th:errors="*{nombre}"></div>
-    </div>
+    <form th:action="@{/asistente/registro}" th:object="${asistente}" method="post">
 
-    <div class="mb-3 col-md-6">
-        <label for="apellidos" class="form-label">Apellidos *</label>
-        <input type="text" class="form-control" id="apellidos" th:field="*{apellidos}">
-        <div class="text-danger" th:if="${#fields.hasErrors('apellidos')}" th:errors="*{apellidos}"></div>
-    </div>
+        <div class="mb-3 col-md-8">
+            <label for="dni" class="form-label">DNI <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" id="dni" th:field="*{dni}"
+                   placeholder="12345678A" pattern="[0-9]{8}[A-Za-z]"
+                   title="DNI: 8 dígits i una lletra">
+            <div class="text-danger small" th:if="${#fields.hasErrors('dni')}" th:errors="*{dni}"></div>
+        </div>
 
-    <div class="mb-3 col-md-6">
-        <label for="email" class="form-label">Email *</label>
-        <input type="email" class="form-control" id="email" th:field="*{email}">
-        <div class="text-danger" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></div>
-    </div>
+        <div class="mb-3 col-md-8">
+            <label for="nombre" class="form-label">Nom <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" id="nombre" th:field="*{nombre}">
+            <div class="text-danger small" th:if="${#fields.hasErrors('nombre')}" th:errors="*{nombre}"></div>
+        </div>
 
-    <div class="mb-3 col-md-6">
-        <label for="telefono" class="form-label">Teléfono</label>
-        <input type="text" class="form-control" id="telefono" th:field="*{telefono}">
-        <div class="text-danger" th:if="${#fields.hasErrors('telefono')}" th:errors="*{telefono}"></div>
-    </div>
+        <div class="mb-3 col-md-8">
+            <label for="apellidos" class="form-label">Cognoms <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" id="apellidos" th:field="*{apellidos}">
+            <div class="text-danger small" th:if="${#fields.hasErrors('apellidos')}" th:errors="*{apellidos}"></div>
+        </div>
 
-    <div class="mb-3 col-md-6">
-        <label for="edad" class="form-label">Edad *</label>
-        <input type="number" class="form-control" id="edad" th:field="*{edad}">
-        <div class="text-danger" th:if="${#fields.hasErrors('edad')}" th:errors="*{edad}"></div>
-    </div>
+        <div class="mb-3 col-md-8">
+            <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
+            <input type="email" class="form-control" id="email" th:field="*{email}">
+            <div class="text-danger small" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></div>
+        </div>
 
-    <div class="mb-3 col-md-6">
-        <label for="titulacion" class="form-label">Titulación / Formación</label>
-        <textarea class="form-control" id="titulacion" th:field="*{titulacion}" rows="3"></textarea>
-    </div>
+        <div class="mb-3 col-md-8">
+            <label for="telefono" class="form-label">Telèfon</label>
+            <input type="text" class="form-control" id="telefono" th:field="*{telefono}"
+                   pattern="[0-9]{9}" title="9 dígits" placeholder="612345678">
+            <div class="text-danger small" th:if="${#fields.hasErrors('telefono')}" th:errors="*{telefono}"></div>
+        </div>
 
-    <button type="submit" class="btn btn-primary">Enviar Solicitud</button>
-    <a href="/tecnico/asistentes-pendientes" class="btn btn-secondary">Cancelar</a>
-</form>
+        <div class="mb-3 col-md-4">
+            <label for="edad" class="form-label">Edat <span class="text-danger">*</span></label>
+            <input type="number" class="form-control" id="edad" th:field="*{edad}" min="18">
+            <div class="text-danger small" th:if="${#fields.hasErrors('edad')}" th:errors="*{edad}"></div>
+        </div>
+
+        <div class="mb-3 col-md-8">
+            <label for="zonaGeografica" class="form-label">Zona geogràfica <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" id="zonaGeografica" th:field="*{zonaGeografica}"
+                   placeholder="Ex: Castelló Centre, Castelló Sud, Grau de Castelló..."
+                   required>
+            <div class="form-text">Indica la zona on pots treballar. S'usa per a l'assignació de sol·licituds.</div>
+        </div>
+
+        <div class="mb-3 col-md-8">
+            <label for="disponibilidad" class="form-label">Disponibilitat horària</label>
+            <input type="text" class="form-control" id="disponibilidad" th:field="*{disponibilidad}"
+                   placeholder="Ex: Matins i vesprades, Jornada completa...">
+        </div>
+
+        <div class="mb-3 col-md-8">
+            <label for="titulacion" class="form-label">Titulació / Formació</label>
+            <textarea class="form-control" id="titulacion" th:field="*{titulacion}" rows="2"
+                      placeholder="Grau en Infermeria, Psicologia, Educació Social..."></textarea>
+        </div>
+
+        <div class="mb-3 col-md-8">
+            <label for="experiencia" class="form-label">Experiència</label>
+            <textarea class="form-control" id="experiencia" th:field="*{experiencia}" rows="2"
+                      placeholder="Anys d'experiència, tipus de feines anteriors..."></textarea>
+        </div>
+
+        <div class="d-flex gap-2 mt-3">
+            <button type="submit" class="btn btn-primary">Enviar sol·licitud</button>
+            <a href="/login" class="btn btn-secondary">Cancel·lar</a>
+        </div>
+
+    </form>
+</main>
 </body>
 </html>
