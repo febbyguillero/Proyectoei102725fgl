@@ -32,7 +32,7 @@
             <th scope="col">Data</th>
             <th scope="col">Tipus</th>
             <th scope="col">Direcció</th>
-            <th scope="col">DNI Assistent</th>
+            <th scope="col">Assistent</th>
             <th scope="col">Resum</th>
             <th scope="col">Observacions</th>
             <th scope="col" th:if="${esTecnico}">Acció</th>
@@ -46,7 +46,13 @@
                 <span th:if="${com.direccion == 'saliente'}" class="badge bg-info text-dark">Eixint</span>
                 <span th:if="${com.direccion == 'entrante'}" class="badge bg-secondary">Entrant</span>
             </td>
-            <td th:text="${com.dniAsistente != null ? com.dniAsistente : '-'}"></td>
+            <td>
+                <!-- Mostra el nom si el controlador ha passat el mapa, si no el DNI -->
+                <span th:if="${nombresAsistentes != null and com.dniAsistente != null and nombresAsistentes[com.dniAsistente] != null}"
+                      th:text="${nombresAsistentes[com.dniAsistente]}"></span>
+                <span th:unless="${nombresAsistentes != null and com.dniAsistente != null and nombresAsistentes[com.dniAsistente] != null}"
+                      th:text="${com.dniAsistente != null ? com.dniAsistente : '-'}"></span>
+            </td>
             <td th:text="${com.resumen}"></td>
             <td th:text="${com.observaciones != null ? com.observaciones : '-'}"></td>
             <td th:if="${esTecnico}">
