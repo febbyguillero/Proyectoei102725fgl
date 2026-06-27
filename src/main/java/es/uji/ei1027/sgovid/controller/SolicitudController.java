@@ -130,14 +130,19 @@ public class SolicitudController {
         }
 
         Map<String, String> nombresAsistentes = new HashMap<>();
+        Map<Integer, String> tipusServei = new HashMap<>();
         for (RegistroContrato c : contratos) {
             if (c.getDniAsistente() != null && !nombresAsistentes.containsKey(c.getDniAsistente())) {
                 AsistentePersonal a = asistenteDao.getAsistente(c.getDniAsistente());
                 if (a != null) nombresAsistentes.put(c.getDniAsistente(), a.getNombre() + " " + a.getApellidos());
             }
         }
+        for (APRequest sol : solicitudes) {
+            tipusServei.put(sol.getIdRequest(), sol.getTipusServei());
+        }
         model.addAttribute("contratos", contratos);
         model.addAttribute("nombresAsistentes", nombresAsistentes);
+        model.addAttribute("tipusServei", tipusServei);
         return "solicitudes/mis-contratos";
     }
 }
