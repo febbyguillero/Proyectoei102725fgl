@@ -40,18 +40,31 @@ public class SolicitudController {
     public String mostrarFormulario(Model model, HttpSession session) {
         String redir = comprobarRolUsuario(session);
         if (redir != null) return redir;
+
         model.addAttribute("solicitud", new APRequest());
+
+        // Pre-rellena la zona geogràfica del perfil de l'usuari
+        Object usuariId = session.getAttribute("usuariId");
+        try {
+            UsuarioOVI u = usuarioDao.getUsuario(Integer.parseInt(usuariId.toString()));
+            if (u != null && u.getZonaGeografica() != null && !u.getZonaGeografica().isEmpty()) {
+                model.addAttribute("zonaActual", u.getZonaGeografica());
+            }
+        } catch (Exception ignored) {}
+
         return "solicitudes/nueva-peticion";
     }
 
     @PostMapping("/nueva")
     public String guardarPeticion(@ModelAttribute("solicitud") APRequest solicitud,
+                                  @RequestParam(required = false) String zonaGeografica,
                                   HttpSession session, Model model) {
         String redir = comprobarRolUsuario(session);
         if (redir != null) return redir;
 
         if (solicitud.getTipusServei() == null || solicitud.getTipusServei().isEmpty()) {
             model.addAttribute("errorTipus", "El tipus de servei és obligatori");
+            if (zonaGeografica != null) model.addAttribute("zonaActual", zonaGeografica);
             return "solicitudes/nueva-peticion";
         }
 
@@ -61,13 +74,24 @@ public class SolicitudController {
         solicitud.setDataCreacio(LocalDate.now());
         if (solicitud.getDies() == null) solicitud.setDies("");
 
+        if (zonaGeografica != null && !zonaGeografica.trim().isEmpty()) {
+            try {
+                UsuarioOVI u = usuarioDao.getUsuario(Integer.parseInt(usuariId.toString()));
+                if (u != null) {
+                    u.setZonaGeografica(zonaGeografica.trim());
+                    usuarioDao.updateUsuario(u);
+                }
+            } catch (Exception ignored) {}
+        }
+
         apRequestDao.addRequest(solicitud);
         return "redirect:/solicitudes/mis-solicitudes?enviada=true";
     }
 
+
     @GetMapping("/mis-solicitudes")
     public String misSolicitudes(Model model, HttpSession session,
-                                 @org.springframework.web.bind.annotation.RequestParam(required = false) String enviada) {
+                                 @RequestParam(required = false) String enviada) {
         String redir = comprobarRolUsuario(session);
         if (redir != null) return redir;
         Object usuariId = session.getAttribute("usuariId");
@@ -78,6 +102,7 @@ public class SolicitudController {
         }
         return "solicitudes/mis-solicitudes";
     }
+
 
     @GetMapping("/detalle/{id}")
     public String detalleSolicitud(@PathVariable int id, Model model, HttpSession session) {
@@ -95,7 +120,6 @@ public class SolicitudController {
         RegistroContrato contrato = contratoDao.getContratoBySolicitud(id);
         if (contrato != null) {
             model.addAttribute("contrato", contrato);
-            // Nombre del asistente para mostrar en lugar del DNI
             if (contrato.getDniAsistente() != null) {
                 AsistentePersonal a = asistenteDao.getAsistente(contrato.getDniAsistente());
                 if (a != null) model.addAttribute("nombreAsistente", a.getNombre() + " " + a.getApellidos());
@@ -103,6 +127,7 @@ public class SolicitudController {
         }
         return "solicitudes/detalle_solicitud";
     }
+
 
     @GetMapping("/mi-perfil")
     public String miPerfil(Model model, HttpSession session) {

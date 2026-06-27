@@ -10,29 +10,18 @@ import es.uji.ei1027.sgovid.model.UsuarioOVI;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.List;
 
 @Service
 public class SeleccionService {
 
-    @Autowired
-    private AsistentePersonalDao asistenteDao;
+    @Autowired private AsistentePersonalDao asistenteDao;
+    @Autowired private APRequestDao solicitudDao;
+    @Autowired private SeleccionDao seleccionDao;
+    @Autowired private UsuarioOVIDao usuarioDao;
 
-    @Autowired
-    private APRequestDao solicitudDao;
-
-    @Autowired
-    private SeleccionDao seleccionDao;
-
-    @Autowired
-    private UsuarioOVIDao usuarioDao;
-
-    /**
-     * Propone candidatos para una solicitud según la zona geográfica del usuario.
-     * IMPORTANTE: este método es de SOLO LECTURA. No inserta selecciones ni cambia
-     * el estado de la solicitud (eso se hace al asignar un candidato de forma explícita).
-     */
     public List<AsistentePersonal> proponerCandidatos(int idSolicitud) {
         APRequest solicitud = solicitudDao.getRequest(idSolicitud);
         if (solicitud == null) return new ArrayList<>();
@@ -40,15 +29,28 @@ public class SeleccionService {
         UsuarioOVI usuario = resolverUsuario(solicitud.getUsuariIdent());
         String zona = (usuario != null) ? usuario.getZonaGeografica() : null;
 
-        // getCandidatosAptos es null-safe: si no hay zona, devuelve todos los aceptados.
-        return asistenteDao.getCandidatosAptos(zona);
+        List<AsistentePersonal> todos = asistenteDao.getCandidatosAptos(null);
+
+        if (zona == null || zona.trim().isEmpty()) return todos;
+
+        String zonaNorm = normalizar(zona);
+        List<AsistentePersonal> filtrats = new ArrayList<>();
+        for (AsistentePersonal a : todos) {
+            String zonaAsistNorm = normalizar(a.getZonaGeografica());
+            if (zonaAsistNorm.contains(zonaNorm) || zonaNorm.contains(zonaAsistNorm)) {
+                filtrats.add(a);
+            }
+        }
+
+        return filtrats.isEmpty() ? todos : filtrats;
     }
 
-    /**
-     * Resuelve el usuario a partir del identificador guardado en la solicitud.
-     * Acepta tanto el id numérico (p.ej. "5") como el identificador SgOVI (p.ej. "USR005"),
-     * sin lanzar NumberFormatException.
-     */
+    private String normalizar(String s) {
+        if (s == null) return "";
+        String descomposta = Normalizer.normalize(s.toLowerCase().trim(), Normalizer.Form.NFD);
+        return descomposta.replaceAll("\\p{M}", "");
+    }
+
     private UsuarioOVI resolverUsuario(String ident) {
         if (ident == null || ident.trim().isEmpty()) return null;
         String s = ident.trim();

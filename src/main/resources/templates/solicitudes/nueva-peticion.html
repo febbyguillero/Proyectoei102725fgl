@@ -22,7 +22,6 @@
     <h1>Registrar petición de asistencia personal</h1>
     <p class="lead">Rellena los datos para que un técnico de la OVI revise tu solicitud.</p>
 
-    <!-- Mensaje de error general -->
     <div th:if="${errorTipus}" class="alert-sgovid-danger" role="alert">
         <span th:text="${errorTipus}"></span>
     </div>
@@ -99,6 +98,21 @@
                 <label for="franja-noche">Noche</label>
             </div>
         </fieldset>
+
+        <!-- Zona geogràfica: es guarda al perfil de l'usuari i s'usa per proposar
+             candidats de la mateixa zona. La comparació és tolerant amb accents i majúscules. -->
+        <div class="form-group">
+            <label for="zonaGeografica">Zona geogràfica on necessites l'assistència</label>
+            <input type="text" id="zonaGeografica" name="zonaGeografica"
+                   th:value="${zonaActual}"
+                   class="form-control"
+                   placeholder="Ex: Castelló Centre, Castelló Sud, Grau de Castelló..."
+                   aria-describedby="zona-help">
+            <p id="zona-help" class="help-text">
+                Indica el barri o zona de Castelló. S'usarà per trobar candidats propers a tu.
+                No cal que sigui exacta: "castello" i "Castelló" s'entenen igual.
+            </p>
+        </div>
 
         <div class="form-group">
             <label for="observations">Describe tu necesidad</label>
