@@ -29,7 +29,12 @@
         </thead>
         <tbody>
         <tr th:each="c : ${contratos}">
-            <td th:text="${c.idSolicitud}">—</td>
+            <td>
+                <span th:if="${tipusServei != null and #maps.containsKey(tipusServei, c.idSolicitud)}"
+                      th:text="${tipusServei[c.idSolicitud]}"></span>
+                <span th:unless="${tipusServei != null and #maps.containsKey(tipusServei, c.idSolicitud)}"
+                      class="text-muted">—</span>
+            </td>
             <td>
                 <span th:if="${nombresAsistentes != null and nombresAsistentes[c.dniAsistente] != null}"
                       th:text="${nombresAsistentes[c.dniAsistente]}"></span>

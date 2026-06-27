@@ -20,9 +20,8 @@
     <table class="table table-striped">
         <thead class="table-dark">
         <tr>
-            <th>ID</th>
-            <th>Sol·licitud</th>
-            <th>Assistent (DNI)</th>
+            <th>Tipus servei</th>
+            <th>Assistent personal</th>
             <th>Data inici</th>
             <th>Data fi</th>
             <th>Estat</th>
@@ -30,21 +29,30 @@
         </thead>
         <tbody>
         <tr th:each="c : ${contratos}">
-            <td th:text="${c.idContrato}"></td>
-            <td th:text="${c.idSolicitud}"></td>
-            <td th:text="${c.dniAsistente}"></td>
+            <td>
+                <span th:if="${tipusServei != null and #maps.containsKey(tipusServei, c.idSolicitud)}"
+                      th:text="${tipusServei[c.idSolicitud]}"></span>
+                <span th:unless="${tipusServei != null and #maps.containsKey(tipusServei, c.idSolicitud)}"
+                      class="text-muted">—</span>
+            </td>
+            <td>
+                <span th:if="${nombresAsistentes != null and nombresAsistentes[c.dniAsistente] != null}"
+                      th:text="${nombresAsistentes[c.dniAsistente]}"></span>
+                <span th:unless="${nombresAsistentes != null and nombresAsistentes[c.dniAsistente] != null}"
+                      class="text-muted">Pendent d'assignació</span>
+            </td>
             <td th:text="${c.fechaInicio}"></td>
             <td th:text="${c.fechaFin != null ? c.fechaFin : 'En curs'}"></td>
             <td>
-                    <span th:switch="${c.estadoContrato}">
-                        <span th:case="'activo'" class="badge bg-success">Actiu</span>
-                        <span th:case="'finalizado'" class="badge bg-secondary">Finalitzat</span>
-                        <span th:case="'rescindido'" class="badge bg-danger">Rescindit</span>
-                    </span>
+                <span th:switch="${c.estadoContrato}">
+                    <span th:case="'activo'" class="badge bg-success">Actiu</span>
+                    <span th:case="'finalizado'" class="badge bg-secondary">Finalitzat</span>
+                    <span th:case="'rescindido'" class="badge bg-danger">Rescindit</span>
+                </span>
             </td>
         </tr>
         <tr th:if="${#lists.isEmpty(contratos)}">
-            <td colspan="6" class="text-center text-muted">No tens cap contracte actiu.</td>
+            <td colspan="5" class="text-center text-muted">No tens cap contracte actiu.</td>
         </tr>
         </tbody>
     </table>

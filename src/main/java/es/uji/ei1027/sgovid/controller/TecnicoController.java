@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -128,7 +129,14 @@ public class TecnicoController {
         }
 
         RegistroContrato contrato = contratoDao.getContratoBySolicitud(id);
-        if (contrato != null) model.addAttribute("contrato", contrato);
+        if (contrato != null) {
+            model.addAttribute("contrato", contrato);
+            if (contrato.getDniAsistente() != null) {
+                AsistentePersonal asistente = asistenteDao.getAsistente(contrato.getDniAsistente());
+                if (asistente != null)
+                    model.addAttribute("nombreAsistente", asistente.getNombre() + " " + asistente.getApellidos());
+            }
+        }
 
         return "tecnico/solicitud-detalle";
     }
@@ -322,17 +330,13 @@ public class TecnicoController {
         if (redir != null) return redir;
         noCachear(response);
 
-        if (page < 1) page = 1;
-        int total = contratoDao.countContratos(q);
-        int totalPaginas = Math.max(1, (int) Math.ceil(total / (double) TAM_PAGINA));
-        if (page > totalPaginas) page = totalPaginas;
+        // Obtener todos los contratos ordenados (sin paginar aún) para poder filtrar por nombre
+        List<RegistroContrato> todosContratos = contratoDao.getContratos("", sort, dir, 1, Integer.MAX_VALUE);
 
-        List<RegistroContrato> contratos = contratoDao.getContratos(q, sort, dir, page, TAM_PAGINA);
-        model.addAttribute("contratos", contratos);
-
+        // Construir mapas de nombres para todos los contratos
         Map<Integer, String> nombresUsuarios = new HashMap<>();
         Map<String, String> nombresAsistentes = new HashMap<>();
-        for (RegistroContrato c : contratos) {
+        for (RegistroContrato c : todosContratos) {
             if (c.getIdSolicitud() != null && !nombresUsuarios.containsKey(c.getIdSolicitud())) {
                 try {
                     APRequest sol = solicitudDao.getRequest(c.getIdSolicitud());
@@ -347,9 +351,37 @@ public class TecnicoController {
                 if (a != null) nombresAsistentes.put(c.getDniAsistente(), a.getNombre() + " " + a.getApellidos());
             }
         }
+
+        // Filtrar por q: busca en estado, nombre usuario, nombre asistente (case-insensitive)
+        String qLower = (q != null) ? q.trim().toLowerCase() : "";
+        List<RegistroContrato> contratosFiltrados = new ArrayList<>();
+        for (RegistroContrato c : todosContratos) {
+            if (qLower.isEmpty()) {
+                contratosFiltrados.add(c);
+            } else {
+                String nomUsuari = nombresUsuarios.getOrDefault(c.getIdSolicitud(), "").toLowerCase();
+                String nomAssistent = nombresAsistentes.getOrDefault(c.getDniAsistente(), "").toLowerCase();
+                String estat = c.getEstadoContrato() != null ? c.getEstadoContrato().toLowerCase() : "";
+                String obs = c.getObservaciones() != null ? c.getObservaciones().toLowerCase() : "";
+                if (nomUsuari.contains(qLower) || nomAssistent.contains(qLower)
+                        || estat.contains(qLower) || obs.contains(qLower)) {
+                    contratosFiltrados.add(c);
+                }
+            }
+        }
+
+        // Paginar manualmente
+        int total = contratosFiltrados.size();
+        if (page < 1) page = 1;
+        int totalPaginas = Math.max(1, (int) Math.ceil(total / (double) TAM_PAGINA));
+        if (page > totalPaginas) page = totalPaginas;
+        int desde = (page - 1) * TAM_PAGINA;
+        int hasta = Math.min(desde + TAM_PAGINA, total);
+        List<RegistroContrato> contratos = contratosFiltrados.subList(desde, hasta);
+
+        model.addAttribute("contratos", contratos);
         model.addAttribute("nombresUsuarios", nombresUsuarios);
         model.addAttribute("nombresAsistentes", nombresAsistentes);
-
         model.addAttribute("q", q);
         model.addAttribute("sort", sort);
         model.addAttribute("dir", dir);
@@ -395,12 +427,28 @@ public class TecnicoController {
         contrato.setFechaInicio(original.getFechaInicio());
         contrato.setFechaRegistro(original.getFechaRegistro());
         contrato.setDocumentoPdf(original.getDocumentoPdf());
+        // Conservar el dni_asistente original (el formulario lo envía como hidden pero puede llegar vacío)
+        if (contrato.getDniAsistente() == null || contrato.getDniAsistente().trim().isEmpty()) {
+            contrato.setDniAsistente(original.getDniAsistente());
+        }
+
+        // Si el estado es activo, limpiar la fecha de fin
+        if ("activo".equals(contrato.getEstadoContrato())) {
+            contrato.setFechaFin(null);
+        }
+
+        // Validar que fecha_fin >= fecha_inicio
+        if (contrato.getFechaFin() != null && contrato.getFechaFin().isBefore(contrato.getFechaInicio())) {
+            model.addAttribute("contrato", contrato);
+            model.addAttribute("errorActualizar", "La data de fi no pot ser anterior a la data d'inici (" + contrato.getFechaInicio() + ").");
+            return "tecnico/contrato-editar";
+        }
 
         try {
             contratoDao.updateContrato(contrato);
         } catch (Exception e) {
             model.addAttribute("contrato", contrato);
-            model.addAttribute("errorActualizar", "Error en guardar els canvis: " + e.getMessage());
+            model.addAttribute("errorActualizar", "No s'han pogut guardar els canvis. Comprova les dades i torna-ho a intentar.");
             return "tecnico/contrato-editar";
         }
         return "redirect:/tecnico/contratos";

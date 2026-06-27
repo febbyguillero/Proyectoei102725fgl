@@ -62,16 +62,20 @@ public class SolicitudController {
         if (solicitud.getDies() == null) solicitud.setDies("");
 
         apRequestDao.addRequest(solicitud);
-        return "redirect:/solicitudes/mis-solicitudes";
+        return "redirect:/solicitudes/mis-solicitudes?enviada=true";
     }
 
     @GetMapping("/mis-solicitudes")
-    public String misSolicitudes(Model model, HttpSession session) {
+    public String misSolicitudes(Model model, HttpSession session,
+                                 @org.springframework.web.bind.annotation.RequestParam(required = false) String enviada) {
         String redir = comprobarRolUsuario(session);
         if (redir != null) return redir;
         Object usuariId = session.getAttribute("usuariId");
         List<APRequest> solicitudes = apRequestDao.getRequestsByUsuari(usuariId.toString());
         model.addAttribute("solicitudes", solicitudes);
+        if ("true".equals(enviada)) {
+            model.addAttribute("missatgeOk", "Sol·licitud enviada correctament. El tècnic OVI la revisarà prompte.");
+        }
         return "solicitudes/mis-solicitudes";
     }
 
@@ -130,14 +134,19 @@ public class SolicitudController {
         }
 
         Map<String, String> nombresAsistentes = new HashMap<>();
+        Map<Integer, String> tipusServei = new HashMap<>();
         for (RegistroContrato c : contratos) {
             if (c.getDniAsistente() != null && !nombresAsistentes.containsKey(c.getDniAsistente())) {
                 AsistentePersonal a = asistenteDao.getAsistente(c.getDniAsistente());
                 if (a != null) nombresAsistentes.put(c.getDniAsistente(), a.getNombre() + " " + a.getApellidos());
             }
         }
+        for (APRequest sol : solicitudes) {
+            tipusServei.put(sol.getIdRequest(), sol.getTipusServei());
+        }
         model.addAttribute("contratos", contratos);
         model.addAttribute("nombresAsistentes", nombresAsistentes);
+        model.addAttribute("tipusServei", tipusServei);
         return "solicitudes/mis-contratos";
     }
 }
