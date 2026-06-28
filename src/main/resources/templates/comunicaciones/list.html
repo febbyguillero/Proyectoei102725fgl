@@ -11,15 +11,21 @@
     </style>
 </head>
 <body>
-<nav th:replace="~{fragments/navbar-tecnico :: navbar-tecnico}" th:if="${esTecnico}"></nav>
-<nav th:unless="${esTecnico}" class="navbar navbar-dark bg-dark px-3">
-    <span class="navbar-brand">SgOVI</span>
-    <div>
-        <a href="/solicitudes/mis-solicitudes" class="btn btn-outline-light btn-sm me-2">Les meues sol·licituds</a>
-        <a href="/solicitudes/mi-perfil" class="btn btn-outline-light btn-sm me-2">El meu perfil</a>
-        <a href="/logout" class="btn btn-outline-light btn-sm">Sortir</a>
-    </div>
-</nav>
+
+<!-- Una sola navbar segons el rol -->
+<th:block th:if="${esTecnico}">
+    <nav th:replace="~{fragments/navbar-tecnico :: navbar-tecnico}"></nav>
+</th:block>
+<th:block th:unless="${esTecnico}">
+    <nav class="navbar navbar-dark bg-dark px-3">
+        <span class="navbar-brand">SgOVI</span>
+        <div>
+            <a href="/solicitudes/mis-solicitudes" class="btn btn-outline-light btn-sm me-2">Les meues sol·licituds</a>
+            <a href="/solicitudes/mi-perfil" class="btn btn-outline-light btn-sm me-2">El meu perfil</a>
+            <a href="/logout" class="btn btn-outline-light btn-sm">Sortir</a>
+        </div>
+    </nav>
+</th:block>
 
 <main class="container mt-4" style="max-width: 720px">
 
@@ -34,7 +40,6 @@
     </div>
 
     <div th:each="com : ${comunicaciones}">
-        <!-- 'saliente' = el tècnic ha enviat; 'entrante' = l'usuari ha enviat -->
         <div th:classappend="${com.direccion == 'saliente'} ? 'msg-tecnico' : 'msg-usuario'"
              class="msg-box">
             <div class="d-flex justify-content-between align-items-start">
@@ -46,7 +51,6 @@
                        th:text="${#temporals.format(com.fechaComunicacion, 'dd/MM/yyyy HH:mm')}"></small>
             </div>
             <p class="mb-1 mt-1" th:text="${com.resumen}"></p>
-            <!-- Eliminar: només el tècnic pot esborrar. Sense JS: formulari POST -->
             <div th:if="${esTecnico}" class="text-end">
                 <form th:action="@{/comunicaciones/delete/{id}/solicitud/{sid}(id=${com.idComunicacion},sid=${solicitud.idRequest})}"
                       method="post" style="display:inline;">
@@ -60,9 +64,7 @@
     <div class="card mt-4">
         <div class="card-body">
             <h2 class="h6 mb-3">Escriu un missatge</h2>
-
             <div th:if="${errorText}" class="alert alert-danger py-2" th:text="${errorText}"></div>
-
             <form th:action="@{/comunicaciones/solicitud/{id}(id=${solicitud.idRequest})}"
                   method="post">
                 <div class="mb-3">
