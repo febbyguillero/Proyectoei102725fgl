@@ -3,6 +3,7 @@ package es.uji.ei1027.sgovid.controller;
 import es.uji.ei1027.sgovid.dao.UsuarioOVIDao;
 import es.uji.ei1027.sgovid.model.UsuarioOVI;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import org.jasypt.util.password.BasicPasswordEncryptor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,10 +53,14 @@ public class LoginController {
     }
 
     @PostMapping("/login")
-    public String procesarLogin(@RequestParam String identificador,
+    public String procesarLogin(HttpServletRequest request,
+                                @RequestParam String identificador,
                                 @RequestParam String contrasenya,
-                                HttpSession session,
                                 Model model) {
+        // Invalidar sessio anterior i crear-ne una de nova per evitar conflictes de rol
+        HttpSession oldSession = request.getSession(false);
+        if (oldSession != null) oldSession.invalidate();
+        HttpSession session = request.getSession(true);
 
         // Tècnic OVI: buscar a la BD per identificador_sgovi = 'TECNICO'
         if (TECNICO_IDENT.equals(identificador)) {
