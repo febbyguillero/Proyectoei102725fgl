@@ -26,7 +26,7 @@ import java.util.Map;
 @RequestMapping("/solicitudes")
 public class SolicitudController {
 
-    private static final int TAM_PAGINA = 20;
+    private static final int TAM_PAGINA = 5;
     private final BasicPasswordEncryptor passwordEncryptor = new BasicPasswordEncryptor();
 
     @Autowired private APRequestDao apRequestDao;
