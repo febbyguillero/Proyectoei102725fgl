@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ca" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Editar el meu perfil - SgOVI</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<nav class="navbar navbar-dark bg-dark px-3">
+    <span class="navbar-brand">SgOVI</span>
+    <div>
+        <a href="/solicitudes/mis-solicitudes" class="btn btn-outline-light btn-sm me-2">Les meues sol·licituds</a>
+        <a href="/solicitudes/mi-perfil" class="btn btn-outline-light btn-sm me-2">El meu perfil</a>
+        <a href="/logout" class="btn btn-outline-light btn-sm">Sortir</a>
+    </div>
+</nav>
+<main class="container mt-4" style="max-width:700px">
+    <h1 class="h3 mb-4">Editar el meu perfil</h1>
+
+    <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+
+    <form th:action="@{/solicitudes/editar-perfil}" th:object="${usuario}" method="post">
+        <input type="hidden" th:field="*{idUsuari}">
+        <input type="hidden" th:field="*{identificadorSgovi}">
+        <input type="hidden" th:field="*{dni}">
+        <input type="hidden" th:field="*{estatTecnicAcceptat}">
+        <input type="hidden" th:field="*{consentimentInformat}">
+
+        <div class="mb-3">
+            <label for="nom" class="form-label">Nom <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" id="nom" th:field="*{nom}" required>
+        </div>
+        <div class="mb-3">
+            <label for="cognoms" class="form-label">Cognoms</label>
+            <input type="text" class="form-control" id="cognoms" th:field="*{cognoms}">
+        </div>
+        <div class="mb-3">
+            <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
+            <input type="email" class="form-control" id="email" th:field="*{email}" required>
+        </div>
+        <div class="mb-3">
+            <label for="telefon" class="form-label">Telèfon</label>
+            <input type="text" class="form-control" id="telefon" th:field="*{telefon}"
+                   pattern="[0-9]{9}" placeholder="612345678">
+        </div>
+        <div class="mb-3">
+            <label for="adreca" class="form-label">Adreça</label>
+            <input type="text" class="form-control" id="adreca" th:field="*{adreca}">
+        </div>
+        <div class="mb-3">
+            <label for="zonaGeografica" class="form-label">Zona geogràfica</label>
+            <input type="text" class="form-control" id="zonaGeografica" th:field="*{zonaGeografica}"
+                   placeholder="Ex: Castelló Centre, Castelló Sud...">
+            <div class="form-text">S'utilitza per trobar candidats PAP/PATI propers a tu.</div>
+        </div>
+
+        <hr class="my-3">
+        <h5 class="mb-2">Canviar contrasenya</h5>
+        <p class="text-muted small">Deixa-ho en blanc per mantenir la contrasenya actual.</p>
+        <div class="mb-3">
+            <label for="contrasenya" class="form-label">Nova contrasenya</label>
+            <input type="password" class="form-control" id="contrasenya" th:field="*{contrasenya}"
+                   minlength="6" placeholder="Mínim 6 caràcters (opcional)">
+        </div>
+
+        <div class="d-flex gap-2 mt-3">
+            <button type="submit" class="btn btn-primary">Guardar canvis</button>
+            <a href="/solicitudes/mi-perfil" class="btn btn-secondary">Cancel·lar</a>
+        </div>
+    </form>
+</main>
+</body>
+</html>
