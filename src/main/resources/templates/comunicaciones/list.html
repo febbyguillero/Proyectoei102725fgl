@@ -17,7 +17,7 @@
     <div>
         <a href="/solicitudes/mis-solicitudes" class="btn btn-outline-light btn-sm me-2">Les meues sol·licituds</a>
         <a href="/solicitudes/mi-perfil" class="btn btn-outline-light btn-sm me-2">El meu perfil</a>
-        <a href="/logout-confirm" class="btn btn-outline-light btn-sm">Sortir</a>
+        <a href="/logout" class="btn btn-outline-light btn-sm">Sortir</a>
     </div>
 </nav>
 
@@ -27,11 +27,6 @@
     <p class="text-muted small mb-3">
         Sol·licitud #<span th:text="${solicitud.idRequest}"></span>
         — <span th:text="${solicitud.tipusServei}"></span>
-        <span th:switch="${solicitud.estat}">
-            <span th:case="'PENDIENTE'" class="badge bg-warning text-dark ms-1">Pendent</span>
-            <span th:case="'APROBADA'"  class="badge bg-success ms-1">Aprovada</span>
-            <span th:case="'RECHAZADA'" class="badge bg-danger ms-1">Rebutjada</span>
-        </span>
     </p>
 
     <div th:if="${#lists.isEmpty(comunicaciones)}" class="alert alert-light border text-muted">
@@ -39,18 +34,19 @@
     </div>
 
     <div th:each="com : ${comunicaciones}">
-        <div th:classappend="${com.direccion == 'TECNICO'} ? 'msg-tecnico' : 'msg-usuario'"
+        <!-- 'saliente' = el tècnic ha enviat; 'entrante' = l'usuari ha enviat -->
+        <div th:classappend="${com.direccion == 'saliente'} ? 'msg-tecnico' : 'msg-usuario'"
              class="msg-box">
             <div class="d-flex justify-content-between align-items-start">
                 <small class="fw-semibold">
-                    <span th:if="${com.direccion == 'TECNICO'}">🔵 Tècnic OVI</span>
-                    <span th:unless="${com.direccion == 'TECNICO'}">🟢 Usuari OVI</span>
+                    <span th:if="${com.direccion == 'saliente'}">🔵 Tècnic OVI</span>
+                    <span th:unless="${com.direccion == 'saliente'}">🟢 Usuari OVI</span>
                 </small>
                 <small class="text-muted"
                        th:text="${#temporals.format(com.fechaComunicacion, 'dd/MM/yyyy HH:mm')}"></small>
             </div>
             <p class="mb-1 mt-1" th:text="${com.resumen}"></p>
-            <!-- Eliminar: només visible per al tècnic. Sense JS: formulari POST -->
+            <!-- Eliminar: només el tècnic pot esborrar. Sense JS: formulari POST -->
             <div th:if="${esTecnico}" class="text-end">
                 <form th:action="@{/comunicaciones/delete/{id}/solicitud/{sid}(id=${com.idComunicacion},sid=${solicitud.idRequest})}"
                       method="post" style="display:inline;">
