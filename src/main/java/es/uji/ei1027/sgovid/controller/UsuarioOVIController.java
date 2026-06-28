@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 @Controller
 public class UsuarioOVIController {
 
-    private static final int TAM_PAGINA = 10;
+    private static final int TAM_PAGINA = 20;
     private final BasicPasswordEncryptor passwordEncryptor = new BasicPasswordEncryptor();
     private UsuarioOVIDao usuarioDao;
 
