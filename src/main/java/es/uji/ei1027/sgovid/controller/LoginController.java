@@ -122,4 +122,11 @@ public class LoginController {
         noCachear(response);
         return "redirect:/login?logout";
     }
+
+    @PostMapping("/logout")
+    public String logoutPost(HttpSession session, HttpServletResponse response) {
+        session.invalidate();
+        noCachear(response);
+        return "redirect:/login?logout";
+    }
 }

@@ -11,7 +11,9 @@
         <div class="card-body text-center">
             <h1 class="h4 mb-3">Tancar sessió</h1>
             <p class="mb-4">Estàs segur que vols tancar la sessió?</p>
-            <a th:href="@{/logout}" class="btn btn-danger me-2">Sí, tancar sessió</a>
+            <form th:action="@{/logout}" method="post" style="display:inline;">
+                <button type="submit" class="btn btn-danger me-2">Sí, tancar sessió</button>
+            </form>
             <a th:href="@{/tecnico/panel}" class="btn btn-outline-secondary">Cancel·lar</a>
         </div>
     </div>
