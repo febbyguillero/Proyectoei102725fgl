@@ -426,7 +426,6 @@ public class TecnicoController {
         RegistroContrato original = contratoDao.getContrato(contrato.getIdContrato());
         if (original == null) return "redirect:/tecnico/contratos";
 
-        contrato.setFechaInicio(original.getFechaInicio());
         contrato.setFechaRegistro(original.getFechaRegistro());
         contrato.setDocumentoPdf(original.getDocumentoPdf());
         if (contrato.getDniAsistente() == null || contrato.getDniAsistente().trim().isEmpty()) {

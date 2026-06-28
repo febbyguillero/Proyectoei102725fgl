@@ -16,7 +16,6 @@
     <input type="hidden" th:field="*{idContrato}">
     <input type="hidden" th:field="*{idSolicitud}">
     <input type="hidden" th:field="*{dniAsistente}">
-    <input type="hidden" th:field="*{fechaInicio}">
     <input type="hidden" th:field="*{fechaRegistro}">
     <input type="hidden" th:field="*{documentoPdf}">
 
@@ -33,8 +32,8 @@
                disabled>
     </div>
     <div class="mb-3">
-        <label class="form-label">Data d'inici</label>
-        <input type="text" class="form-control" th:value="${contrato.fechaInicio}" disabled>
+        <label for="fechaInicio" class="form-label">Data d'inici</label>
+        <input type="date" class="form-control" id="fechaInicio" th:field="*{fechaInicio}">
     </div>
     <div class="mb-3">
         <label for="fechaFin" class="form-label">Data de fi</label>
