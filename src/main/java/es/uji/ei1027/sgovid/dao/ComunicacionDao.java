@@ -22,7 +22,7 @@ public class ComunicacionDao {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
-    // Obtenir totes les comunicacions d'una sol·licitud (ordre cronològic: les primeres primer)
+    // Obtenir totes les comunicacions d'una sol·licitud (ordre cronològic)
     public List<ComunicacionUsuarioViPAP> getComunicacionesBySolicitud(int idSolicitud) {
         try {
             return jdbcTemplate.query(
@@ -30,6 +30,20 @@ public class ComunicacionDao {
                     new ComunicacionUsuarioViPAPRowMapper(), idSolicitud);
         } catch (EmptyResultDataAccessException e) {
             return new ArrayList<>();
+        }
+    }
+
+    // Comptar missatges d'una sol·licitud enviats per una direcció concreta.
+    // direccion = 'saliente' (tècnic) o 'entrante' (usuari).
+    // S'usa per mostrar avís de missatges pendents a l'altra part.
+    public int countMensajesByDireccion(int idSolicitud, String direccion) {
+        try {
+            Integer count = jdbcTemplate.queryForObject(
+                    "SELECT COUNT(*) FROM comunicacionusuariovipap WHERE id_solicitud = ? AND direccion = ?",
+                    Integer.class, idSolicitud, direccion);
+            return count != null ? count : 0;
+        } catch (Exception e) {
+            return 0;
         }
     }
 

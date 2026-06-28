@@ -105,6 +105,9 @@
                 <a th:href="@{/comunicaciones/solicitud/{id}(id=${solicitud.idRequest})}"
                    class="btn-sgovid-primary">
                     💬 Comunicar-me amb el tècnic OVI
+                    <span th:if="${avisMissatgesTecnic != null}"
+                          class="badge bg-warning text-dark ms-1"
+                          th:text="${avisMissatgesTecnic} + ' missatge(s) del tècnic'"></span>
                 </a>
             </div>
         </div>

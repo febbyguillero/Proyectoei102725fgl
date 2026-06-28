@@ -17,6 +17,8 @@
 <main class="container mt-4">
     <h1 class="h3 mb-4">Els meus contractes</h1>
 
+    <p class="text-muted" th:text="${total} + ' contracte(s)'">0</p>
+
     <table class="table table-striped">
         <thead class="table-dark">
         <tr>
@@ -56,6 +58,21 @@
         </tr>
         </tbody>
     </table>
+
+    <nav th:if="${totalPaginas > 1}" aria-label="Paginació">
+        <ul class="pagination justify-content-center">
+            <li class="page-item" th:classappend="${page == 1} ? 'disabled'">
+                <a class="page-link" th:href="@{/solicitudes/mis-contratos(page=${page - 1})}" aria-label="Anterior">«</a>
+            </li>
+            <li class="page-item" th:each="p : ${#numbers.sequence(1, totalPaginas)}"
+                th:classappend="${p == page} ? 'active'">
+                <a class="page-link" th:href="@{/solicitudes/mis-contratos(page=${p})}" th:text="${p}"></a>
+            </li>
+            <li class="page-item" th:classappend="${page == totalPaginas} ? 'disabled'">
+                <a class="page-link" th:href="@{/solicitudes/mis-contratos(page=${page + 1})}" aria-label="Següent">»</a>
+            </li>
+        </ul>
+    </nav>
 </main>
 </body>
 </html>

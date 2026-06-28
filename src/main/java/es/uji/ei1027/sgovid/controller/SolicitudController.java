@@ -2,6 +2,7 @@ package es.uji.ei1027.sgovid.controller;
 
 import es.uji.ei1027.sgovid.dao.APRequestDao;
 import es.uji.ei1027.sgovid.dao.AsistentePersonalDao;
+import es.uji.ei1027.sgovid.dao.ComunicacionDao;
 import es.uji.ei1027.sgovid.dao.RegistroContratoDao;
 import es.uji.ei1027.sgovid.dao.UsuarioOVIDao;
 import es.uji.ei1027.sgovid.model.APRequest;
@@ -29,6 +30,7 @@ public class SolicitudController {
     private final BasicPasswordEncryptor passwordEncryptor = new BasicPasswordEncryptor();
 
     @Autowired private APRequestDao apRequestDao;
+    @Autowired private ComunicacionDao comunicacionDao;
     @Autowired private UsuarioOVIDao usuarioDao;
     @Autowired private RegistroContratoDao contratoDao;
     @Autowired private AsistentePersonalDao asistenteDao;
@@ -156,6 +158,14 @@ public class SolicitudController {
                 if (a != null) model.addAttribute("nombreAsistente", a.getNombre() + " " + a.getApellidos());
             }
         }
+        // Avis de missatges nous del tecnic OVI per a l'usuari
+        if (contrato != null) {
+            int missatgesTecnic = comunicacionDao.countMensajesByDireccion(id, "saliente");
+            if (missatgesTecnic > 0) {
+                model.addAttribute("avisMissatgesTecnic", missatgesTecnic);
+            }
+        }
+
         return "solicitudes/detalle_solicitud";
     }
 
@@ -225,17 +235,31 @@ public class SolicitudController {
 
     // ---- ELS MEUS CONTRACTES ----
 
+    private static final int TAM_PAGINA_USUARIO = 10;
+
     @GetMapping("/mis-contratos")
-    public String misContratos(Model model, HttpSession session) {
+    public String misContratos(Model model, HttpSession session,
+                               @RequestParam(defaultValue = "1") int page) {
         String redir = comprobarRolUsuario(session);
         if (redir != null) return redir;
         Object usuariId = session.getAttribute("usuariId");
         List<APRequest> solicitudes = apRequestDao.getRequestsByUsuari(usuariId.toString());
-        List<RegistroContrato> contratos = new ArrayList<>();
+        List<RegistroContrato> todosContratos = new ArrayList<>();
         for (APRequest sol : solicitudes) {
             RegistroContrato c = contratoDao.getContratoBySolicitud(sol.getIdRequest());
-            if (c != null) contratos.add(c);
+            if (c != null) todosContratos.add(c);
         }
+
+        // Paginació
+        int total = todosContratos.size();
+        int totalPaginas = (int) Math.ceil((double) total / TAM_PAGINA_USUARIO);
+        if (totalPaginas == 0) totalPaginas = 1;
+        if (page < 1) page = 1;
+        if (page > totalPaginas) page = totalPaginas;
+        int from = (page - 1) * TAM_PAGINA_USUARIO;
+        int to = Math.min(from + TAM_PAGINA_USUARIO, total);
+        List<RegistroContrato> contratos = todosContratos.subList(from, to);
+
         Map<String, String> nombresAsistentes = new HashMap<>();
         Map<Integer, String> tipusServei = new HashMap<>();
         for (RegistroContrato c : contratos) {
@@ -250,6 +274,9 @@ public class SolicitudController {
         model.addAttribute("contratos", contratos);
         model.addAttribute("nombresAsistentes", nombresAsistentes);
         model.addAttribute("tipusServei", tipusServei);
+        model.addAttribute("page", page);
+        model.addAttribute("totalPaginas", totalPaginas);
+        model.addAttribute("total", total);
         return "solicitudes/mis-contratos";
     }
 }

@@ -2,6 +2,7 @@ package es.uji.ei1027.sgovid.controller;
 
 import es.uji.ei1027.sgovid.dao.APRequestDao;
 import es.uji.ei1027.sgovid.dao.AsistentePersonalDao;
+import es.uji.ei1027.sgovid.dao.ComunicacionDao;
 import es.uji.ei1027.sgovid.dao.RegistroContratoDao;
 import es.uji.ei1027.sgovid.dao.UsuarioOVIDao;
 import es.uji.ei1027.sgovid.model.APRequest;
@@ -27,7 +28,7 @@ import java.util.Map;
 @RequestMapping("/tecnico")
 public class TecnicoController {
 
-    private static final int TAM_PAGINA = 20;
+    private static final int TAM_PAGINA = 5;
 
     private final BasicPasswordEncryptor passwordEncryptor = new BasicPasswordEncryptor();
 
@@ -36,6 +37,7 @@ public class TecnicoController {
     @Autowired private UsuarioOVIDao usuarioDao;
     @Autowired private SeleccionService seleccionService;
     @Autowired private RegistroContratoDao contratoDao;
+    @Autowired private ComunicacionDao comunicacionDao;
 
     private String comprobarRolTecnico(HttpSession session) {
         Object rol = session.getAttribute("rol");
@@ -135,6 +137,14 @@ public class TecnicoController {
                 AsistentePersonal asistente = asistenteDao.getAsistente(contrato.getDniAsistente());
                 if (asistente != null)
                     model.addAttribute("nombreAsistente", asistente.getNombre() + " " + asistente.getApellidos());
+            }
+        }
+
+        // Avis de missatges de l'usuari pendents de revisar pel tecnic
+        if (contrato != null) {
+            int missatgesUsuari = comunicacionDao.countMensajesByDireccion(id, "entrante");
+            if (missatgesUsuari > 0) {
+                model.addAttribute("avisMissatgesUsuari", missatgesUsuari);
             }
         }
 

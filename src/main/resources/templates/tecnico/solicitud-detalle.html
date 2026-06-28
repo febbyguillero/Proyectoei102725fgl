@@ -94,7 +94,11 @@
     <!-- Accés a les comunicacions: només quan hi ha contracte (millora implementada) -->
     <div class="mt-3" th:if="${contrato != null}">
         <a th:href="@{/comunicaciones/solicitud/{id}(id=${solicitud.idRequest})}"
-           class="btn btn-info">💬 Veure comunicacions</a>
+           class="btn btn-info">💬 Veure comunicacions
+            <span th:if="${avisMissatgesUsuari != null}"
+                  class="badge bg-warning text-dark ms-1"
+                  th:text="${avisMissatgesUsuari} + ' missatge(s) de l\'usuari'"></span>
+        </a>
     </div>
 
     <a th:href="@{/tecnico/solicitudes}" class="btn btn-secondary mt-3">← Tornar a sol·licituds</a>

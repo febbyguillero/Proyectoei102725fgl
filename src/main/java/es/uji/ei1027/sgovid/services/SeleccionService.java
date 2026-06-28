@@ -28,21 +28,52 @@ public class SeleccionService {
 
         UsuarioOVI usuario = resolverUsuario(solicitud.getUsuariIdent());
         String zona = (usuario != null) ? usuario.getZonaGeografica() : null;
+        String franja = solicitud.getFranjaHoraria(); // "Mañana", "Tarde", "Noche"
 
         List<AsistentePersonal> todos = asistenteDao.getCandidatosAptos(null);
 
-        if (zona == null || zona.trim().isEmpty()) return todos;
+        // 1r filtre: zona geogràfica
+        List<AsistentePersonal> perZona = new ArrayList<>();
+        if (zona != null && !zona.trim().isEmpty()) {
+            String zonaNorm = normalizar(zona);
+            for (AsistentePersonal a : todos) {
+                String zonaAsistNorm = normalizar(a.getZonaGeografica());
+                if (zonaAsistNorm.contains(zonaNorm) || zonaNorm.contains(zonaAsistNorm)) {
+                    perZona.add(a);
+                }
+            }
+        }
+        // Si no hi ha zona o cap coincidència, agafem tots
+        List<AsistentePersonal> candidatsByZona = perZona.isEmpty() ? todos : perZona;
 
-        String zonaNorm = normalizar(zona);
-        List<AsistentePersonal> filtrats = new ArrayList<>();
-        for (AsistentePersonal a : todos) {
-            String zonaAsistNorm = normalizar(a.getZonaGeografica());
-            if (zonaAsistNorm.contains(zonaNorm) || zonaNorm.contains(zonaAsistNorm)) {
-                filtrats.add(a);
+        // 2n filtre: disponibilitat horària (franja de la sol·licitud vs disponibilitat del candidat)
+        // Si el candidat no té disponibilitat registrada, l'incloem igualment.
+        if (franja == null || franja.trim().isEmpty()) {
+            return candidatsByZona;
+        }
+
+        String franjaNorm = normalizar(franja);
+        List<AsistentePersonal> perDisponibilitat = new ArrayList<>();
+        List<AsistentePersonal> senseDispo = new ArrayList<>();
+
+        for (AsistentePersonal a : candidatsByZona) {
+            if (a.getDisponibilidad() == null || a.getDisponibilidad().trim().isEmpty()) {
+                senseDispo.add(a); // sense disponibilitat registrada → l'incloem al final
+            } else {
+                String dispNorm = normalizar(a.getDisponibilidad());
+                if (dispNorm.contains(franjaNorm) || franjaNorm.contains(dispNorm)) {
+                    perDisponibilitat.add(a);
+                }
             }
         }
 
-        return filtrats.isEmpty() ? todos : filtrats;
+        // Primer els que coincideixen, després els que no tenen dispo registrada
+        List<AsistentePersonal> resultat = new ArrayList<>();
+        resultat.addAll(perDisponibilitat);
+        resultat.addAll(senseDispo);
+
+        // Si cap coincideix per disponibilitat, tornem tots els de la zona
+        return resultat.isEmpty() ? candidatsByZona : resultat;
     }
 
     private String normalizar(String s) {

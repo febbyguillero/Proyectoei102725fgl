@@ -16,6 +16,10 @@
 <main class="container mt-4" style="max-width:700px">
     <h1 class="h3 mb-4">El meu perfil</h1>
 
+    <div th:if="${param.ok}" class="alert alert-success" role="alert">
+        Perfil actualitzat correctament.
+    </div>
+
     <div class="card">
         <div class="card-body">
             <dl class="row">
@@ -32,8 +36,7 @@
                 <dt class="col-sm-4">Identificador SgOVI</dt>
                 <dd class="col-sm-8" th:text="${usuario.identificadorSgovi}"></dd>
             </dl>
-            <a th:href="@{/solicitudes/editar-perfil}"
-               class="btn btn-primary">Editar dades</a>
+            <a th:href="@{/solicitudes/editar-perfil}" class="btn btn-primary">Editar dades</a>
         </div>
     </div>
 </main>

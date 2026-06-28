@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/actividad")
 public class ActividadFormacionController {
 
-    private static final int TAM_PAGINA = 20;
+    private static final int TAM_PAGINA = 5;
 
     @Autowired
     private ActividadFormacionDao actividadDao;
