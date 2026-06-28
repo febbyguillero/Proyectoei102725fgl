@@ -1,90 +1,108 @@
 <!DOCTYPE html>
-<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<html lang="ca" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Mis solicitudes - SgOVI</title>
-    <style>
-        body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; background: #f4f5f7; color: #1a1a2e; }
-        header { background: #1d4374; color: white; padding: 16px 32px; display: flex; justify-content: space-between; align-items: center; }
-        header a { color: white; text-decoration: none; }
-        main { max-width: 1100px; margin: 32px auto; padding: 0 16px; }
-        h1 { color: #15315a; }
-        .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
-        table { width: 100%; border-collapse: collapse; background: white; box-shadow: 0 2px 4px rgba(0,0,0,0.05); border-radius: 8px; overflow: hidden; }
-        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #e0e2e6; }
-        th { background: #f4f5f7; color: #1a1a2e; font-weight: 600; }
-        .badge { display: inline-block; padding: 4px 12px; border-radius: 12px; font-size: 0.9rem; font-weight: 600; border: 1px solid; }
-        .btn-primary { background: #15315a; color: white; padding: 10px 20px; border: 1px solid #15315a; border-radius: 4px; text-decoration: none; display: inline-block; }
-        .btn-ver { background: #ffffff; color: #15315a; padding: 6px 14px; border: 1px solid #15315a; border-radius: 4px; text-decoration: none; display: inline-block; font-size: 0.9rem; }
-        .btn-ver:hover { background: #15315a; color: white; }
-        .legend { margin-top: 24px; font-size: 0.9rem; color: #4a4d57; }
-        .empty-msg { text-align: center; color: #4a4d57; padding: 32px; }
-        .alert-ok { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; border-radius: 6px; padding: 12px 20px; margin-bottom: 16px; font-weight: 500; }
-    </style>
+    <title>Les meues sol·licituds - SgOVI</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
-<header>
-    <strong style="font-size:1.5rem;">SgOVI</strong>
-    <nav>
-        <a href="/solicitudes/mi-perfil" style="color:white; margin-right: 16px;">Mi perfil</a>
-        <a href="/solicitudes/mis-contratos" style="color:white; margin-right: 16px;">Mis contratos</a>
-        <span th:text="'Hola, ' + ${session.nombreUsuario}">Hola, Usuario</span>
-        &nbsp;|&nbsp;
-        <a href="/logout" style="color:white;">Cerrar sesión</a>
-    </nav>
-</header>
-
-<main>
-    <div class="top-bar">
-        <h1>Mis solicitudes</h1>
-        <a href="/solicitudes/nueva" class="btn-primary">+ Nueva solicitud</a>
+<nav class="navbar navbar-dark bg-dark px-3">
+    <span class="navbar-brand">SgOVI</span>
+    <div>
+        <a href="/solicitudes/mi-perfil" class="btn btn-outline-light btn-sm me-2">El meu perfil</a>
+        <a href="/solicitudes/mis-contratos" class="btn btn-outline-light btn-sm me-2">Els meus contractes</a>
+        <span class="text-light me-3 small" th:text="'Hola, ' + ${session.nombreUsuario}"></span>
+        <a href="/logout" class="btn btn-outline-light btn-sm">Sortir</a>
     </div>
-    <div th:if="${missatgeOk}" class="alert-ok" th:text="${missatgeOk}"></div>
-    <p>Aquí puedes consultar el estado de las peticiones que has realizado.</p>
+</nav>
 
-    <table>
-        <thead>
+<main class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="h3 mb-0">Les meues sol·licituds</h1>
+        <a href="/solicitudes/nueva" class="btn btn-primary">+ Nova sol·licitud</a>
+    </div>
+
+    <div th:if="${missatgeOk}" class="alert alert-success" th:text="${missatgeOk}"></div>
+
+    <!-- Buscador -->
+    <form method="get" th:action="@{/solicitudes/mis-solicitudes}" class="row g-2 mb-3" role="search">
+        <input type="hidden" name="dir" th:value="${dir}">
+        <div class="col-md-8">
+            <label for="q" class="visually-hidden">Cercar per tipus, estat o dies</label>
+            <input type="text" id="q" name="q" th:value="${q}" class="form-control"
+                   placeholder="Cercar per PAP, PATI, PENDIENTE, APROBADA...">
+        </div>
+        <div class="col-auto">
+            <button type="submit" class="btn btn-outline-primary">Cercar</button>
+            <a th:href="@{/solicitudes/mis-solicitudes}" class="btn btn-outline-secondary">Netejar</a>
+        </div>
+    </form>
+
+    <p class="text-muted small" th:text="${total} + ' sol·licitud(s)'"></p>
+
+    <table class="table table-striped table-hover">
+        <thead class="table-dark">
         <tr>
-            <th>Fecha</th>
-            <th>Tipo de servicio</th>
-            <th>Días solicitados</th>
-            <th>Franja horaria</th>
-            <th>Estado</th>
-            <th>Acción</th>
+            <th>
+                <a class="link-light text-decoration-none"
+                   th:href="@{/solicitudes/mis-solicitudes(q=${q}, dir=${dir == 'asc' ? 'desc' : 'asc'}, page=1)}">
+                    Data <span th:text="${dir == 'asc' ? '▲' : '▼'}"></span>
+                </a>
+            </th>
+            <th>Tipus</th>
+            <th>Dies</th>
+            <th>Franja</th>
+            <th>Estat</th>
+            <th>Acció</th>
         </tr>
         </thead>
         <tbody>
         <tr th:each="sol : ${solicitudes}">
-            <td th:text="${sol.dataCreacio}">15/01/2026</td>
-            <td th:text="${sol.tipusServei}">PAP</td>
-            <td th:text="${sol.dies != null and !sol.dies.isEmpty() ? sol.dies : '—'}">L,M,X</td>
-            <td th:text="${sol.franjaHoraria != null ? sol.franjaHoraria : '—'}">Mañana</td>
+            <td th:text="${sol.dataCreacio}"></td>
+            <td th:text="${sol.tipusServei}"></td>
+            <td th:text="${sol.dies != null and !sol.dies.isEmpty() ? sol.dies : '—'}"></td>
+            <td th:text="${sol.franjaHoraria != null ? sol.franjaHoraria : '—'}"></td>
             <td>
-                <span class="badge"
-                      th:text="${sol.estat == 'PENDIENTE'} ? 'En revisión' : (${sol.estat == 'APROBADA'} ? 'Aprobada' : (${sol.estat == 'RECHAZADA'} ? 'Rechazada' : sol.estat))"
-                      th:style="${sol.estat == 'PENDIENTE'} ? 'background:#fff4d4;color:#5c4400;border-color:#5c4400' :
-                                (${sol.estat == 'APROBADA'} ? 'background:#e6f4e0;color:#1f5728;border-color:#1f5728' :
-                                'background:#ffe0e0;color:#a8121a;border-color:#a8121a')">
-                    Estado
+                <span th:switch="${sol.estat}">
+                    <span th:case="'PENDIENTE'" class="badge bg-warning text-dark">En revisió</span>
+                    <span th:case="'APROBADA'"  class="badge bg-success">Aprovada</span>
+                    <span th:case="'RECHAZADA'" class="badge bg-danger">Rebutjada</span>
+                    <span th:case="*" class="badge bg-secondary" th:text="${sol.estat}"></span>
                 </span>
             </td>
             <td>
                 <a th:href="@{/solicitudes/detalle/{id}(id=${sol.idRequest})}"
-                   class="btn-ver">Ver detalle</a>
+                   class="btn btn-sm btn-outline-primary">Veure detall</a>
             </td>
         </tr>
         <tr th:if="${#lists.isEmpty(solicitudes)}">
-            <td colspan="6" class="empty-msg">No tienes solicitudes registradas aún.</td>
+            <td colspan="6" class="text-center text-muted py-3">No tens sol·licituds registrades.</td>
         </tr>
         </tbody>
     </table>
 
-    <p class="legend">
-        <strong>Estados:</strong>
-        En revisión (siendo evaluada) &nbsp;|&nbsp;
-        Aprobada (asistente asignado) &nbsp;|&nbsp;
-        Rechazada (no aceptada)
-    </p>
+    <!-- Paginació -->
+    <nav th:if="${totalPaginas > 1}" aria-label="Paginació">
+        <ul class="pagination justify-content-center">
+            <li class="page-item" th:classappend="${page == 1} ? 'disabled'">
+                <a class="page-link"
+                   th:href="@{/solicitudes/mis-solicitudes(q=${q}, dir=${dir}, page=${page - 1})}"
+                   aria-label="Pàgina anterior">«</a>
+            </li>
+            <li class="page-item"
+                th:each="p : ${#numbers.sequence(1, totalPaginas)}"
+                th:classappend="${p == page} ? 'active'">
+                <a class="page-link"
+                   th:href="@{/solicitudes/mis-solicitudes(q=${q}, dir=${dir}, page=${p})}"
+                   th:text="${p}"></a>
+            </li>
+            <li class="page-item" th:classappend="${page == totalPaginas} ? 'disabled'">
+                <a class="page-link"
+                   th:href="@{/solicitudes/mis-solicitudes(q=${q}, dir=${dir}, page=${page + 1})}"
+                   aria-label="Pàgina següent">»</a>
+            </li>
+        </ul>
+    </nav>
 </main>
 </body>
 </html>

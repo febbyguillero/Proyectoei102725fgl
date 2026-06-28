@@ -22,14 +22,11 @@
     <h1>Registrar petición de asistencia personal</h1>
     <p class="lead">Rellena los datos para que un técnico de la OVI revise tu solicitud.</p>
 
-    <div th:if="${errorTipus}" class="alert-sgovid-danger" role="alert">
-        <span th:text="${errorTipus}"></span>
-    </div>
-
     <form th:action="@{/solicitudes/nueva}" th:object="${solicitud}" method="post">
 
         <fieldset>
             <legend>Tipo de servicio <span class="required-mark" aria-hidden="true">*</span></legend>
+            <div th:if="${errorTipus}" class="alert-sgovid-danger" role="alert" th:text="${errorTipus}"></div>
             <div class="radio-option">
                 <input type="radio" id="tipo-pap" th:field="*{tipusServei}" value="PAP" required>
                 <label for="tipo-pap">PAP — Personal de Apoyo Personal</label>
@@ -38,12 +35,11 @@
                 <input type="radio" id="tipo-pati" th:field="*{tipusServei}" value="PATI">
                 <label for="tipo-pati">PATI — Personal de Acompañamiento Terapéutico Infantil</label>
             </div>
-            <div th:if="${#fields.hasErrors('tipusServei')}" class="alert-sgovid-danger mt-2" role="alert"
-                 th:errors="*{tipusServei}"></div>
         </fieldset>
 
         <fieldset>
             <legend>Días de la semana que necesitas asistencia <span class="required-mark" aria-hidden="true">*</span></legend>
+            <div th:if="${errorDies}" class="alert-sgovid-danger" role="alert" th:text="${errorDies}"></div>
             <div class="day-row">
                 <div class="checkbox-option">
                     <input type="checkbox" id="dia-l" name="dies" value="L"
@@ -85,6 +81,7 @@
 
         <fieldset>
             <legend>Franja horaria preferida <span class="required-mark" aria-hidden="true">*</span></legend>
+            <div th:if="${errorFranja}" class="alert-sgovid-danger" role="alert" th:text="${errorFranja}"></div>
             <div class="radio-option">
                 <input type="radio" id="franja-manana" th:field="*{franjaHoraria}" value="Mañana">
                 <label for="franja-manana">Mañana</label>
@@ -99,8 +96,6 @@
             </div>
         </fieldset>
 
-        <!-- Zona geogràfica: es guarda al perfil de l'usuari i s'usa per proposar
-             candidats de la mateixa zona. La comparació és tolerant amb accents i majúscules. -->
         <div class="form-group">
             <label for="zonaGeografica">Zona geogràfica on necessites l'assistència</label>
             <input type="text" id="zonaGeografica" name="zonaGeografica"
@@ -120,8 +115,6 @@
                       aria-describedby="obs-help"
                       placeholder="Indica horarios concretos, tareas específicas o cualquier detalle relevante..."></textarea>
             <p id="obs-help" class="help-text">Máximo 300 caracteres.</p>
-            <div th:if="${#fields.hasErrors('observations')}" class="alert-sgovid-danger mt-2" role="alert"
-                 th:errors="*{observations}"></div>
         </div>
 
         <p class="info-note">Tu solicitud será revisada por un técnico de la OVI.

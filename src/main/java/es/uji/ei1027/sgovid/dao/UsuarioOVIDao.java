@@ -30,7 +30,6 @@ public class UsuarioOVIDao {
         }
     }
 
-    // ---- Listado con búsqueda, ordenación y paginación (todo en el servidor) ----
 
     private String columnaOrden(String sort) {
         if (sort == null) return "id_usuari";
@@ -80,7 +79,6 @@ public class UsuarioOVIDao {
         }
     }
 
-    // ---- NUEVO: buscar por identificador_sgovi (usado por LoginController) ----
     public UsuarioOVI getUsuarioByIdentificador(String identificador) {
         try {
             String sql = "SELECT * FROM UsuariOVI WHERE identificador_sgovi = ?";
@@ -140,5 +138,11 @@ public class UsuarioOVIDao {
     public void deleteUsuario(int idUsuari) {
         String sql = "DELETE FROM UsuariOVI WHERE id_usuari = ?";
         jdbcTemplate.update(sql, idUsuari);
+    }
+
+    public void setEstatTecnicAcceptat(int idUsuari, boolean acceptat) {
+        jdbcTemplate.update(
+                "UPDATE UsuariOVI SET estat_tecnic_acceptat = ? WHERE id_usuari = ?",
+                acceptat, idUsuari);
     }
 }

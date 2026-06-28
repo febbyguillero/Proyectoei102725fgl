@@ -70,8 +70,8 @@
                 <span th:if="${asistente.estado == 'RECHAZADO'}" class="badge bg-danger">Rechazado</span>
             </td>
             <td>
-                <a th:if="${asistente.estado == 'PENDIENTE'}"
-                   th:href="@{/tecnico/aceptar-asistente/{dni}(dni=${asistente.dni})}"
+                
+                   th:unless="${asistente.estado == 'ACEPTADO'}" th:href="@{/tecnico/aceptar-asistente/{dni}(dni=${asistente.dni})}"
                    class="btn btn-sm btn-success">Aceptar</a>
                 <a th:href="@{/tecnico/rechazar-asistente/{dni}(dni=${asistente.dni})}"
                    class="btn btn-sm btn-danger">Rechazar</a>

@@ -20,6 +20,9 @@ public class AsistentePersonalRowMapper implements RowMapper<AsistentePersonal> 
         asistente.setTitulacion(rs.getString("titulacion"));
         asistente.setEstado(rs.getString("estado"));
         asistente.setZonaGeografica(rs.getString("zona_geografica"));
+        try { asistente.setDisponibilidad(rs.getString("disponibilidad")); } catch (Exception ignored) {}
+        try { asistente.setFormacion(rs.getString("formacion")); } catch (Exception ignored) {}
+        try { asistente.setExperiencia(rs.getString("experiencia")); } catch (Exception ignored) {}
         return asistente;
     }
 }

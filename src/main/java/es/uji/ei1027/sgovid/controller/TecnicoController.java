@@ -27,7 +27,7 @@ import java.util.Map;
 @RequestMapping("/tecnico")
 public class TecnicoController {
 
-    private static final int TAM_PAGINA = 10;
+    private static final int TAM_PAGINA = 20;
 
     private final BasicPasswordEncryptor passwordEncryptor = new BasicPasswordEncryptor();
 
@@ -297,11 +297,7 @@ public class TecnicoController {
     public String rechazarUsuario(@PathVariable int id, HttpSession session) {
         String redir = comprobarRolTecnico(session);
         if (redir != null) return redir;
-        UsuarioOVI u = usuarioDao.getUsuario(id);
-        if (u != null) {
-            u.setEstatTecnicAcceptat(false);
-            usuarioDao.updateUsuario(u);
-        }
+        usuarioDao.setEstatTecnicAcceptat(id, false);
         return "redirect:/tecnico/usuarios-pendientes";
     }
 
@@ -330,10 +326,8 @@ public class TecnicoController {
         if (redir != null) return redir;
         noCachear(response);
 
-        // Obtener todos los contratos ordenados (sin paginar aún) para poder filtrar por nombre
         List<RegistroContrato> todosContratos = contratoDao.getContratos("", sort, dir, 1, Integer.MAX_VALUE);
 
-        // Construir mapas de nombres para todos los contratos
         Map<Integer, String> nombresUsuarios = new HashMap<>();
         Map<String, String> nombresAsistentes = new HashMap<>();
         for (RegistroContrato c : todosContratos) {
@@ -352,7 +346,6 @@ public class TecnicoController {
             }
         }
 
-        // Filtrar por q: busca en estado, nombre usuario, nombre asistente (case-insensitive)
         String qLower = (q != null) ? q.trim().toLowerCase() : "";
         List<RegistroContrato> contratosFiltrados = new ArrayList<>();
         for (RegistroContrato c : todosContratos) {
@@ -370,7 +363,6 @@ public class TecnicoController {
             }
         }
 
-        // Paginar manualmente
         int total = contratosFiltrados.size();
         if (page < 1) page = 1;
         int totalPaginas = Math.max(1, (int) Math.ceil(total / (double) TAM_PAGINA));
@@ -427,17 +419,14 @@ public class TecnicoController {
         contrato.setFechaInicio(original.getFechaInicio());
         contrato.setFechaRegistro(original.getFechaRegistro());
         contrato.setDocumentoPdf(original.getDocumentoPdf());
-        // Conservar el dni_asistente original (el formulario lo envía como hidden pero puede llegar vacío)
         if (contrato.getDniAsistente() == null || contrato.getDniAsistente().trim().isEmpty()) {
             contrato.setDniAsistente(original.getDniAsistente());
         }
 
-        // Si el estado es activo, limpiar la fecha de fin
         if ("activo".equals(contrato.getEstadoContrato())) {
             contrato.setFechaFin(null);
         }
 
-        // Validar que fecha_fin >= fecha_inicio
         if (contrato.getFechaFin() != null && contrato.getFechaFin().isBefore(contrato.getFechaInicio())) {
             model.addAttribute("contrato", contrato);
             model.addAttribute("errorActualizar", "La data de fi no pot ser anterior a la data d'inici (" + contrato.getFechaInicio() + ").");

@@ -26,11 +26,13 @@ public class AsistentePersonalDao {
                 ? "PENDIENTE" : asistente.getEstado();
         jdbcTemplate.update(
                 "INSERT INTO AsistentePersonal " +
-                        "(dni, nombre, apellidos, email, telefono, edad, titulacion, estado, zona_geografica) " +
-                        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                        "(dni, nombre, apellidos, email, telefono, edad, titulacion, estado, " +
+                        "zona_geografica, disponibilidad, formacion, experiencia) " +
+                        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                 asistente.getDni(), asistente.getNombre(), asistente.getApellidos(),
                 asistente.getEmail(), asistente.getTelefono(), asistente.getEdad(),
-                asistente.getTitulacion(), estado, asistente.getZonaGeografica());
+                asistente.getTitulacion(), estado, asistente.getZonaGeografica(),
+                asistente.getDisponibilidad(), asistente.getFormacion(), asistente.getExperiencia());
     }
 
     public void deleteAsistente(String dni) {
@@ -40,10 +42,12 @@ public class AsistentePersonalDao {
     public void updateAsistente(AsistentePersonal asistente) {
         jdbcTemplate.update(
                 "UPDATE AsistentePersonal SET nombre=?, apellidos=?, email=?, telefono=?, edad=?, " +
-                        "titulacion=?, estado=?, zona_geografica=? WHERE dni=?",
+                        "titulacion=?, estado=?, zona_geografica=?, disponibilidad=?, " +
+                        "formacion=?, experiencia=? WHERE dni=?",
                 asistente.getNombre(), asistente.getApellidos(), asistente.getEmail(),
                 asistente.getTelefono(), asistente.getEdad(), asistente.getTitulacion(),
                 asistente.getEstado(), asistente.getZonaGeografica(),
+                asistente.getDisponibilidad(), asistente.getFormacion(), asistente.getExperiencia(),
                 asistente.getDni());
     }
 
@@ -66,7 +70,6 @@ public class AsistentePersonalDao {
         }
     }
 
-    // ---- Listado con busqueda, ordenacion y paginacion (todo en el servidor) ----
 
     private String columnaOrden(String sort) {
         if (sort == null) return "dni";
@@ -107,7 +110,6 @@ public class AsistentePersonalDao {
         return total == null ? 0 : total;
     }
 
-    // Candidatos ACEPTADOS, opcionalmente filtrados por zona geografica.
     public List<AsistentePersonal> getCandidatosAptos(String zona) {
         try {
             if (zona == null || zona.trim().isEmpty()) {

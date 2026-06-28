@@ -21,7 +21,6 @@ public class APRequestDao {
         jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
-    // El id_request lo genera la secuencia de la BD (no se manda en el INSERT).
     public void addRequest(APRequest request) {
         jdbcTemplate.update(
                 "INSERT INTO APRequest (usuari_ident, tipus_servei, estat, data_creacio, observations, dies, franja_horaria) VALUES (?, ?, ?, ?, ?, ?, ?)",
@@ -62,7 +61,6 @@ public class APRequestDao {
         }
     }
 
-    // Solicitudes de un usuario concreto
     public List<APRequest> getRequestsByUsuari(String usuariIdent) {
         try {
             return jdbcTemplate.query(
@@ -79,7 +77,6 @@ public class APRequestDao {
                 nuevoEstado, idRequest);
     }
 
-    // ---- Listado con busqueda, filtros, ordenacion y paginacion (todo en el servidor) ----
 
     private String columnaOrden(String sort) {
         if (sort == null) return "APRequest.id_request";
@@ -97,8 +94,6 @@ public class APRequestDao {
         return "desc".equalsIgnoreCase(dir) ? "DESC" : "ASC";
     }
 
-    // JOIN con UsuariOVI para poder buscar por nombre y apellidos del usuario.
-    // Se usa LEFT JOIN para que aparezcan solicitudes aunque el usuario no exista.
     private static final String FROM_JOIN =
             "FROM APRequest " +
                     "LEFT JOIN UsuariOVI ON APRequest.usuari_ident = CAST(UsuariOVI.id_usuari AS VARCHAR) ";
@@ -106,8 +101,6 @@ public class APRequestDao {
     private StringBuilder construirFiltros(String q, String estado, String tipo, List<Object> params) {
         StringBuilder sql = new StringBuilder(" WHERE 1=1 ");
         if (q != null && !q.trim().isEmpty()) {
-            // Busca por nom o cognoms del usuario (via JOIN), tipo de servicio u observaciones.
-            // ILIKE es case-insensitive en PostgreSQL, así "marta" encuentra "Marta".
             sql.append("AND (UsuariOVI.nom ILIKE ? OR UsuariOVI.cognoms ILIKE ? " +
                     "OR APRequest.tipus_servei ILIKE ? OR APRequest.observations ILIKE ?) ");
             String like = "%" + q.trim() + "%";
@@ -150,6 +143,34 @@ public class APRequestDao {
         sql.append(FROM_JOIN);
         sql.append(construirFiltros(q, estado, tipo, params));
         Integer total = jdbcTemplate.queryForObject(sql.toString(), Integer.class, params.toArray());
+        return total == null ? 0 : total;
+    }
+
+    public List<APRequest> getRequestsByUsuari(String usuariIdent, String q,
+                                               String sort, String dir,
+                                               int page, int pageSize) {
+        String like = "%" + (q == null ? "" : q.trim()) + "%";
+        int offset = (page - 1) * pageSize;
+        String col = "asc".equalsIgnoreCase(dir) ? "ASC" : "DESC";
+        String sql = "SELECT * FROM APRequest " +
+                "WHERE usuari_ident = ? " +
+                "AND (tipus_servei ILIKE ? OR estat ILIKE ? OR dies ILIKE ?) " +
+                "ORDER BY data_creacio " + col + " LIMIT ? OFFSET ?";
+        try {
+            return jdbcTemplate.query(sql, new APRequestRowMapper(),
+                    usuariIdent, like, like, like, pageSize, offset);
+        } catch (EmptyResultDataAccessException e) {
+            return new ArrayList<>();
+        }
+    }
+
+    public int countRequestsByUsuari(String usuariIdent, String q) {
+        String like = "%" + (q == null ? "" : q.trim()) + "%";
+        String sql = "SELECT COUNT(*) FROM APRequest " +
+                "WHERE usuari_ident = ? " +
+                "AND (tipus_servei ILIKE ? OR estat ILIKE ? OR dies ILIKE ?)";
+        Integer total = jdbcTemplate.queryForObject(sql, Integer.class,
+                usuariIdent, like, like, like);
         return total == null ? 0 : total;
     }
 }

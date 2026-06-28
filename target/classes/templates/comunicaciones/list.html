@@ -17,7 +17,7 @@
     <div>
         <a href="/solicitudes/mis-solicitudes" class="btn btn-outline-light btn-sm me-2">Les meues sol·licituds</a>
         <a href="/solicitudes/mi-perfil" class="btn btn-outline-light btn-sm me-2">El meu perfil</a>
-        <a href="/logout" class="btn btn-outline-light btn-sm">Sortir</a>
+        <a href="/logout-confirm" class="btn btn-outline-light btn-sm">Sortir</a>
     </div>
 </nav>
 
@@ -50,11 +50,13 @@
                        th:text="${#temporals.format(com.fechaComunicacion, 'dd/MM/yyyy HH:mm')}"></small>
             </div>
             <p class="mb-1 mt-1" th:text="${com.resumen}"></p>
-            <!-- Eliminar: només visible per al tècnic -->
+            <!-- Eliminar: només visible per al tècnic. Sense JS: formulari POST -->
             <div th:if="${esTecnico}" class="text-end">
-                <a th:href="@{/comunicaciones/delete/{id}/solicitud/{sid}(id=${com.idComunicacion},sid=${solicitud.idRequest})}"
-                   class="btn btn-outline-danger btn-sm py-0 px-2"
-                   onclick="return confirm('Eliminar aquest missatge?')">✕</a>
+                <form th:action="@{/comunicaciones/delete/{id}/solicitud/{sid}(id=${com.idComunicacion},sid=${solicitud.idRequest})}"
+                      method="post" style="display:inline;">
+                    <button type="submit" class="btn btn-outline-danger btn-sm py-0 px-2"
+                            aria-label="Eliminar missatge">✕</button>
+                </form>
             </div>
         </div>
     </div>
@@ -68,7 +70,7 @@
             <form th:action="@{/comunicaciones/solicitud/{id}(id=${solicitud.idRequest})}"
                   method="post">
                 <div class="mb-3">
-                    <label for="text" class="visually-hidden">Missatge</label>
+                    <label for="text" class="form-label">Missatge</label>
                     <textarea id="text" name="text" class="form-control" rows="3"
                               maxlength="500" required
                               placeholder="Escriu el teu missatge aquí..."></textarea>

@@ -48,6 +48,35 @@ public class AsistentePersonalController {
         return "redirect:/login?registroOK";
     }
 
+    @PostMapping("/actualizar")
+    public String actualizarAsistente(@ModelAttribute("asistente") AsistentePersonal asistente,
+                                      BindingResult bindingResult,
+                                      HttpSession session, Model model) {
+        String redir = comprobarRolTecnico(session);
+        if (redir != null) return redir;
+
+        AsistentePersonalValidator validator = new AsistentePersonalValidator();
+        validator.validate(asistente, bindingResult);
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("asistente", asistente);
+            return "asistente/registro";
+        }
+
+        if (asistente.getEstado() == null || asistente.getEstado().trim().isEmpty()) {
+            AsistentePersonal original = asistenteDao.getAsistente(asistente.getDni());
+            if (original != null) asistente.setEstado(original.getEstado());
+        }
+
+        try {
+            asistenteDao.updateAsistente(asistente);
+        } catch (Exception e) {
+            model.addAttribute("asistente", asistente);
+            model.addAttribute("errorDni", "No s'han pogut guardar els canvis. Comprova les dades i torna-ho a intentar.");
+            return "asistente/registro";
+        }
+        return "redirect:/tecnico/asistentes-pendientes";
+    }
+
 
     @RequestMapping("/list")
     public String listAsistentes(HttpSession session) {

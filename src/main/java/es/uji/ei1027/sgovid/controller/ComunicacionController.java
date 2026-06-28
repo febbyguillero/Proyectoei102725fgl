@@ -69,8 +69,7 @@ public class ComunicacionController {
         return "redirect:/comunicaciones/solicitud/" + idSolicitud;
     }
 
-
-    @GetMapping("/delete/{idComunicacion}/solicitud/{idSolicitud}")
+    @PostMapping("/delete/{idComunicacion}/solicitud/{idSolicitud}")
     public String deleteComunicacion(@PathVariable int idComunicacion,
                                      @PathVariable int idSolicitud,
                                      HttpSession session) {
