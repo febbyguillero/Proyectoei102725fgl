@@ -232,3 +232,18 @@ button:focus { outline: 3px solid #ffba3d; outline-offset: 2px; }
 
 /* --- Footer --- */
 footer { text-align: center; padding: 16px; color: #4a4d57; font-size: 0.9rem; }
+
+/* --- Correccions de contrast (WAVE accessibility) --- */
+/* Bootstrap text-muted té contrast insuficient (#6c757d sobre blanc = 4.48:1, mínim 4.5:1) */
+.text-muted { color: #595f6a !important; }
+.form-text  { color: #595f6a !important; }
+
+/* Placeholder: color per defecte del navegador sol tindre baix contrast */
+input::placeholder, textarea::placeholder { color: #767676 !important; opacity: 1; }
+
+/* Badge warning de Bootstrap (groc sobre blanc) */
+.badge.bg-warning.text-dark { background-color: #c97a00 !important; color: #ffffff !important; }
+
+/* Enllaços sobre fons clar */
+a { color: #0a4a8f; }
+a:hover { color: #082f5a; }

@@ -7,95 +7,85 @@
 </head>
 <body class="bg-light">
 
-
 <main class="container mt-4" style="max-width:700px">
 
     <h1 th:if="${session.rol == 'TECNICO'}">Editar candidat PAP/PATI</h1>
     <h1 th:unless="${session.rol == 'TECNICO'}">Sol·licitud per ser Assistent Personal (PAP/PATI)</h1>
-    <p class="text-muted" th:unless="${session.rol == 'TECNICO'}">Omple el formulari. Un tecnic OVI revisara la sol·licitud.</p>
+    <p class="text-muted" th:unless="${session.rol == 'TECNICO'}">Omple el formulari. Un tècnic OVI revisarà la sol·licitud.</p>
 
     <div th:if="${errorDni}" class="alert alert-danger" role="alert" th:text="${errorDni}"></div>
 
-    <!-- En mode tecnic el formulari ACTUALITZA (UPDATE); en mode public REGISTRA (INSERT) -->
     <form th:action="${session.rol == 'TECNICO'} ? @{/asistente/actualizar} : @{/asistente/registro}"
           th:object="${asistente}" method="post"
           aria-label="Formulari de candidatura PAP/PATI">
 
         <div class="mb-3 col-md-8">
             <label for="dni" class="form-label">DNI <span class="text-danger" aria-hidden="true">*</span></label>
-            <!-- En edicio el DNI es la clau primaria: no editable, s'envia com a hidden -->
             <input type="text" class="form-control" id="dni" th:field="*{dni}"
                    placeholder="12345678A" pattern="[0-9]{8}[A-Za-z]"
-                   title="DNI: 8 digits i una lletra"
-                   required aria-required="true"
-                   th:readonly="${session.rol == 'TECNICO'}"
-                   aria-describedby="dni-error">
-            <div id="dni-error" class="text-danger small" th:if="${#fields.hasErrors('dni')}" th:errors="*{dni}"></div>
+                   title="DNI: 8 dígits i una lletra"
+                   required
+                   th:readonly="${session.rol == 'TECNICO'}">
+            <div class="text-danger small" th:if="${#fields.hasErrors('dni')}" th:errors="*{dni}"></div>
         </div>
 
         <div class="mb-3 col-md-8">
             <label for="nombre" class="form-label">Nom <span class="text-danger" aria-hidden="true">*</span></label>
-            <input type="text" class="form-control" id="nombre" th:field="*{nombre}"
-                   required aria-required="true" aria-describedby="nombre-error">
-            <div id="nombre-error" class="text-danger small" th:if="${#fields.hasErrors('nombre')}" th:errors="*{nombre}"></div>
+            <input type="text" class="form-control" id="nombre" th:field="*{nombre}" required>
+            <div class="text-danger small" th:if="${#fields.hasErrors('nombre')}" th:errors="*{nombre}"></div>
         </div>
 
         <div class="mb-3 col-md-8">
             <label for="apellidos" class="form-label">Cognoms <span class="text-danger" aria-hidden="true">*</span></label>
-            <input type="text" class="form-control" id="apellidos" th:field="*{apellidos}"
-                   required aria-required="true" aria-describedby="apellidos-error">
-            <div id="apellidos-error" class="text-danger small" th:if="${#fields.hasErrors('apellidos')}" th:errors="*{apellidos}"></div>
+            <input type="text" class="form-control" id="apellidos" th:field="*{apellidos}" required>
+            <div class="text-danger small" th:if="${#fields.hasErrors('apellidos')}" th:errors="*{apellidos}"></div>
         </div>
 
         <div class="mb-3 col-md-8">
             <label for="email" class="form-label">Email <span class="text-danger" aria-hidden="true">*</span></label>
-            <input type="email" class="form-control" id="email" th:field="*{email}"
-                   required aria-required="true" aria-describedby="email-error">
-            <div id="email-error" class="text-danger small" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></div>
+            <input type="email" class="form-control" id="email" th:field="*{email}" required>
+            <div class="text-danger small" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></div>
         </div>
 
         <div class="mb-3 col-md-8">
-            <label for="telefono" class="form-label">Telefon</label>
+            <label for="telefono" class="form-label">Telèfon</label>
             <input type="text" class="form-control" id="telefono" th:field="*{telefono}"
-                   pattern="[0-9]{9}" title="9 digits" placeholder="612345678"
-                   aria-describedby="telefono-error">
-            <div id="telefono-error" class="text-danger small" th:if="${#fields.hasErrors('telefono')}" th:errors="*{telefono}"></div>
+                   pattern="[0-9]{9}" title="9 dígits" placeholder="612345678">
+            <div class="text-danger small" th:if="${#fields.hasErrors('telefono')}" th:errors="*{telefono}"></div>
         </div>
 
         <div class="mb-3 col-md-4">
             <label for="edad" class="form-label">Edat <span class="text-danger" aria-hidden="true">*</span></label>
-            <input type="number" class="form-control" id="edad" th:field="*{edad}" min="18"
-                   required aria-required="true" aria-describedby="edad-error">
-            <div id="edad-error" class="text-danger small" th:if="${#fields.hasErrors('edad')}" th:errors="*{edad}"></div>
+            <input type="number" class="form-control" id="edad" th:field="*{edad}" min="18" required>
+            <div class="text-danger small" th:if="${#fields.hasErrors('edad')}" th:errors="*{edad}"></div>
         </div>
 
         <div class="mb-3 col-md-8">
-            <label for="zonaGeografica" class="form-label">Zona geografica <span class="text-danger" aria-hidden="true">*</span></label>
+            <label for="zonaGeografica" class="form-label">Zona geogràfica <span class="text-danger" aria-hidden="true">*</span></label>
             <input type="text" class="form-control" id="zonaGeografica" th:field="*{zonaGeografica}"
-                   placeholder="Ex: Castello Centre, Castello Sud, Grau de Castello..."
-                   required aria-required="true" aria-describedby="zona-help">
-            <div id="zona-help" class="form-text">Indica la zona on pots treballar. S'usa per a l'assignacio de sol·licituds.</div>
+                   placeholder="Ex: Castelló Centre, Castelló Sud, Grau de Castelló..."
+                   required aria-describedby="zona-help">
+            <div id="zona-help" class="form-text">Indica la zona on pots treballar. S'usa per a l'assignació de sol·licituds.</div>
         </div>
 
         <div class="mb-3 col-md-8">
-            <label for="disponibilidad" class="form-label">Disponibilitat horaria</label>
+            <label for="disponibilidad" class="form-label">Disponibilitat horària</label>
             <input type="text" class="form-control" id="disponibilidad" th:field="*{disponibilidad}"
                    placeholder="Ex: Matins i vesprades, Jornada completa...">
         </div>
 
         <div class="mb-3 col-md-8">
-            <label for="titulacion" class="form-label">Titulacio / Formacio</label>
+            <label for="titulacion" class="form-label">Titulació / Formació</label>
             <textarea class="form-control" id="titulacion" th:field="*{titulacion}" rows="2"
-                      placeholder="Grau en Infermeria, Psicologia, Educacio Social..."></textarea>
+                      placeholder="Grau en Infermeria, Psicologia, Educació Social..."></textarea>
         </div>
 
         <div class="mb-3 col-md-8">
-            <label for="experiencia" class="form-label">Experiencia</label>
+            <label for="experiencia" class="form-label">Experiència</label>
             <textarea class="form-control" id="experiencia" th:field="*{experiencia}" rows="2"
-                      placeholder="Anys d'experiencia, tipus de feines anteriors..."></textarea>
+                      placeholder="Anys d'experiència, tipus de feines anteriors..."></textarea>
         </div>
 
-        <!-- Camp estat: visible i editable nomes pel tecnic -->
         <div class="mb-3 col-md-6" th:if="${session.rol == 'TECNICO'}">
             <label for="estado" class="form-label">Estat</label>
             <select class="form-select" id="estado" th:field="*{estado}">
