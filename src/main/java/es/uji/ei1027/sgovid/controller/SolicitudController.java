@@ -220,7 +220,7 @@ public class SolicitudController {
 
         usuarioDao.updateUsuario(original);
         session.setAttribute("nombreUsuario", original.getNom() + " " + original.getCognoms());
-        return "redirect:/solicitudes/mi-perfil";
+        return "redirect:/solicitudes/mi-perfil?ok";
     }
 
     // ---- ELS MEUS CONTRACTES ----
